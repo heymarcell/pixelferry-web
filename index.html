@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PixelFerry — Fast batch image conversion for macOS</title>
+    <meta
+      name="description"
+      content="PixelFerry — a fast, native-feeling macOS batch image converter. Coming soon."
+    />
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        display: grid;
+        place-items: center;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
+        background: #0f0f12;
+        color: #f5f6fa;
+        text-align: center;
+        padding: 24px;
+      }
+      .mark {
+        width: 72px; height: 72px; border-radius: 16px;
+        background: #315cf4;
+        display: grid; place-items: center;
+        margin: 0 auto 24px;
+        box-shadow: 0 8px 30px #315cf455;
+      }
+      .mark svg { width: 34px; height: auto; }
+      h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; }
+      p { margin: 0; color: #a1a1aa; max-width: 34ch; line-height: 1.5; }
+      .soon {
+        margin-top: 20px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em;
+        text-transform: uppercase; color: #315cf4;
+      }
+      @media (prefers-color-scheme: light) {
+        body { background: #f5f6fa; color: #1d1d1f; }
+        p { color: #6b7280; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">
+        <svg viewBox="0 0 68 73" fill="none">
+          <path
+            fill-rule="evenodd" clip-rule="evenodd"
+            d="M0 0h34c4 0 7 2 10 5l19 17c3 2 3 6 0 9l-19 17c-3 3-6 5-10 5h-16v20h-18z m18 18h19.5c4 0 7 3 7 7v3c0 4-3 7-7 7h-19.5z"
+            fill="#fff"
+          />
+        </svg>
+      </div>
+      <h1>PixelFerry</h1>
+      <p>Fast batch image conversion for macOS — entirely on your computer.</p>
+      <div class="soon">Coming soon</div>
+    </main>
+  </body>
+</html>
