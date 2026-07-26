@@ -41,7 +41,7 @@ export function Hero() {
           variants={riseItem}
           className="max-w-[690px] text-[clamp(1rem,1.32vw,1.1875rem)] leading-[1.55] text-pretty text-white/72"
         >
-          Turn mixed HEIC, RAW, PSD, TIFF, and WebP files into one consistent delivery. Join the beta
+          Turn mixed HEIC, RAW, PSD, TIFF, and WebP files into one consistent delivery. Join the
           waitlist.
         </m.p>
 
@@ -49,14 +49,12 @@ export function Hero() {
           <WaitlistForm />
         </m.div>
 
-        {/* The consent checkbox above already carries the Privacy Policy link,
-            so this line keeps the reassurance without duplicating it. */}
-        <m.p variants={riseItem} className="text-[13px] font-medium text-white/45">
-          Launch updates only. Unsubscribe anytime.
-        </m.p>
-
-        <m.p variants={riseItem} className="text-[14px] font-semibold text-white/60">
-          macOS 13+ · Apple silicon and Intel · Local conversion · Originals untouched
+        {/* Pencil lmfyE: Inter 13/500 #FFFFFF80. The design's separate "Signup
+            Reassurance" block (pIqkC) is disabled in the frame — the consent
+            checkbox already carries that wording — so nothing sits between the
+            form and this line. */}
+        <m.p variants={riseItem} className="text-[13px] font-medium text-white/50">
+          macOS 13+ · Apple silicon + Intel · Local processing · Originals untouched
         </m.p>
       </m.div>
     </section>

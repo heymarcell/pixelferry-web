@@ -1,9 +1,10 @@
 import { BrandMark } from './BrandMark'
 import { TRACKING_CONFIGURED, openCookieSettings } from '../lib/consent'
 
+/** Pencil W5IG2v — the design's footer link labels. */
 const links = [
-  { label: 'Privacy', href: '/privacy' },
-  { label: 'Cookies', href: '/cookies' },
+  { label: 'Privacy policy', href: '/privacy' },
+  { label: 'Cookie policy', href: '/cookies' },
   { label: 'Contact', href: 'mailto:hello@pixelferry.app' },
 ]
 

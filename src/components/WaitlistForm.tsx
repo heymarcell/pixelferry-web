@@ -16,10 +16,10 @@ const EMAIL_FIELD = import.meta.env.VITE_WAITLIST_EMAIL_FIELD ?? 'EMAIL'
  * Versioned so the consent record can name exactly what the visitor agreed to,
  * as the Privacy Policy §2 requires. Bump BOTH when the wording changes.
  */
-const CONSENT_TEXT_VERSION = '2026-07-25.1'
+const CONSENT_TEXT_VERSION = '2026-07-26.1'
 const PRIVACY_POLICY_VERSION = '2026-07-25'
-const CONSENT_TEXT =
-  'I agree to receive PixelFerry waitlist, launch, early-access, and product-update emails. I can unsubscribe at any time.'
+/** Pencil CvV1H — the design's exact consent wording. */
+const CONSENT_TEXT = 'I agree to PixelFerry product and early-access emails. Unsubscribe anytime.'
 
 const messages: Partial<Record<Status, string>> = {
   success: 'Almost there — check your inbox and confirm your address to join the waitlist.',
@@ -140,7 +140,7 @@ export function WaitlistForm() {
             ) : done ? (
               <Check size={17} strokeWidth={2.5} aria-hidden="true" />
             ) : null}
-            {done ? "You're in" : 'Join beta waitlist'}
+            {done ? "You're in" : 'Join Waitlist'}
             {!busy && !done && (
               <ArrowRight
                 size={17}
@@ -167,13 +167,14 @@ export function WaitlistForm() {
             onChange={(e) => setConsented(e.target.checked)}
             className="mt-0.5 size-[18px] shrink-0 rounded-sm accent-blue"
           />
-          <label htmlFor={consentId} className="text-[13px] leading-[1.45] text-white/72">
+          {/* Pencil CvV1H / m3K6Q: Inter 14, #FFFFFFB8, link 14/600 #C8D8FF. */}
+          <label htmlFor={consentId} className="text-[14px] leading-[1.4] text-white/72">
             {CONSENT_TEXT}{' '}
             <a
               href="/privacy"
               className="rounded font-semibold text-[#C8D8FF] underline-offset-4 hover:underline"
             >
-              Privacy Policy
+              Privacy policy
             </a>
           </label>
         </div>
