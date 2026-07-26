@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090B12" />
+
+    <title>Cookie Policy — PixelFerry</title>
+    <meta
+      name="description"
+      content="Which cookies and similar technologies the PixelFerry website uses, how consent is handled, and how to change your choices."
+    />
+    <link rel="canonical" href="https://pixelferry.app/cookies" />
+    <meta name="robots" content="index, follow" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!--
+      Google Consent Mode v2 defaults. Must run before any Google tag could,
+      so it is inlined here rather than imported. Everything non-essential
+      starts denied and is only ever raised by an explicit opt-in.
+    -->
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
+      }
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500,
+      })
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/cookies.tsx"></script>
+  </body>
+</html>
