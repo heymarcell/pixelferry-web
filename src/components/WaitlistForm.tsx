@@ -3,14 +3,18 @@ import { ArrowRight, Check, LoaderCircle, Mail } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 
 import { easeOutSoft } from './motion'
+import { Turnstile } from './Turnstile'
 
-type Status = 'idle' | 'submitting' | 'success' | 'mailto' | 'error'
+type Status = 'idle' | 'submitting' | 'success' | 'mailto' | 'error' | 'confirmed'
 
 const ENDPOINT = import.meta.env.VITE_WAITLIST_ENDPOINT
 const MAILTO = import.meta.env.VITE_WAITLIST_MAILTO ?? 'beta@pixelferry.app'
 /** 'form' posts urlencoded to a provider form endpoint (Brevo, MailerLite …). */
 const FORMAT = import.meta.env.VITE_WAITLIST_FORMAT ?? 'json'
 const EMAIL_FIELD = import.meta.env.VITE_WAITLIST_EMAIL_FIELD ?? 'EMAIL'
+/** Cloudflare Turnstile sitekey; the endpoint pins the action to 'waitlist'. */
+const TURNSTILE_SITEKEY = import.meta.env.VITE_TURNSTILE_SITEKEY
+const TURNSTILE_ACTION = 'waitlist'
 
 /*
  * Versioned so the consent record can name exactly what the visitor agreed to,
@@ -21,7 +25,11 @@ const PRIVACY_POLICY_VERSION = '2026-07-25'
 /** Pencil CvV1H — the design's exact consent wording. */
 const CONSENT_TEXT = 'I agree to PixelFerry product and early-access emails. Unsubscribe anytime.'
 
+/** Brevo returns the visitor here after they click the confirmation link. */
+const CONFIRMED = typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('confirmed')
+
 const messages: Partial<Record<Status, string>> = {
+  confirmed: "You're on the list — we'll email you when your invite is ready.",
   success: 'Almost there — check your inbox and confirm your address to join the waitlist.',
   mailto: 'Opening your email app to finish the request.',
   error: "That didn't go through. Please try again in a moment.",
@@ -33,11 +41,12 @@ export function WaitlistForm() {
   const statusId = useId()
   const [email, setEmail] = useState('')
   const [consented, setConsented] = useState(false)
-  const [status, setStatus] = useState<Status>('idle')
+  const [status, setStatus] = useState<Status>(CONFIRMED ? 'confirmed' : 'idle')
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
 
   const busy = status === 'submitting'
-  const done = status === 'success'
+  const done = status === 'success' || status === 'confirmed'
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -54,6 +63,13 @@ export function WaitlistForm() {
       window.location.href = `mailto:${MAILTO}?subject=${encodeURIComponent(
         'PixelFerry beta waitlist',
       )}&body=${encodeURIComponent(`Please add ${email} to the PixelFerry beta waitlist.`)}`
+      return
+    }
+
+    // A configured widget that has not produced a token means the challenge has
+    // not passed (or expired) — submitting would just be rejected server-side.
+    if (TURNSTILE_SITEKEY && !turnstileToken) {
+      setStatus('error')
       return
     }
 
@@ -80,6 +96,7 @@ export function WaitlistForm() {
         body: JSON.stringify({
           email,
           source: 'landing',
+          turnstileToken,
           consent: {
             given: true,
             text: CONSENT_TEXT,
@@ -179,6 +196,14 @@ export function WaitlistForm() {
           </label>
         </div>
       </form>
+
+      {TURNSTILE_SITEKEY && (
+        <Turnstile
+          sitekey={TURNSTILE_SITEKEY}
+          action={TURNSTILE_ACTION}
+          onToken={setTurnstileToken}
+        />
+      )}
 
       <div id={statusId} aria-live="polite" className="min-h-0">
         <AnimatePresence mode="wait">
