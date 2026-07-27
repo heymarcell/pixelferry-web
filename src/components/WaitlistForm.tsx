@@ -3,18 +3,31 @@ import { ArrowRight, Check, LoaderCircle, Mail } from 'lucide-react'
 import { AnimatePresence, m } from 'motion/react'
 
 import { easeOutSoft } from './motion'
-import { Turnstile } from './Turnstile'
+import { Turnstile, type TurnstileHandle } from './Turnstile'
 
-type Status = 'idle' | 'submitting' | 'success' | 'mailto' | 'error' | 'confirmed'
+/** Failures are separate states so each can explain what actually went wrong. */
+type FailureStatus = 'error' | 'verifyFailed' | 'rateLimited'
+type Status =
+  | 'idle'
+  | 'verifying'
+  | 'submitting'
+  | 'success'
+  | 'mailto'
+  | 'confirmed'
+  | FailureStatus
 
 const ENDPOINT = import.meta.env.VITE_WAITLIST_ENDPOINT
 const MAILTO = import.meta.env.VITE_WAITLIST_MAILTO ?? 'beta@pixelferry.app'
 /** 'form' posts urlencoded to a provider form endpoint (Brevo, MailerLite …). */
 const FORMAT = import.meta.env.VITE_WAITLIST_FORMAT ?? 'json'
 const EMAIL_FIELD = import.meta.env.VITE_WAITLIST_EMAIL_FIELD ?? 'EMAIL'
-/** Cloudflare Turnstile sitekey; the endpoint pins the action to 'waitlist'. */
+/**
+ * Cloudflare Turnstile sitekey. The Worker pins this exact action via
+ * TURNSTILE_EXPECTED_ACTION_WAITLIST, so the two must be changed together —
+ * a mismatch fails every signup with 403 captcha_failed.
+ */
 const TURNSTILE_SITEKEY = import.meta.env.VITE_TURNSTILE_SITEKEY
-const TURNSTILE_ACTION = 'waitlist'
+const TURNSTILE_ACTION = 'waitlist_signup'
 
 /*
  * Versioned so the consent record can name exactly what the visitor agreed to,
@@ -32,7 +45,11 @@ const messages: Partial<Record<Status, string>> = {
   confirmed: "You're on the list — we'll email you when your invite is ready.",
   success: 'Almost there — check your inbox and confirm your address to join the waitlist.',
   mailto: 'Opening your email app to finish the request.',
+  // Each error names what actually went wrong, so the visitor knows whether
+  // retrying is worth it — a generic failure reads as "this site is broken".
   error: "That didn't go through. Please try again in a moment.",
+  verifyFailed: 'We could not verify you are human. Please try again.',
+  rateLimited: 'Too many attempts from this network. Please try again shortly.',
 }
 
 export function WaitlistForm() {
@@ -42,11 +59,20 @@ export function WaitlistForm() {
   const [email, setEmail] = useState('')
   const [consented, setConsented] = useState(false)
   const [status, setStatus] = useState<Status>(CONFIRMED ? 'confirmed' : 'idle')
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null)
   const formRef = useRef<HTMLFormElement>(null)
+  const turnstileRef = useRef<TurnstileHandle>(null)
 
-  const busy = status === 'submitting'
+  const busy = status === 'verifying' || status === 'submitting'
   const done = status === 'success' || status === 'confirmed'
+
+  /**
+   * Restore the CTA and hand the widget a clean slate: a Turnstile token is
+   * single-use, so a retry after any failure must run its own challenge.
+   */
+  function fail(reason: FailureStatus) {
+    turnstileRef.current?.reset()
+    setStatus(reason)
+  }
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -66,11 +92,14 @@ export function WaitlistForm() {
       return
     }
 
-    // A configured widget that has not produced a token means the challenge has
-    // not passed (or expired) — submitting would just be rejected server-side.
-    if (TURNSTILE_SITEKEY && !turnstileToken) {
-      setStatus('error')
-      return
+    // Minted here rather than on page load, so the token cannot age past its
+    // ~300s lifetime while the visitor reads the page. Turnstile paints its
+    // widget inline at this point only if it wants an interaction.
+    let turnstileToken: string | null = null
+    if (TURNSTILE_SITEKEY) {
+      setStatus('verifying')
+      turnstileToken = (await turnstileRef.current?.execute()) ?? null
+      if (!turnstileToken) return fail('verifyFailed')
     }
 
     setStatus('submitting')
@@ -106,9 +135,17 @@ export function WaitlistForm() {
           },
         }),
       })
-      setStatus(response.ok ? 'success' : 'error')
+      if (response.ok) {
+        setStatus('success')
+        return
+      }
+      // The Worker distinguishes these; mirroring them means the visitor is
+      // told to wait rather than to retry into the same rate limit.
+      if (response.status === 429) return fail('rateLimited')
+      if (response.status === 403) return fail('verifyFailed')
+      fail('error')
     } catch {
-      setStatus('error')
+      fail('error')
     }
   }
 
@@ -141,7 +178,7 @@ export function WaitlistForm() {
               disabled={busy || done}
               onChange={(event) => {
                 setEmail(event.target.value)
-                if (status === 'error') setStatus('idle')
+                if (messages[status] && !done) setStatus('idle')
               }}
               className="w-full min-w-0 bg-transparent text-[16px] text-white outline-none placeholder:text-white/45 disabled:opacity-60"
             />
@@ -150,14 +187,15 @@ export function WaitlistForm() {
           <button
             type="submit"
             disabled={busy || done}
-            className="group inline-flex h-[50px] shrink-0 items-center justify-center gap-2.5 rounded-md bg-blue px-[22px] text-[15px] font-bold text-white shadow-[0_6px_18px_-4px_#0062FF55] transition-[background-color,transform,box-shadow] duration-200 ease-out hover:bg-[#1A73FF] hover:shadow-[0_10px_26px_-6px_#0062FF80] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-80"
+            /* Pencil dln7v: h50, r6, #0062FF, pad 0/22, gap 9, label Inter 15/700. */
+            className="group inline-flex h-[50px] shrink-0 items-center justify-center gap-[9px] rounded-md bg-blue px-[22px] text-[15px] font-bold text-white shadow-[0_6px_18px_-4px_#0062FF55] transition-[background-color,transform,box-shadow] duration-200 ease-out hover:bg-[#1A73FF] hover:shadow-[0_10px_26px_-6px_#0062FF80] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-80"
           >
             {busy ? (
               <LoaderCircle size={17} strokeWidth={2.5} className="animate-spin" aria-hidden="true" />
             ) : done ? (
               <Check size={17} strokeWidth={2.5} aria-hidden="true" />
             ) : null}
-            {done ? "You're in" : 'Join Waitlist'}
+            {done ? "You're in" : status === 'verifying' ? 'Verifying…' : 'Join Waitlist'}
             {!busy && !done && (
               <ArrowRight
                 size={17}
@@ -173,7 +211,13 @@ export function WaitlistForm() {
           Unticked by default and required: GDPR consent must be a positive act,
           so a pre-ticked box or an implied opt-in would not be valid consent.
         */}
-        <div className="flex w-full items-start gap-2.5 text-left">
+        {/* Pencil gLKr2: width 668 (16px inset each side of the 700 form), gap 10. */}
+        <div className="mx-auto flex w-full max-w-[668px] items-start gap-2.5 text-left">
+          {/*
+            Pencil fDHnu: 18px, r4, fill #FFFFFF0A, 1px #FFFFFF52. The native
+            control cannot take that fill/border, so it is drawn with appearance-none
+            and the tick supplied as a background image only when checked.
+          */}
           <input
             id={consentId}
             name="consent"
@@ -182,7 +226,7 @@ export function WaitlistForm() {
             checked={consented}
             disabled={busy || done}
             onChange={(e) => setConsented(e.target.checked)}
-            className="mt-0.5 size-[18px] shrink-0 rounded-sm accent-blue"
+            className="mt-0.5 size-[18px] shrink-0 appearance-none rounded-[4px] border border-[#FFFFFF52] bg-[#FFFFFF0A] bg-[length:12px_12px] bg-center bg-no-repeat transition-colors duration-150 checked:border-blue checked:bg-blue checked:bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%2220 6 9 17 4 12%22/></svg>')] disabled:opacity-60"
           />
           {/* Pencil CvV1H / m3K6Q: Inter 14, #FFFFFFB8, link 14/600 #C8D8FF. */}
           <label htmlFor={consentId} className="text-[14px] leading-[1.4] text-white/72">
@@ -198,11 +242,7 @@ export function WaitlistForm() {
       </form>
 
       {TURNSTILE_SITEKEY && (
-        <Turnstile
-          sitekey={TURNSTILE_SITEKEY}
-          action={TURNSTILE_ACTION}
-          onToken={setTurnstileToken}
-        />
+        <Turnstile sitekey={TURNSTILE_SITEKEY} action={TURNSTILE_ACTION} handleRef={turnstileRef} />
       )}
 
       <div id={statusId} aria-live="polite" className="min-h-0">
