@@ -2,8 +2,15 @@ import { useEffect, useImperativeHandle, useRef, type RefObject } from 'react'
 
 const SCRIPT_SRC = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit'
 const SCRIPT_ID = 'cf-turnstile-script'
-/** A challenge that has not answered by now is not going to. */
-const EXECUTE_TIMEOUT_MS = 20_000
+/**
+ * Backstop so a challenge that never answers cannot hang the CTA forever.
+ *
+ * Generous on purpose: under `interaction-only` a real person may have to
+ * notice a checkbox appear and click it, and 20s failed them for being slow.
+ * Only genuinely stuck challenges — an automated browser Turnstile silently
+ * refuses to solve, say — should ever reach this.
+ */
+const EXECUTE_TIMEOUT_MS = 90_000
 
 type TurnstileApi = {
   render: (
