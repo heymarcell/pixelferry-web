@@ -10,6 +10,8 @@ type TurnstileApi = {
       sitekey: string
       action?: string
       theme?: 'auto' | 'light' | 'dark'
+      /** 'flexible' fills the host width (min 300px) instead of a fixed 300px. */
+      size?: 'normal' | 'compact' | 'flexible'
       callback?: (token: string) => void
       'expired-callback'?: () => void
       'error-callback'?: () => void
@@ -82,6 +84,10 @@ export function Turnstile({
           sitekey,
           action,
           theme: 'dark',
+          // Fixed-width 'normal' rendered a 300px box under a 700px form, so the
+          // widget read as misaligned against the full-width input and consent
+          // row. 'flexible' makes it span the host instead.
+          size: 'flexible',
           callback: (token) => onTokenRef.current(token),
           // A stale or failed token must invalidate the form, never silently pass.
           'expired-callback': () => onTokenRef.current(null),
@@ -96,5 +102,5 @@ export function Turnstile({
     }
   }, [sitekey, action])
 
-  return <div ref={hostRef} className="flex justify-center" />
+  return <div ref={hostRef} className="w-full" />
 }
