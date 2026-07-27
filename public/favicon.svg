@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="8" fill="#315CF4" />
+  <svg x="8.5" y="7.5" width="15" height="17" viewBox="0 0 68 73" preserveAspectRatio="none">
+    <path
+      fill-rule="evenodd"
+      clip-rule="evenodd"
+      d="M0 0h34c4 0 7 2 10 5l19 17c3 2 3 6 0 9l-19 17c-3 3-6 5-10 5h-16v20h-18z m18 18h19.5c4 0 7 3 7 7v3c0 4-3 7-7 7h-19.5z"
+      fill="#fff"
+    />
+  </svg>
+</svg>

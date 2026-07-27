@@ -3,58 +3,99 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>PixelFerry — Fast batch image conversion for macOS</title>
+    <meta name="theme-color" content="#090B12" />
+    <meta name="color-scheme" content="dark" />
+
+    <title>PixelFerry — Mixed formats. One clean batch.</title>
     <meta
       name="description"
-      content="PixelFerry — a fast, native-feeling macOS batch image converter. Coming soon."
+      content="Turn mixed HEIC, RAW, PSD, TIFF, and WebP files into one consistent delivery. A native batch image converter for macOS — conversion stays on your Mac. Join the private beta waitlist."
     />
-    <style>
-      :root { color-scheme: light dark; }
-      * { box-sizing: border-box; }
-      html, body { height: 100%; margin: 0; }
-      body {
-        display: grid;
-        place-items: center;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, sans-serif;
-        background: #0f0f12;
-        color: #f5f6fa;
-        text-align: center;
-        padding: 24px;
+    <link rel="canonical" href="https://pixelferry.app/" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="PixelFerry" />
+    <meta property="og:title" content="PixelFerry — Mixed formats. One clean batch." />
+    <meta
+      property="og:description"
+      content="Turn mixed HEIC, RAW, PSD, TIFF, and WebP files into one consistent delivery. Native batch image conversion for macOS, entirely on-device."
+    />
+    <meta property="og:url" content="https://pixelferry.app/" />
+    <meta property="og:image" content="https://pixelferry.app/og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="PixelFerry converting a queue of mixed image files on macOS."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <!--
+      Google Consent Mode v2 defaults. Must run before any Google tag could,
+      so it is inlined here rather than imported. Everything non-essential
+      starts denied and is only ever raised by an explicit opt-in.
+    -->
+    <script>
+      window.dataLayer = window.dataLayer || []
+      function gtag() {
+        dataLayer.push(arguments)
       }
-      .mark {
-        width: 72px; height: 72px; border-radius: 16px;
-        background: #315cf4;
-        display: grid; place-items: center;
-        margin: 0 auto 24px;
-        box-shadow: 0 8px 30px #315cf455;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500,
+      })
+    </script>
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "PixelFerry",
+        "applicationCategory": "MultimediaApplication",
+        "operatingSystem": "macOS 13.0 or later",
+        "description": "Native batch image converter for macOS. Convert mixed HEIC, RAW, PSD, TIFF, and WebP files into one consistent delivery folder, entirely on-device.",
+        "url": "https://pixelferry.app/",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "EUR",
+          "availability": "https://schema.org/PreOrder"
+        }
       }
-      .mark svg { width: 34px; height: auto; }
-      h1 { font-size: 2rem; font-weight: 700; letter-spacing: -0.02em; margin: 0 0 8px; }
-      p { margin: 0; color: #a1a1aa; max-width: 34ch; line-height: 1.5; }
-      .soon {
-        margin-top: 20px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em;
-        text-transform: uppercase; color: #315cf4;
-      }
-      @media (prefers-color-scheme: light) {
-        body { background: #f5f6fa; color: #1d1d1f; }
-        p { color: #6b7280; }
-      }
-    </style>
+    </script>
   </head>
   <body>
-    <main>
-      <div class="mark" aria-hidden="true">
-        <svg viewBox="0 0 68 73" fill="none">
-          <path
-            fill-rule="evenodd" clip-rule="evenodd"
-            d="M0 0h34c4 0 7 2 10 5l19 17c3 2 3 6 0 9l-19 17c-3 3-6 5-10 5h-16v20h-18z m18 18h19.5c4 0 7 3 7 7v3c0 4-3 7-7 7h-19.5z"
-            fill="#fff"
-          />
-        </svg>
+    <div id="root"></div>
+    <noscript>
+      <div
+        style="
+          max-width: 34rem;
+          margin: 12vh auto;
+          padding: 0 1.5rem;
+          font: 400 1rem/1.6 system-ui, sans-serif;
+          color: #fff;
+          text-align: center;
+        "
+      >
+        <h1 style="font-size: 2rem; letter-spacing: -0.03em">Mixed formats. One clean batch.</h1>
+        <p style="color: #ffffffb8">
+          PixelFerry is a native batch image converter for macOS — convert mixed HEIC, RAW, PSD,
+          TIFF, and WebP files into one consistent delivery, entirely on your Mac.
+        </p>
+        <p style="color: #ffffffb8">
+          This page needs JavaScript to load. To join the private beta waitlist, email
+          <a href="mailto:beta@pixelferry.app" style="color: #7fa4ff">beta@pixelferry.app</a>.
+        </p>
       </div>
-      <h1>PixelFerry</h1>
-      <p>Fast batch image conversion for macOS — entirely on your computer.</p>
-      <div class="soon">Coming soon</div>
-    </main>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

@@ -1,0 +1,149 @@
+@import 'tailwindcss';
+
+/* Self-hosted variable fonts — no third-party request on the critical path. */
+@import '@fontsource-variable/funnel-sans';
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/geist-mono';
+
+/*
+ * Tokens are the resolved values read out of the Pencil design
+ * ("Landing — Coming Soon 2026", node FKjy8). The `ap-*` scale is the
+ * product design system's *light* theme, which is what the embedded app
+ * preview renders in.
+ */
+@theme {
+  --font-display: 'Funnel Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Page surface */
+  --color-void: #090b12;
+  --color-void-veil: #090b12cc;
+  --color-strip: #0c0f18;
+  --color-glow: #173b8f;
+
+  /* Accents */
+  --color-blue: #0062ff;
+  --color-blue-soft: #7fa4ff;
+  --color-indigo: #4f46e5;
+  --color-emerald: #10b981;
+  --color-brand: #315cf4;
+
+  /* App preview — light theme of the product design system */
+  --color-ap-window: #f5f6fa;
+  --color-ap-queue: #eef0f4;
+  --color-ap-ink: #15171cdd;
+  --color-ap-label: #15171caa;
+  --color-ap-dim: #15171c99;
+  --color-ap-chrome: #55565e;
+  --color-ap-mark: #606169;
+  --color-ap-hairline: #00000014;
+  --color-ap-divider: #00000012;
+  --color-ap-border: #00000022;
+  --color-ap-border-bright: #0000002e;
+  --color-ap-control: #00000024;
+  --color-ap-glass: #00000008;
+  --color-ap-glass-subtle: #00000006;
+  --color-ap-success: #167a35;
+  --color-ap-success-text: #146b30;
+  --color-ap-success-fill: #30d15815;
+  --color-ap-success-stroke: #30d15830;
+  --color-ap-accent: #005fcc;
+  --color-ap-accent-text: #0055b8;
+  --color-ap-accent-fill: #005fcc12;
+  --color-ap-accent-stroke: #005fcc28;
+  --color-ap-accent-strong: #005fcc30;
+  --color-ap-error: #b42318;
+  --color-ap-error-fill: #b4231808;
+  --color-ap-error-stroke: #b4231824;
+
+  /* The design's easing — a soft decelerate used for every reveal. */
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Keep anchored sections clear of the sticky 74px nav. */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-blue) 40%, transparent);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blue-soft);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* The app preview is a light island inside a dark page. */
+  .app-preview ::selection {
+    background-color: color-mix(in oklab, var(--color-ap-accent) 25%, transparent);
+    color: #15171c;
+  }
+}
+
+@layer utilities {
+  /*
+   * Optical alignment for the display face: Funnel Sans is set very tight in
+   * the design (-2.8px at 86px), which is a ratio, not a fixed offset.
+   */
+  .tracking-display {
+    letter-spacing: -0.0326em;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--streak-rotate));
+  }
+  50% {
+    transform: translate3d(var(--streak-shift), calc(var(--streak-shift) * -0.35), 0)
+      rotate(calc(var(--streak-rotate) + var(--streak-sway)));
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* An indeterminate sweep for the "Converting" row's progress bar. */
+@keyframes sweep {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(320%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
