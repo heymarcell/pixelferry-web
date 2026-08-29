@@ -136,7 +136,71 @@ const FORBIDDEN = [
   },
   { pattern: /\bseamless(?:ly)?\b/i, why: 'banned filler word' },
   { pattern: /\bworld[’']?s (?:best|fastest|leading)\b/i, why: 'unverifiable superlative' },
+
+  /*
+   * ── Claims that were published and were false ─────────────────────────────
+   *
+   * Each of these shipped in the first draft of the content and was corrected
+   * against a primary source. They are pinned here because they are exactly
+   * the kind of confident, plausible sentence that gets written again by
+   * someone who has not read docs/content-sources.md.
+   *
+   * This audit cannot decide whether a NEW claim is true — nothing automated
+   * can. It can refuse to let a known-false one come back.
+   */
+  {
+    pattern:
+      /\b(?:only|sole) (?:common |widely[- ]used )?format\b[^.]{0,60}\b(?:alpha|transparen)/i,
+    why: 'false exclusivity — AVIF also supports lossy compression with alpha (MDN)',
+  },
+  {
+    pattern: /\b(?:nothing else can|no other format can)\b/i,
+    why: 'exclusivity claim — check it against MDN before writing it',
+  },
+  {
+    pattern: /\bstrictly better\b|\bno downside\b|\b(?:genuinely |essentially )?free win\b/i,
+    why: 'absolute superiority claim — Google documents cases where WebP is larger',
+  },
+  {
+    pattern:
+      /Adjust Size[^.]{0,40}\bone (?:image )?at a time\b|works on the \*\*frontmost image\*\*/i,
+    why: 'false — Apple documents resizing a multi-selection with Tools → Adjust Size',
+  },
+  {
+    pattern: /\balmost nothing outside Apple(?:’|')?s ecosystem\b/i,
+    why: 'outdated — current Windows and many editors read HEIC',
+  },
+  {
+    pattern:
+      /\b(?:roughly |approximately )?equivalent to (?:JPEG|WebP|AVIF) \d{2}\b|\bJPEG at _?q \+ \d/i,
+    why: 'quality scales are encoder-specific; there is no equivalence between them',
+  },
+  {
+    pattern: /\bis invisible\b|\bvisually indistinguishable\b/i,
+    why: 'absolute perceptual claim — say "hard to see at normal viewing size"',
+  },
 ]
+
+/**
+ * A size percentage has to name where it came from.
+ *
+ * Checked over a window either side of the number rather than with a lookahead,
+ * because the attribution reads naturally in both directions — "Google measures
+ * WebP 25–34% smaller" and "25–34% smaller, in Google's study" are both fine.
+ */
+const ATTRIBUTION = /Google|study|studies|average|measured|corpus|benchmark|SSIM/i
+
+for (const page of pages) {
+  const text = bodyText(page)
+  for (const match of text.matchAll(/\b\d{1,2}\s?[–-]\s?\d{1,2}%\s+smaller\b/gi)) {
+    const at = match.index ?? 0
+    const window = text.slice(Math.max(0, at - 140), at + match[0].length + 140)
+    report.check(
+      ATTRIBUTION.test(window),
+      `${page.rel}: "${match[0]}" has no source nearby — cite the study or drop the number`,
+    )
+  }
+}
 
 for (const page of pages) {
   const text = bodyText(page)

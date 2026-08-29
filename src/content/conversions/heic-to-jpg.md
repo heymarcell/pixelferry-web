@@ -10,21 +10,23 @@ to: JPG
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  HEIC stores an iPhone photo in roughly half the space of the equivalent JPEG,
-  and almost nothing outside Apple's ecosystem reads it. Converting to JPG
-  trades that efficiency for near-universal compatibility.
+  HEIC stores an iPhone photo far more efficiently than JPEG, and support for it
+  is good on current Apple and Windows systems but patchy everywhere else.
+  Converting to JPG trades that efficiency for near-universal compatibility.
 whatChanges:
   - label: The codec underneath
     detail:
       HEIC wraps HEVC-compressed image data in an HEIF container. JPG uses the
-      much older DCT-based JPEG codec, which is why the same picture at visually
-      comparable quality lands roughly twice the size.
+      much older DCT-based JPEG codec, so at visually comparable quality the
+      JPEG is typically substantially larger. How much larger depends on the
+      image and on the quality you choose.
   - label: Bit depth
     detail:
-      iPhone HEIC files are frequently 10-bit per channel. JPEG is 8-bit only,
-      so the conversion quantises the tonal range. You will not notice it on a
-      normal photo; you may notice it in a wide, smooth gradient like a clear
-      sky.
+      HEIC can store more than 8 bits per channel, and iPhone HEIC often does —
+      notably for HDR captures. Baseline JPEG is 8-bit, so where the source
+      carried more precision the conversion quantises it. You are unlikely to
+      notice on a normal photo; a wide, smooth gradient like a clear sky is
+      where it shows.
   - label: Live Photos and depth data
     detail:
       A Live Photo is a HEIC still plus a separate video file, and portrait
@@ -44,8 +46,8 @@ limitations:
     lower quality compounds artefacts; convert from the HEIC original each time
     instead.
 useCases:
-  - Sending a set of iPhone photos to someone on Windows, or to a client whose
-    review tool silently rejects HEIC uploads.
+  - Sending a set of iPhone photos to a client whose review tool or upload form
+    silently rejects HEIC.
   - Preparing images for an older CMS, print portal, or job application form
     that only accepts JPEG.
   - Archiving a shared album into a format you can still open in fifteen years
@@ -71,13 +73,15 @@ related:
 
 Since iOS 11, an iPhone set to **High Efficiency** saves stills as `.heic`. The
 picture inside is compressed with HEVC — the same codec family as H.265 video —
-which is dramatically better at its job than the JPEG codec from 1992. A typical
-12-megapixel shot lands around 1.5 MB instead of 3 MB.
+which is considerably better at its job than the JPEG codec from 1992, which is
+the whole reason Apple switched.
 
-The catch is reach. macOS, iOS and modern Windows read HEIC; a great deal of
-other software does not, and the failure is rarely graceful. Upload forms reject
-the file type, older editors show nothing, and some tools accept the upload and
-then produce a broken thumbnail.
+The catch is reach, and it is narrower than it used to be. macOS, iOS and
+current Windows all read HEIC, and many mainstream editors now do too. What
+still trips people up is everything else: upload forms with a fixed allow-list,
+older software, some content management systems, print portals — and web pages,
+since no browser displays HEIC natively. The failure is rarely graceful; a form
+rejects the type, or accepts it and produces a broken thumbnail.
 
 Converting to JPG is how you stop thinking about it.
 
@@ -87,9 +91,9 @@ The conversion is lossy in two separate ways, and it is worth knowing which is
 which.
 
 The first is **re-encoding**. The HEIC is decoded to pixels and those pixels are
-re-compressed as JPEG. At quality 85 or above this is invisible on ordinary
-photographic content. Below about 70 you will start to see it in flat areas and
-around hard edges.
+re-compressed as JPEG. At quality 85 or above this is usually hard to see on
+ordinary photographic content at normal viewing size. Below about 70 it starts
+showing in flat areas and around hard edges.
 
 The second is **structural**. A JPEG has no alpha channel, no depth map, no
 auxiliary image, and no second frame. Anything the HEIC carried alongside the
@@ -98,9 +102,9 @@ main picture simply has nowhere to go.
 ## How PixelFerry handles it
 
 PixelFerry decodes HEIC through the macOS system codec rather than a bundled
-JavaScript decoder. That path runs out of process and is roughly seven times
-faster, which is the difference between a coffee break and a progress bar when
-you point it at a few hundred photos.
+JavaScript decoder. PixelFerry measures that path at roughly seven times the
+speed of its own pure-JS fallback — which is the difference between a coffee
+break and a progress bar when you point it at a few hundred photos.
 
 From there the batch runs four files at a time:
 

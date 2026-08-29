@@ -51,13 +51,14 @@ useCases:
 macOSAlternative:
   method: Preview
   detail:
-    Preview opens PSD files and can export them to PNG one at a time, reading
-    the same stored composite. For a single file it is perfectly adequate and
-    already installed.
+    Preview opens PSD files and exports them to PNG, reading the same stored
+    composite. It handles a multi-selection too, so for a handful of files it is
+    perfectly adequate and already installed.
   breaksDownWhen:
-    You have a folder of them. Preview's multi-file export is unreliable with
-    PSDs, and there is no way to cap the output dimensions of a 6000px artboard
-    in the same step.
+    The folder is large, or the artboards are. Preview holds every open document
+    in memory, and its export cannot cap the output dimensions of a 6000px
+    artboard in the same step — so resizing becomes a second pass over files you
+    have already written.
 related:
   - psd-to-jpg
   - heic-to-png

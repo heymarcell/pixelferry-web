@@ -44,8 +44,15 @@ for "everything must be 1200px wide".
 Tools → Adjust Size takes real numbers — pixels, percent, or a resolution — with
 a "Scale proportionally" checkbox and a resulting-size readout.
 
-The limitation is that it works on the **frontmost image**, one at a time.
-Opening fifty files and adjusting each is not a batch workflow.
+It also works on a **multi-selection**, which is not obvious and is worth
+knowing: Apple's documentation describes displaying the images in the same
+window, selecting them in that window's sidebar, and then choosing Tools →
+Adjust Size to resize them together.
+
+The limits are practical rather than absolute. Every image has to be open in one
+window, Preview holds them all in memory, and there is no way to convert format
+or set quality in the same step — so it handles a folder of twenty comfortably
+and a folder of eight hundred badly.
 
 ### sips
 

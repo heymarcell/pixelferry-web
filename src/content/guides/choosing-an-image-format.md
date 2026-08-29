@@ -15,8 +15,9 @@ takeaways:
     anywhere.
   - Anything with sharp edges or flat colour — screenshots, logos, diagrams —
     belongs in a lossless format, and WebP lossless beats PNG at that job.
-  - Transparency rules out JPEG entirely, and lossy WebP is the only way to have
-    both alpha and small files.
+  - Transparency rules out JPEG entirely; WebP and AVIF both keep an alpha
+    channel while compressing the colour lossily, which is what makes cut-outs
+    small.
   - Capture and archive formats (HEIC, RAW, TIFF) are not delivery formats, and
     converting between the two roles is where most mistakes happen.
 relatedConversions:
@@ -74,30 +75,37 @@ The lossless default. Every pixel exact, real alpha channel.
 
 The one that quietly replaced both of the above for web use.
 
-- **Two modes.** Lossy beats JPEG by roughly 25–35% at matched quality. Lossless
-  beats PNG by roughly 25% with identical pixels.
-- **Alpha in both modes** — the only common format that offers lossy compression
-  _and_ transparency.
+- **Two modes.** Google's studies measure lossy WebP 25–34% smaller than JPEG at
+  matched SSIM, and lossless WebP about 26% smaller than PNG with identical
+  pixels. Both are corpus averages; individual files vary, and Google documents
+  cases where WebP comes out larger.
+- **Transparency with lossy colour**, which PNG (always lossless) and JPEG (no
+  alpha) cannot offer. AVIF can do this too.
 - Supported in every current browser. Thinner support outside them.
 
 **Use it when:** it is going on a web page. This is the sensible default now.
 
 ### AVIF
 
-The most efficient, and the slowest to make.
+Usually the smallest, and reliably the slowest to make.
 
-- 40–50% smaller than JPEG, 15–20% smaller than WebP, at comparable quality.
+- Generally smaller than JPEG and WebP at comparable quality, most clearly on
+  large photographs. How much depends on the image and on both encoders'
+  settings, so measure rather than assume a percentage.
 - Markedly better on smooth gradients — skies band far less.
-- Handles 10- and 12-bit and wide gamut natively.
-- Encoding is several times slower than WebP. Support outside browsers is poor.
+- Handles 10- and 12-bit and wide gamut natively, and supports alpha with lossy
+  colour.
+- Encoding is the slow part: on PixelFerry's encoder, AVIF at quality 80 took
+  about 3x as long as WebP and 5x as long as mozjpeg on a 12 MP photograph.
+  Support outside browsers is thin.
 
 **Use it when:** the image is large, the bytes matter, and you can serve a
 fallback.
 
 ## The decision, in order
 
-1. **Does it need transparency?** Yes → WebP (lossy if photographic, lossless if
-   flat), or PNG if compatibility is uncertain. Never JPEG.
+1. **Does it need transparency?** Yes → WebP or AVIF (lossy if photographic,
+   lossless if flat), or PNG if compatibility is uncertain. Never JPEG.
 
 2. **Is it a photograph, or does it have sharp edges and flat colour?** Sharp
    edges → lossless. WebP lossless first, PNG as the fallback. Photograph →
@@ -113,14 +121,21 @@ fallback.
 ## Quality numbers are not comparable
 
 A recurring mistake: assuming "quality 80" means the same thing everywhere. It
-does not, and the scales are not even close.
+does not. A quality value is a control on one specific encoder, not a unit — so
+there is no conversion table between JPEG's scale, WebP's and AVIF's, and any
+page offering one is guessing.
 
-- **JPEG 85** — the standard high-quality setting.
-- **WebP 80** — roughly equivalent perceptually, meaningfully smaller.
-- **AVIF 60–65** — roughly equivalent perceptually, smaller again.
+What is safe to say is that the _useful_ range sits lower as the codec gets
+better. Reasonable **starting points** in PixelFerry, to be checked against your
+own images rather than trusted:
 
-Setting AVIF to 85 out of habit produces a file barely smaller than the JPEG and
-a much longer encode.
+- **JPEG 85** — conservative and widely used.
+- **WebP 75–85** — where most web imagery ends up.
+- **AVIF 55–65** — carrying a JPEG habit up to 85 here mostly buys encode time.
+
+Convert a representative handful, read the per-row before/after sizes, and look
+at the results at the size they will actually be viewed. That beats any rule of
+thumb, including these.
 
 ## About capture formats
 

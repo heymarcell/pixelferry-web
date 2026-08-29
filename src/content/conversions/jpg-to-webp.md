@@ -1,9 +1,9 @@
 ---
 title: Convert JPG to WebP on Mac — smaller files, same page
 description:
-  WebP saves 25–35% over JPEG at matched quality. Why re-encoding an existing
-  JPEG is not free, when the saving is worth it, and how to convert a directory
-  in one pass.
+  Google measures WebP 25–34% smaller than JPEG at matched SSIM. Why re-encoding
+  an existing JPEG is not free, when the saving is worth it, and how to convert
+  a directory in one pass.
 heading: Convert JPG to WebP on a Mac
 from: JPG
 to: WebP
@@ -23,8 +23,9 @@ whatChanges:
   - label: Compression efficiency
     detail:
       WebP's VP8-derived intra coding uses better prediction and a smarter
-      transform than JPEG's. At matched visual quality the saving is usually
-      25–35% on photographic content.
+      transform than JPEG's. Google's own WebP study measured files 25–34%
+      smaller than JPEG at the same SSIM across four image sets — an average per
+      corpus, not a promise for any one photograph.
   - label: An alpha channel becomes available
     detail:
       WebP supports transparency, which JPEG does not. Nothing to carry over
@@ -79,27 +80,35 @@ faithfully reproducing those artefacts.
 
 The practical consequences:
 
-- Convert at a **reasonably high quality** (80–85) and the result is visually
-  indistinguishable while still meaningfully smaller. This is the normal case
-  and it works well.
+- Convert at a **reasonably high quality** (80–85) and the result is usually
+  hard to tell apart from the source at normal viewing size, while still being
+  meaningfully smaller. This is the normal case and it works well.
 - Convert at a **low quality** (below 65) and the two generations compound. You
   get a file that is small and visibly worse than a single-pass encode at the
   same size would have been.
 - If you still have the RAW, TIFF or PSD source, converting from that instead
   skips the problem entirely.
 
-## Quality settings that hold up
+## Picking a quality
 
-WebP's quality scale is not the same scale as JPEG's. A useful rule is that WebP
-at quality _q_ looks roughly like JPEG at _q + 5 to 10_, so you can usually drop
-the number and still come out ahead.
+WebP's quality number is not JPEG's quality number. They are different encoders
+with different internal models and there is no fixed conversion between them — a
+rule like "WebP q equals JPEG q plus ten" is folklore, not a property of either
+format.
 
-- **85** — the safe default for photographs you cannot re-shoot.
-- **75–80** — the sweet spot for most web imagery, and where the 30% saving
-  actually shows up.
-- **Lossless mode** — for screenshots, diagrams and flat graphics, where WebP's
-  lossless encoder beats PNG substantially. Not for photographs; lossless
-  photographic WebP is larger than the JPEG you started with.
+What is dependable is the shape of the tradeoff. As a **starting point** in
+PixelFerry:
+
+- **85** — conservative, for photographs you cannot re-shoot or re-export.
+- **75–80** — where most web imagery ends up, and where the size advantage is
+  usually obvious.
+- **Lossless mode** — for screenshots, diagrams and flat graphics. Not for
+  photographs: lossless photographic WebP is typically much larger than the JPEG
+  you started with, which Google's own FAQ warns about explicitly.
+
+Then check the per-row before/after figures on a representative handful before
+committing to a number for the whole set. That takes a minute and replaces every
+rule of thumb on this page.
 
 ## Browser support is no longer the question
 

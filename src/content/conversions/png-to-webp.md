@@ -1,30 +1,31 @@
 ---
-title: Convert PNG to WebP on Mac — lossless, and much smaller
+title: Convert PNG to WebP on Mac — lossless, and usually smaller
 description:
-  WebP lossless beats PNG by about 25% on the same pixels, transparency
-  included. When to use lossless, when lossy is fine, and how to batch a folder
-  of UI assets.
+  WebP's lossless mode keeps every pixel and every alpha value, and Google
+  measures it about 26% smaller than PNG on average. When that holds, when it
+  does not, and how to batch a folder of UI assets.
 heading: Convert PNG to WebP on a Mac
 from: PNG
 to: WebP
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  WebP has a lossless mode that is strictly better than PNG at the same job —
-  identical pixels, alpha channel intact, around a quarter smaller. For
-  screenshots and interface assets this is a conversion with no downside worth
-  naming.
+  WebP's lossless mode stores the same pixels and the same alpha channel in
+  fewer bytes than PNG — about 26% fewer on average, in Google's own study. The
+  pixels are identical; what you trade is compatibility and encode time.
 whatChanges:
-  - label: Nothing, if you choose lossless
+  - label: Nothing in the pixels, if you choose lossless
     detail:
-      Lossless WebP reproduces every pixel and every alpha value exactly. The
-      file is smaller because the compressor is better, not because anything was
-      discarded. This is the unusual case of a genuinely free win.
+      Lossless WebP reproduces every pixel and every alpha value exactly. Any
+      size reduction comes from a better compressor, not from discarded detail.
+      What does change is what can open the file, and how long encoding takes.
   - label: The compression method
     detail:
       WebP lossless uses spatial prediction, a colour-decorrelating transform,
-      palette detection and entropy coding tuned per region. PNG's DEFLATE has
-      none of that, which is where the roughly 25% comes from.
+      palette detection and entropy coding tuned per region. PNG filters each
+      row and hands the result to DEFLATE. That difference is where Google's
+      measured average of 26% comes from — an average across a corpus, not a
+      figure any individual file is promised.
   - label: Alpha handling improves
     detail:
       PNG stores alpha as a full extra channel. WebP compresses alpha separately
@@ -32,9 +33,10 @@ whatChanges:
       gets much smaller.
   - label: Optionally, a lossy path opens up
     detail:
-      WebP can be lossy and still keep transparency — something PNG cannot do
-      and JPEG cannot do. For a large cut-out photograph, lossy WebP with alpha
-      is dramatically smaller than any PNG.
+      WebP can compress the colour lossily while keeping an alpha channel, which
+      PNG (always lossless) and JPEG (no alpha at all) cannot. AVIF can do the
+      same, so this is not unique to WebP — but for a large cut-out photograph
+      either one is far smaller than a PNG.
 limitations:
   - Lossless WebP is smaller than PNG but slower to encode. On a batch of
     thousands this is measurable, though it only costs you once.
@@ -64,21 +66,29 @@ related:
   - jpg-to-avif
 ---
 
-## The one conversion that is close to free
+## A better compressor for the same pixels
 
-Most format changes are a trade. This one, in lossless mode, essentially is not.
+WebP's lossless encoder and PNG's DEFLATE solve the same problem — store these
+exact pixels in fewer bytes. WebP has more machinery for it: it predicts each
+pixel from its neighbours using a predictor chosen per region, decorrelates the
+colour channels, applies a palette where one helps, and entropy-codes the
+residual. PNG, designed in 1996, filters each row and hands the result to
+DEFLATE.
 
-WebP's lossless encoder and PNG's DEFLATE are solving the same problem — store
-these exact pixels in fewer bytes — and WebP is simply better at it. It predicts
-each pixel from its neighbours using a choice of predictors selected per region,
-decorrelates the colour channels, detects and applies a palette where one helps,
-and then entropy-codes the residual.
+Google's _WebP Lossless and Alpha Study_ puts the difference at **26% smaller on
+average**. That is a corpus average, not a guarantee: a small, already-optimised
+PNG can come out roughly the same size, and the only way to know for a
+particular set is to convert it and read the before/after figures on each row.
 
-PNG, designed in 1996, filters each row and hands the result to DEFLATE.
+What you trade for those bytes is real, if usually acceptable:
 
-The result on typical interface content is 20–30% smaller with byte-identical
-output pixels. There is no quality decision to make and nothing to check
-afterwards.
+- **Compatibility.** PNG opens in essentially everything. WebP does not — see
+  below.
+- **Encode time.** The lossless encoder does considerably more work than
+  DEFLATE. It costs once, at export.
+
+There is no _quality_ decision to make, which is what makes this conversion
+simple. That is not the same as there being no decision at all.
 
 ## When to use lossy instead
 
@@ -88,13 +98,18 @@ flat colour.
 Lossy WebP becomes interesting when the PNG contains a **photograph**. People
 save photographic content as PNG surprisingly often — a screenshot of a photo,
 an export that defaulted to PNG, a cut-out product shot — and for that material
-PNG is the wrong container entirely. Lossy WebP at quality 80 can be a tenth of
-the size.
+PNG is the wrong container entirely. Lossy WebP at quality 80 is typically a
+small fraction of the PNG's size; convert a couple and read the row figures
+before committing to a setting.
 
-The thing WebP can do that nothing else can: **lossy compression with a real
-alpha channel**. A cut-out product photograph on a transparent background has to
-be PNG today, at full lossless cost, because JPEG cannot hold the transparency.
-Lossy WebP holds both.
+This is where WebP earns its place over PNG for photographic cut-outs: **lossy
+colour with an alpha channel**. A product shot on a transparent background would
+otherwise have to be PNG, at full lossless cost, because JPEG has no alpha at
+all.
+
+[AVIF](/convert/jpg-to-avif) does the same thing, and often smaller. The
+tradeoff there is encode time and thinner support outside browsers — not
+capability.
 
 ## Screenshots, specifically
 

@@ -109,5 +109,7 @@ same pass skips that entirely.
 
 The queue mixes freely. HEICs from a phone, RAW files from a camera and PSDs
 from a designer can all sit in the same batch and come out as PNGs with one set
-of rules applied to all of them — which is the thing the Finder Quick Action
-cannot do at all.
+of rules applied to all of them — at an exact width, into a folder you choose,
+with a per-file result. The Finder Quick Action converts a selection too, but
+its sizing is four named presets, it has no quality control, and it writes
+beside the originals.

@@ -10,28 +10,31 @@ to: JPG
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  A RAW file is unprocessed sensor data that has to be interpreted before it is
-  an image at all. macOS does that interpretation with ImageIO, which is fast,
-  consistent, and deliberately neutral — and it happens entirely on your
-  machine.
+  A RAW file holds largely unprocessed sensor readings that have to be
+  interpreted before they become a viewable image. macOS does that
+  interpretation with ImageIO — consistently, and entirely on your machine.
 whatChanges:
   - label: Demosaicing
     detail:
-      A sensor records one colour per photosite behind a Bayer filter. Turning
-      that into a full-colour image means interpolating the two missing channels
-      for every pixel. This is the step that makes a RAW file into a picture,
-      and different software does it differently.
+      Each photosite sits behind one colour of a filter array, so the file holds
+      a single measured value per photosite rather than three. Producing a
+      full-colour image means interpolating the two missing values for every
+      pixel. This is the step that turns sensor readings into a picture, and
+      different software does it differently.
   - label: The rendering decisions
     detail:
       White balance, tone curve, colour rendering and sharpening are not stored
-      as pixels in a RAW file — they are choices. macOS ImageIO applies its own
-      neutral interpretation, which is why the result looks different from
-      Lightroom's or Capture One's default.
+      as pixels in a RAW file — they are choices. macOS ImageIO applies Apple's
+      own interpretation, which is why the result looks different from
+      Lightroom's or Capture One's default. Different, not more correct.
   - label: Editing latitude
     detail:
-      RAW keeps 12–14 bits per channel of headroom, which is what lets you
-      recover a blown sky or lift shadows without banding. JPEG's 8 bits discard
-      that. Recover what you need before converting, not after.
+      RAW files typically store 12 or 14 bits per photosite reading, against
+      JPEG's 8 bits per channel. That extra precision is what lets you lift
+      shadows or pull back highlights that are dim or bright but still measured,
+      without banding. It cannot recover anything that actually clipped — a
+      genuinely blown highlight holds no data at any bit depth. Make those
+      adjustments before converting, not after.
   - label: File size
     detail:
       A 30 MB CR3 typically becomes a 3–6 MB JPEG at high quality. The reduction
@@ -67,16 +70,19 @@ related:
   - psd-to-png
 ---
 
-## A RAW file is not an image yet
+## A RAW file is not a finished image
 
 This is the part that surprises people. `IMG_0421.CR3` is not a compressed
-photograph — it is a nearly-unprocessed dump of what the sensor measured, plus
-metadata about the camera's settings at the time.
+photograph — it is a largely unprocessed record of what the sensor measured,
+plus metadata about the camera's settings at the time. (Most RAW files do carry
+an embedded JPEG preview, which is what your camera's screen and Finder's
+thumbnail are showing you.)
 
-Every photosite on the sensor sits behind a colour filter and records exactly
-one of red, green or blue. Producing a normal image means **demosaicing**:
-guessing each pixel's other two channels from its neighbours. Then something has
-to decide white balance, contrast, saturation and sharpening.
+Each photosite sits behind one colour of a filter array and contributes a single
+measured value, not a red-green-blue triple. Producing a normal image means
+**demosaicing**: interpolating the two missing values for every pixel from its
+neighbours. Then something has to decide white balance, contrast, saturation and
+sharpening.
 
 None of those decisions are in the file. They are made by whatever software
 opens it, which is precisely why the same RAW looks different in Lightroom, in
@@ -87,8 +93,9 @@ Capture One, and in Preview.
 PixelFerry hands RAW decoding to **macOS ImageIO**, the same system component
 Preview and Finder use. That has real consequences worth stating plainly:
 
-- The result is **neutral and consistent**, not a manufacturer's picture-style
-  interpretation and not an opinionated raw developer's default.
+- The result is **consistent** — the same interpretation every time, and the
+  same one Finder and Preview show you. It is Apple's rendering, which is a
+  choice like any other, not an absence of one.
 - It matches what you already see in Finder and Preview, so there are no
   surprises between the thumbnail and the output.
 - It is **not** what your editing software would produce. If you have a

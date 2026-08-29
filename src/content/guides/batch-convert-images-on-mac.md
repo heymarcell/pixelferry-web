@@ -67,7 +67,10 @@ picker, and an Options panel for the format.
 
 - It gets slow and unreliable above a couple of hundred files. Preview is
   holding all of them open.
-- No resizing during export. Tools → Adjust Size works on one image at a time.
+- No resizing during the export itself. Tools → Adjust Size is a separate step —
+  though it does work on a multi-selection: Apple documents displaying the
+  images in one window, selecting them in the sidebar, then choosing Tools →
+  Adjust Size.
 - The format list is short, and PSD and PDF handling is inconsistent.
 
 ## 3. Automator (or a Shortcut)
@@ -125,6 +128,7 @@ handles everything ImageIO handles — including camera RAW.
 | ---------------------------------------- | ---------------------- |
 | Convert some photos to JPEG right now    | Finder Quick Action    |
 | Control the JPEG quality                 | Preview                |
+| Resize a modest set to exact pixels      | Preview (multi-select) |
 | Repeat the same conversion regularly     | Automator or Shortcuts |
 | Convert thousands of files, or script it | sips                   |
 
