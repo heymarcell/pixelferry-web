@@ -70,11 +70,15 @@ jobs:
       - name: Types (astro check)
         run: npm run check
 
-      - name: Unit tests
-        run: npm test
-
+      # Build BEFORE the tests and audits: `test/seo-output.test.ts` and all
+      # three audits read `dist/`. Running them first passes locally only
+      # because a previous build left the directory behind — CI, starting
+      # clean, is the honest signal. `npm run verify` uses this same order.
       - name: Build
         run: npm run build
+
+      - name: Unit tests
+        run: npm test
 
       # These three read `dist/` — the actual emitted HTML — so a template that
       # silently stopped rendering a canonical, or a page set that drifted into
