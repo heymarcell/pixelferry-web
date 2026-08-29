@@ -24,7 +24,7 @@ required to read it, so crawling the HTML directly works just as well.
 - PSD/PSB are flattened to their stored composite.
 - JPEG output flattens transparency onto white.
 - Originals are never modified; output never overwrites an existing file.
-- Built with Electron, React and Sharp. It is native-*feeling* and uses macOS
+- Built with Electron, React and Sharp. It is native-feeling and uses macOS
   system codecs, but it is not a Cocoa application.
 
 ## Product

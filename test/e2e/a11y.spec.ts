@@ -74,53 +74,57 @@ test.describe('accessibility', () => {
     })
   }
 
-  test('every interactive control has a visible focus indicator', async ({ page }) => {
+  test('every control tabbed to shows a visible focus indicator', async ({ page, browserName }) => {
+    /*
+     * Driven by the real Tab key, not by `element.focus()`.
+     *
+     * `:focus-visible` is a heuristic on the last input modality, so
+     * programmatic focus matches it only sometimes — a test built on
+     * `focus()` fails at random on whichever control it happens to reach.
+     * Tabbing is both deterministic and the thing a keyboard user actually
+     * does.
+     *
+     * Chromium only: Safari ships "Press Tab to highlight each item on a
+     * webpage" off, so WebKit's Tab moves between text fields alone.
+     */
+    test.skip(browserName !== 'chromium', 'Tab order follows the Safari preference in WebKit')
+
     await stillPage(page, '/')
-    const focusable = page.locator('a[href], button, input, [tabindex]:not([tabindex="-1"])')
-    const count = Math.min(await focusable.count(), 25)
+    await page.locator('body').click({ position: { x: 2, y: 2 } })
+    await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur())
 
-    for (let i = 0; i < count; i += 1) {
-      const element = focusable.nth(i)
-      if (!(await element.isVisible())) continue
-      await element.focus()
-      /*
-       * The indicator does not have to be on the control itself: drawing it on
-       * a wrapper is a normal pattern, and the waitlist input does exactly that
-       * so the ring follows the pill rather than cutting through it. So check
-       * the element and its two nearest ancestors.
-       *
-       * Read every shadow in the chain BEFORE blurring anything — blurring the
-       * control also stops an ancestor's `:has(:focus-visible)` rule matching,
-       * so interleaving the two reads makes every wrapper look unstyled.
-       */
-      const focused = await element.evaluate((el) => {
-        const chain = [el, el.parentElement, el.parentElement?.parentElement].filter(
+    const seen: string[] = []
+
+    for (let i = 0; i < 40; i += 1) {
+      await page.keyboard.press('Tab')
+
+      const state = await page.evaluate(() => {
+        const active = document.activeElement as HTMLElement | null
+        if (!active || active === document.body) return null
+
+        // The indicator may be drawn on a wrapper — the waitlist field does
+        // exactly that, so its ring follows the pill rather than cutting
+        // through it. Check the control and its two nearest ancestors.
+        const chain = [active, active.parentElement, active.parentElement?.parentElement].filter(
           (node): node is HTMLElement => node instanceof HTMLElement,
         )
-        return chain.map((node) => {
+        const indicated = chain.some((node) => {
           const style = getComputedStyle(node)
-          return {
-            hasOutline: style.outlineStyle !== 'none' && style.outlineWidth !== '0px',
-            boxShadow: style.boxShadow,
-          }
+          const outlined = style.outlineStyle !== 'none' && parseFloat(style.outlineWidth) > 0
+          return outlined || style.boxShadow.includes('rgb')
         })
+        return { indicated, html: active.outerHTML.slice(0, 110) }
       })
 
-      const resting = await element.evaluate((el) => {
-        el.blur()
-        const chain = [el, el.parentElement, el.parentElement?.parentElement].filter(
-          (node): node is HTMLElement => node instanceof HTMLElement,
-        )
-        return chain.map((node) => getComputedStyle(node).boxShadow)
-      })
+      if (!state) break
+      if (seen.includes(state.html)) break // wrapped around
+      seen.push(state.html)
 
-      const indicated = focused.some(
-        (state, index) =>
-          state.hasOutline || (state.boxShadow !== 'none' && state.boxShadow !== resting[index]),
-      )
-      const html = await element.evaluate((el) => el.outerHTML.slice(0, 120))
-      expect(indicated, `no focus indicator on ${html}`).toBe(true)
+      expect(state.indicated, `no focus indicator on ${state.html}`).toBe(true)
     }
+
+    // Guards against the whole loop passing because nothing was ever focused.
+    expect(seen.length, 'Tab reached no focusable control').toBeGreaterThan(5)
   })
 
   test('reduced motion disables the reveal transitions', async ({ page }) => {

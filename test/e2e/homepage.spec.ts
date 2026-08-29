@@ -19,7 +19,15 @@ test.describe('homepage', () => {
     await expect(h1).toBeVisible()
     await expect(h1).toContainText('Mixed formats.')
     await expect(h1).toContainText('One clean batch.')
-    expect(await h1.evaluate((el) => getComputedStyle(el).opacity)).toBe('1')
+    /*
+     * With JavaScript ON the hero fades in, so this polls for the SETTLED
+     * value rather than racing the transition. The stronger property — that
+     * content is never hidden in the first place — is asserted
+     * deterministically by the JavaScript-disabled test below.
+     */
+    await expect
+      .poll(() => h1.evaluate((el) => getComputedStyle(el).opacity), { timeout: 5000 })
+      .toBe('1')
 
     await expect(page.getByRole('textbox', { name: /email/i })).toBeVisible()
     await expect(page.getByRole('button', { name: /join waitlist/i })).toBeVisible()
