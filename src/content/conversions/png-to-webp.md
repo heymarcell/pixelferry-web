@@ -11,8 +11,8 @@ updated: 2026-08-29
 summary:
   WebP's lossless mode stores the same 8-bit pixels and the same alpha channel
   in fewer bytes than PNG — Google publishes 26%, and its lossless study
-  measures 23% against an already-optimised PNG. What you trade is
-  compatibility and encode time.
+  measures 23% against an already-optimised PNG. What you trade is compatibility
+  and encode time.
 whatChanges:
   - label: Nothing in the pixels, if you choose lossless
     detail:

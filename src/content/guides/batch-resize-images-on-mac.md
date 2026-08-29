@@ -95,10 +95,10 @@ filling the space matters more than the edges.
 what you want, and it exists mostly for cases where the aspect ratios already
 match.
 
-One caveat that catches people with Crop and Fill: PixelFerry does not enlarge by
-default. A source smaller than the box keeps its own dimensions rather than being
-scaled up — there is nothing to crop or stretch — so you get an image that is not
-the size you asked for. Turn off "don't upscale" if you genuinely want it
+One caveat that catches people with Crop and Fill: PixelFerry does not enlarge
+by default. A source smaller than the box keeps its own dimensions rather than
+being scaled up — there is nothing to crop or stretch — so you get an image that
+is not the size you asked for. Turn off "don't upscale" if you genuinely want it
 enlarged.
 
 The failure mode worth naming: batch-cropping a mixed set to a square. Landscape

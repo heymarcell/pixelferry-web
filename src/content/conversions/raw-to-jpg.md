@@ -122,9 +122,8 @@ Point PixelFerry at the card or the import folder. It walks subfolders, so a
 `DCIM` tree with several dated directories comes in as one queue.
 
 Set JPG as the output, pick a quality — the app's default of 80 is the place to
-start — and
-set a width if these are going somewhere with a size limit. Four files convert
-at a time.
+start — and set a width if these are going somewhere with a size limit. Four
+files convert at a time.
 
 Where this beats exporting from Preview is failure reporting. On a batch of
 several hundred, some frames will occasionally be unreadable — a card write that

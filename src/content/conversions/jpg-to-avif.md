@@ -24,12 +24,11 @@ whatChanges:
   - label: Encoding gets much slower
     detail:
       AV1 encoding is computationally heavy. Measured on PixelFerry's own
-      encoder (sharp 0.35 / libvips 8.18, multithreaded, synthetic 12 MP
-      source) AVIF at quality 80 took roughly 3–5x as long as mozjpeg and
-      2.5–3x as long as WebP across repeat runs. The multiple moves with the
-      source and the libvips build, so treat it as an order of magnitude rather
-      than a constant. That is a one-time cost at export, not a cost to the
-      visitor.
+      encoder (sharp 0.35 / libvips 8.18, multithreaded, synthetic 12 MP source)
+      AVIF at quality 80 took roughly 3–5x as long as mozjpeg and 2.5–3x as long
+      as WebP across repeat runs. The multiple moves with the source and the
+      libvips build, so treat it as an order of magnitude rather than a
+      constant. That is a one-time cost at export, not a cost to the visitor.
   - label: Bit depth, and what PixelFerry actually writes
     detail:
       The AVIF format handles 10- and 12-bit per channel and wide colour gamuts
@@ -42,10 +41,9 @@ whatChanges:
       JPEG's. Skies, studio backdrops and soft shadows band far less at
       aggressive compression levels.
 limitations:
-  - Encoding is slow — roughly 3–5x mozjpeg and 2.5–3x WebP on PixelFerry's encoder,
-    measured on a synthetic 12 MP source, one machine. A large batch is a
-    background job, not
-    something to wait on.
+  - Encoding is slow — roughly 3–5x mozjpeg and 2.5–3x WebP on PixelFerry's
+    encoder, measured on a synthetic 12 MP source, one machine. A large batch is
+    a background job, not something to wait on.
   - Support is broad in browsers but thin outside them — desktop software, email
     clients and CMS validators frequently reject AVIF.
   - Converting from an existing JPEG is a second lossy generation, so the
@@ -120,8 +118,8 @@ between encoders.
 Lossless AVIF exists and is available. For flat content
 [WebP lossless](/convert/png-to-webp) is the more common choice, and lossless
 anything is very large for photographs — but if you need AVIF specifically, for
-its colour handling, convert a sample of your own content
-and compare rather than taking that as given.
+its colour handling, convert a sample of your own content and compare rather
+than taking that as given.
 
 ## Support, honestly
 
@@ -139,9 +137,9 @@ everything that is not a browser.
 
 ## Batching realistically
 
-Set AVIF, start at the app's default of 80, set your delivery width, and start the
-batch — then go and do something else. Four images encode concurrently, and each
-takes several times longer than the JPEG equivalent would.
+Set AVIF, start at the app's default of 80, set your delivery width, and start
+the batch — then go and do something else. Four images encode concurrently, and
+each takes several times longer than the JPEG equivalent would.
 
 The summary bar's estimate becomes useful here in a way it is not for fast
 formats: after the first few files finish, the remaining time is a real number

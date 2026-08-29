@@ -98,9 +98,10 @@ with LZW doing well on flat content and poorly on noisy scans.
 
 That is why two 40-megapixel scans can differ several-fold in size with nothing
 wrong with either — an uncompressed 16-bit one is fixed at width × height × 3 ×
-2 bytes, while an LZW one depends entirely on the content. It also means the size reduction you get from converting to
-JPEG varies enormously between files in the same batch, and the per-row
-before/after figures are the only reliable way to know what actually happened.
+2 bytes, while an LZW one depends entirely on the content. It also means the
+size reduction you get from converting to JPEG varies enormously between files
+in the same batch, and the per-row before/after figures are the only reliable
+way to know what actually happened.
 
 When PixelFerry writes TIFF as an output format it uses LZW, which is the widely
 compatible lossless choice.

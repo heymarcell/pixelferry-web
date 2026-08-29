@@ -51,7 +51,8 @@ const BANNED = [
 ]
 
 /** Words that assert exactness, and so require the 8-bit scope on the page. */
-const EXACTNESS = /pixel[- ]exact|every pixel(?:[^.]{0,40})exactly|stores every pixel|reproduces every pixel|bit[- ]for[- ]bit/i
+const EXACTNESS =
+  /pixel[- ]exact|every pixel(?:[^.]{0,40})exactly|stores every pixel|reproduces every pixel|bit[- ]for[- ]bit/i
 
 /** An acceptable scoping qualifier: the page says 8-bit somewhere. */
 const SCOPED = /8[- ]bit/i

@@ -146,31 +146,33 @@ option, so libvips writes 8 bits per channel whatever the source was. Measured
 with sharp 0.35.3 / libvips 8.18.3, feeding a 16-bit `rgb16` source into the
 exact shipping calls and reading the result back:
 
-| Shipping call | Output depth |
-| --- | --- |
+| Shipping call                  | Output depth    |
+| ------------------------------ | --------------- |
 | `png({ compressionLevel: 9 })` | `uchar` (8-bit) |
 | `tiff({ compression: 'lzw' })` | `uchar` (8-bit) |
-| `webp({ lossless: true })` | `uchar` (8-bit) |
-| `avif({ lossless: true })` | `uchar` (8-bit) |
+| `webp({ lossless: true })`     | `uchar` (8-bit) |
+| `avif({ lossless: true })`     | `uchar` (8-bit) |
 
 And on the macOS HEIC read path, `sips -s format tiff` genuinely produces a
-16-bit intermediate (`depth: ushort`, `space: rgb16`) which the final encode then
-drops to 8. **The precision loss is real, and it happens at the encode step.**
+16-bit intermediate (`depth: ushort`, `space: rgb16`) which the final encode
+then drops to 8. **The precision loss is real, and it happens at the encode
+step.**
 
 So "lossless" is a true statement about the codec and a false one about the
-conversion. Recorded as `limits.bitDepth` in `src/data/product.ts` and guarded by
-`test/pipeline-claims.test.ts`. The app enforces the same rule on itself —
-`shared/settings.ts` forbids the format blurbs from saying "HDR" for this reason.
+conversion. Recorded as `limits.bitDepth` in `src/data/product.ts` and guarded
+by `test/pipeline-claims.test.ts`. The app enforces the same rule on itself —
+`shared/settings.ts` forbids the format blurbs from saying "HDR" for this
+reason.
 
 ### HEIC decode, hardware vs portable
 
 `sips -s format tiff` versus the bundled `heic-convert` fallback, 12 MP HEIC
 (6.6 MB, synthetic photographic source), median of 3, one machine:
 
-| Path | Time |
-| --- | --- |
-| `sips` (ImageIO, hardware HEVC) | 153 ms |
-| `heic-convert` (pure JS) | 1868 ms |
+| Path                            | Time    |
+| ------------------------------- | ------- |
+| `sips` (ImageIO, hardware HEVC) | 153 ms  |
+| `heic-convert` (pure JS)        | 1868 ms |
 
 That is **12.2×**, not the "roughly seven times" the homepage claimed. The 7×
 figure came from a code comment in `main/macos.ts` and the app README — never
@@ -182,8 +184,8 @@ so the site now says "several times faster" and the measurement lives here.
 
 `/convert/png-to-webp` attributed **26% smaller than PNG** to Google's _WebP
 Lossless and Alpha Study_, by name, in four places. That study reports **23%
-against ZopfliPNG** and **42% against libpng**; the 26% headline is from the WebP
-overview page at `developers.google.com/speed/webp`. Both halves were
+against ZopfliPNG** and **42% against libpng**; the 26% headline is from the
+WebP overview page at `developers.google.com/speed/webp`. Both halves were
 individually true, which is what made it survive.
 
 The lossy figure (25–34% vs JPEG at matched SSIM) is correctly attributed, but
@@ -203,11 +205,11 @@ AVIF half was false; the WebP half is correct and now carries the evidence.
 
 Verified in `shared/settings.ts` `DEFAULT_RECIPE` / `DEFAULT_SETTINGS`:
 
-| Fact | Source | Site had said |
-| --- | --- | --- |
-| `removeMetadata: true` | `settings.ts:225` | "Optionally strip EXIF…" |
-| `dontUpscale: true` | `settings.ts:226` | not mentioned for Crop/Fill |
-| `defaultSaveLocation: input-folder` | `settings.ts:245` | "leaves your source folder exactly as it was" |
-| `TARGET_MAX_ITERATIONS = 8`, may miss target | `pipeline.ts:20, 290-309` | "searches quality values until the output fits" |
-| walk caps: 5000 files, depth 10, no dotfiles or symlinks | `collectImages.ts:36-37, 76, 88` | "picks up everything it can read" |
-| only `mac` build target declared; win32/linux paths unit-tested | `package.json`, `clipboardFile.test.ts:39-40` | "never been built, signed or tested" |
+| Fact                                                            | Source                                        | Site had said                                   |
+| --------------------------------------------------------------- | --------------------------------------------- | ----------------------------------------------- |
+| `removeMetadata: true`                                          | `settings.ts:225`                             | "Optionally strip EXIF…"                        |
+| `dontUpscale: true`                                             | `settings.ts:226`                             | not mentioned for Crop/Fill                     |
+| `defaultSaveLocation: input-folder`                             | `settings.ts:245`                             | "leaves your source folder exactly as it was"   |
+| `TARGET_MAX_ITERATIONS = 8`, may miss target                    | `pipeline.ts:20, 290-309`                     | "searches quality values until the output fits" |
+| walk caps: 5000 files, depth 10, no dotfiles or symlinks        | `collectImages.ts:36-37, 76, 88`              | "picks up everything it can read"               |
+| only `mac` build target declared; win32/linux paths unit-tested | `package.json`, `clipboardFile.test.ts:39-40` | "never been built, signed or tested"            |

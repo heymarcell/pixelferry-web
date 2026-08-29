@@ -65,27 +65,27 @@ content, not a cross-repo diff.
 
 - **The pipeline is 8-bit end to end.** Every encoder branch in the app's
   `applyFormat` is called without a `bitdepth`, so PNG, TIFF, lossless WebP and
-  lossless AVIF all come out `depth: uchar` — measured, from a 16-bit source.
-  A "lossless" claim is therefore true of the CODEC and false of the
-  CONVERSION. Never write "perfect copy", "adds no new quality loss" or
-  "pixel-exact" without scoping it to 8 bits. `test/pipeline-claims.test.ts`
-  and `audit:content` both guard this; `limits.bitDepth` records the
-  measurement. This shipped as a page that asserted both halves at once —
-  "adds no new quality loss" in the frontmatter, "a 10-bit HEIC is quantised"
-  forty lines below — and passed every check, because each sentence is only
-  wrong in the presence of the other.
+  lossless AVIF all come out `depth: uchar` — measured, from a 16-bit source. A
+  "lossless" claim is therefore true of the CODEC and false of the CONVERSION.
+  Never write "perfect copy", "adds no new quality loss" or "pixel-exact"
+  without scoping it to 8 bits. `test/pipeline-claims.test.ts` and
+  `audit:content` both guard this; `limits.bitDepth` records the measurement.
+  This shipped as a page that asserted both halves at once — "adds no new
+  quality loss" in the frontmatter, "a 10-bit HEIC is quantised" forty lines
+  below — and passed every check, because each sentence is only wrong in the
+  presence of the other.
 - **A figure and a named source must actually belong together.** "26% smaller
   than PNG" was attributed to Google's _WebP Lossless and Alpha Study_ in four
-  places; that study says 23% (vs ZopfliPNG) and 42% (vs libpng), and 26% is
-  the overview page. Both halves were individually true. Before citing a study
-  by name, open it and confirm it contains the number.
+  places; that study says 23% (vs ZopfliPNG) and 42% (vs libpng), and 26% is the
+  overview page. Both halves were individually true. Before citing a study by
+  name, open it and confirm it contains the number.
 - **Do not describe an app default from memory.** `removeMetadata`,
   `dontUpscale` and `defaultSaveLocation` were all described backwards or
   omitted. Read `DEFAULT_RECIPE` and `DEFAULT_SETTINGS` in `shared/settings.ts`.
-- **macOS built-ins move.** `sips` writes AVIF on current macOS
-  (`public.avif` is Writable) and does not write WebP. Re-run `sips --formats`
-  before claiming a built-in cannot do something; this site claimed both
-  directions on two different pages simultaneously.
+- **macOS built-ins move.** `sips` writes AVIF on current macOS (`public.avif`
+  is Writable) and does not write WebP. Re-run `sips --formats` before claiming
+  a built-in cannot do something; this site claimed both directions on two
+  different pages simultaneously.
 
 - **macOS 14 (Sonoma) or later**, on Apple silicon and Intel. The site said
   "macOS 13+" in four places for a month; that is why there is a test.
@@ -224,8 +224,8 @@ it cannot judge a NEW claim. Only reading the source can.
   `desktop-security.spec.ts` scans the source for the common outbound call
   patterns — `fetch(`, `net.fetch(`, `net.request(`, `new WebSocket(`,
   `new XMLHttpRequest(`, `new EventSource(` — and fails the build if one
-  appears. Do not describe that as catching ANY outbound path: it would not
-  see Node `http`/`https`, `child_process`, `sendBeacon`, an aliased call, or a
+  appears. Do not describe that as catching ANY outbound path: it would not see
+  Node `http`/`https`, `child_process`, `sendBeacon`, an aliased call, or a
   dependency. As of `f6bd954` the shipping desktop app genuinely has no network
   client at all — no updater, no licence call, no telemetry, no crash reporter,
   and `electron-updater` and Sentry are in no lockfile.
@@ -236,6 +236,7 @@ it cannot judge a NEW claim. Only reading the source can.
   describes update checks, licence validation, a beta safety check and bug
   reports in the present tense for clients that have not shipped — so it is a
   forward-looking document, not a description of today's binary.
+
 - The legal copy in `src/data/legal.ts` is transcribed verbatim from the Pencil
   design and is **pending legal review**. Do not rewrite it, and do not fill in
   the bracketed placeholders by inference — see "Open blockers" below.

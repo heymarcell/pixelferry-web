@@ -70,9 +70,8 @@ time.
 PDF rendering happens in memory: every requested page is rasterised before the
 writing starts. At the 2x viewport scale PixelFerry uses — roughly 144 dpi — a
 500-page scanned document is gigabytes of bitmap, and the honest outcome of
-attempting
-it is that the application dies partway through and you get an incomplete folder
-with no explanation.
+attempting it is that the application dies partway through and you get an
+incomplete folder with no explanation.
 
 So the conversion stops at **the first 100 pages** and tells you it did. A
 truncated result you know about is recoverable; one you do not know about is a

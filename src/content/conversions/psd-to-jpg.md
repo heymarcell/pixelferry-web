@@ -93,10 +93,10 @@ is mostly interface or typography, err upward — or reconsider whether it shoul
 be a PNG.
 
 There is also a **target file size** mode, which re-encodes at successive
-quality values to fit a limit you set — up to eight attempts, down to quality
-10. If even that overshoots, it saves the smallest result and tells you it could
-not reach the target, rather than guessing at a quality number and checking the
-folder afterwards.
+quality values to fit a limit you set — up to eight attempts, down to
+quality 10. If even that overshoots, it saves the smallest result and tells you
+it could not reach the target, rather than guessing at a quality number and
+checking the folder afterwards.
 
 ## Progressive encoding
 

@@ -94,8 +94,8 @@ The one that quietly replaced both of the above for web use.
 
 ### AVIF
 
-Usually the smallest. Slow to encode at the effort level PixelFerry uses,
-though AVIF encode time depends heavily on the encoder's speed setting.
+Usually the smallest. Slow to encode at the effort level PixelFerry uses, though
+AVIF encode time depends heavily on the encoder's speed setting.
 
 - Generally smaller than JPEG and WebP at comparable quality, most clearly on
   large photographs. How much depends on the image and on both encoders'
@@ -105,10 +105,9 @@ though AVIF encode time depends heavily on the encoder's speed setting.
   with lossy colour — though PixelFerry writes 8-bit AVIF, so the depth is the
   format's headroom, not something this app can put in the file.
 - Encoding is the slow part: on PixelFerry's encoder, AVIF at quality 80 took
-  roughly 2.5–3x as long as WebP and 3–5x as long as mozjpeg on a synthetic
-  12 MP photographic source — one machine, median of three runs, and the
-  multiple moves with the source and the libvips build.
-  Support outside browsers is thin.
+  roughly 2.5–3x as long as WebP and 3–5x as long as mozjpeg on a synthetic 12
+  MP photographic source — one machine, median of three runs, and the multiple
+  moves with the source and the libvips build. Support outside browsers is thin.
 
 **Use it when:** the image is large, the bytes matter, and you can serve a
 fallback.

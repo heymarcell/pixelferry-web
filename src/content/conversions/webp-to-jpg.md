@@ -16,10 +16,10 @@ summary:
 whatChanges:
   - label: A third compression generation, often
     detail:
-      A WebP found on the web has usually been through at least one lossy
-      encode — though lossless WebP is common for screenshots and interface
-      assets — and you cannot tell from the file what came before it. Converting
-      to JPG adds another, so the quality setting matters more here than in a
+      A WebP found on the web has usually been through at least one lossy encode
+      — though lossless WebP is common for screenshots and interface assets —
+      and you cannot tell from the file what came before it. Converting to JPG
+      adds another, so the quality setting matters more here than in a
       conversion from an original.
   - label: Transparency is filled
     detail:
@@ -84,8 +84,7 @@ reason is the encoding history.
 
 If the image was uploaded as a JPEG and re-encoded to WebP for serving — the
 common case, though not one the file can confirm — then converting to JPG is a
-third lossy generation, and each one is working on the previous one's
-artefacts.
+third lossy generation, and each one is working on the previous one's artefacts.
 
 Start **above** the app's default of 80 — the source has already been through a
 lossy encode you did not control, and there is no original to fall back on. The

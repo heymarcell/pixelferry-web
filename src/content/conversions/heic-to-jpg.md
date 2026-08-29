@@ -63,8 +63,7 @@ macOSAlternative:
   breaksDownWhen:
     You need the same pass to also resize, cap quality, or handle a folder that
     has RAW and PSD files mixed in with the HEICs — the Quick Action offers
-    three formats and four named size presets, and gives you no per-file
-    result.
+    three formats and four named size presets, and gives you no per-file result.
 related:
   - heic-to-png
   - jpg-to-webp
