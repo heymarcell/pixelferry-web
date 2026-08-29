@@ -255,7 +255,27 @@ build if an outbound request path is added". The test greps for six specific cal
 patterns and would not catch Node `http`/`https`, `child_process`, `sendBeacon`,
 an aliased call or a dependency. Scoped on the page and in `CLAUDE.md`.
 
-## 10. What remains open
+## 10. The app moved while this review was running
+
+Between starting this pass and finishing it, `pixelferry-app` advanced three
+commits — `3309d0b` → `f6bd954` → `1627350`. Two of them changed behaviour this
+site describes. This is the clearest possible argument for pinning a commit
+rather than a date, so it is recorded rather than quietly absorbed.
+
+| App commit | What changed | Effect on this site |
+| --- | --- | --- |
+| `61c52fa` | PDF pages now run through the same pipeline as every other source. `PDF → HEIC` and `PDF → ICO` previously **threw**; trim and target size were silently ignored per page | `/formats` says "Any input can be converted to any of these". That is true now. It was **false** when this branch was written, and no one noticed because the claim was about the app, not the site |
+| `06e780b` | HEIC output now honours the metadata policy. Its PNG intermediate had inherited Sharp's strip-everything default, so a Display P3 photo came out untagged | `capabilities.metadataHeicCaveat` said the metadata option "does not apply" to HEIC — correct at `f6bd954`, **false** at `1627350`. Rewritten. What survives: `sips` writes a small EXIF block of its own, so a HEIC is never completely EXIF-free |
+| `1627350` | Adds `e2e/pipeline-parity.spec.ts`, pinning that both source paths reach the same capabilities | None directly. It is the app adopting the same lesson this ledger records — every helper had passing unit tests, and nothing proved both callers reached them |
+
+The format matrix is unaffected. Re-verified at `1627350`:
+`OUTPUT_FORMAT_ORDER` = jpg, png, webp, heic, avif, tiff, gif, ico;
+`QUALITY_FORMATS` = jpg, jpeg, webp, avif, heic; 17 cross-platform and 59
+macOS-only extensions — identical to the snapshot in `test/format-model.test.ts`.
+
+The pin is now `16273508d9a0a025c28cab28b104c49f55439819`.
+
+## 11. What remains open
 
 - The app README at `f6bd954:README.md:81` still calls HEIC input-only. Source
   and tests say otherwise. **Not fixed here** — that is the app repo's to change.

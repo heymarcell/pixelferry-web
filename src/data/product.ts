@@ -40,14 +40,25 @@ export const PRODUCT_FACTS_SYNCED = '2026-08-29'
  * website agrees with THIS SNAPSHOT, not that it will agree with app `main`
  * tomorrow. Re-verify and bump both when syncing.
  *
- * Re-verified at `f6bd954`. The only commit since `3309d0b` touches
- * `docs/legal/privacy-policy.md`, `docs/devops-plan.md` and a docblock in
- * `packages/shared/src/bugReport.ts`; `git diff 3309d0b..f6bd954 --
- * apps/desktop/src/shared apps/desktop/src/main` is EMPTY, so no capability in
- * `formats.ts` is affected. The privacy wording it corrects IS reflected on
- * /privacy.
+ * Re-verified at `1627350`, which landed DURING the review that produced
+ * docs/audits/public-claim-ledger-2026-08-29.md — a live demonstration of why a
+ * date is not a snapshot. Three app commits changed behaviour this site
+ * describes:
+ *
+ *   61c52fa  PDF pages now go through the same pipeline as everything else.
+ *            PDF -> HEIC and PDF -> ICO used to THROW; trim and target size
+ *            were silently ignored per page. "Any input can be converted to any
+ *            of these" on /formats is true now, and was not before.
+ *   06e780b  HEIC output now honours the metadata policy. The previous caveat
+ *            here said the option "does not apply to it" — true at f6bd954,
+ *            false now. Corrected below.
+ *   1627350  Adds e2e/pipeline-parity.spec.ts, which pins that both source
+ *            paths reach the same capabilities.
+ *
+ * The format matrix in `formats.ts` is unaffected: read/write capability per
+ * format did not change.
  */
-export const PRODUCT_FACTS_APP_COMMIT = 'f6bd954889fd1d21ba85153517f91b02addec147'
+export const PRODUCT_FACTS_APP_COMMIT = '16273508d9a0a025c28cab28b104c49f55439819'
 
 export const product = {
   name: 'PixelFerry',
@@ -223,9 +234,18 @@ export const capabilities = {
    * `encodeHeicViaSips` before the encoder switch — so the metadata option
    * above does not govern it. What survives is whatever `sips` carries across.
    */
+  /**
+   * Corrected at app `06e780b`. The HEIC path used to bypass the metadata
+   * policy entirely — its PNG intermediate inherited Sharp's default, which
+   * strips even the ICC profile, so a Display P3 photo came out untagged. It now
+   * applies the same policy as every other encoder. What remains true is that
+   * `sips` writes a small EXIF block of its own, so a HEIC is never completely
+   * EXIF-free — that block is macOS's, not the source image's.
+   */
   metadataHeicCaveat:
-    'HEIC output is transcoded by the system sips tool rather than the bundled encoder, so the metadata option does not apply to it.',
-  targetSize: 'A target file size re-encodes at successive quality values until the output fits.',
+    'HEIC output follows the same metadata policy as every other format, but the system sips tool writes a small EXIF block of its own, so a HEIC is never completely EXIF-free.',
+  targetSize:
+    'A target file size re-encodes at successive quality values to fit it — up to eight attempts, down to quality 10. If even that overshoots, the smallest result is saved and reported rather than silently missing the target.',
 } as const
 
 /**
