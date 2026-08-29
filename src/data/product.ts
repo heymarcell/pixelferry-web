@@ -54,11 +54,16 @@ export const PRODUCT_FACTS_SYNCED = '2026-08-29'
  *            false now. Corrected below.
  *   1627350  Adds e2e/pipeline-parity.spec.ts, which pins that both source
  *            paths reach the same capabilities.
+ *   048a5a4  Rewrites the FORMAT_CATALOG display blurbs to drop superlatives
+ *            ("best size", "universal", "archival"). Display strings only —
+ *            OUTPUT_FORMAT_ORDER, QUALITY_FORMATS and the extension lists are
+ *            byte-identical, so the matrix here is unaffected. Verified, not
+ *            assumed.
  *
  * The format matrix in `formats.ts` is unaffected: read/write capability per
  * format did not change.
  */
-export const PRODUCT_FACTS_APP_COMMIT = '16273508d9a0a025c28cab28b104c49f55439819'
+export const PRODUCT_FACTS_APP_COMMIT = '048a5a49aba943941e940b5109bb78a65a510fc9'
 
 export const product = {
   name: 'PixelFerry',

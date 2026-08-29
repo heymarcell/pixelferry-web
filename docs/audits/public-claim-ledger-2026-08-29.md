@@ -276,7 +276,15 @@ The format matrix is unaffected. Re-verified at `1627350`: `OUTPUT_FORMAT_ORDER`
 webp, avif, heic; 17 cross-platform and 59 macOS-only extensions — identical to
 the snapshot in `test/format-model.test.ts`.
 
-The pin is now `16273508d9a0a025c28cab28b104c49f55439819`.
+A fourth commit, `048a5a4`, landed while this section was being written. It
+rewrites the app's own format blurbs to drop superlatives — "AV1 · best size"
+removed as "a ranking the app cannot know". Display strings only:
+`OUTPUT_FORMAT_ORDER`, `QUALITY_FORMATS` and the extension lists are
+byte-identical, verified rather than assumed.
+
+The pin is now `048a5a49aba943941e940b5109bb78a65a510fc9`. Four app commits
+landed during one review. The snapshot is only ever true of the commit it names,
+which is the argument for naming one.
 
 ## 11. What remains open
 
