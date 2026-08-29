@@ -74,7 +74,23 @@ const { scheme = 'dark', bodyClass = '', ...seo } = Astro.props
       const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       const targets = document.querySelectorAll<HTMLElement>('[data-reveal]')
 
-      if (!reduced && targets.length > 0 && 'IntersectionObserver' in window) {
+      /*
+       * Never arm the reveals in a hidden document.
+       *
+       * A backgrounded tab — a ⌘-click, a restored session, a prerender, a
+       * screenshot service — suspends BOTH IntersectionObserver callbacks and
+       * CSS transitions. Arming there would hide every `[data-reveal]` element
+       * with nothing able to un-hide it: the observer never fires, and even the
+       * timeout below cannot help, because the transition it triggers does not
+       * run either. That is the exact failure this whole build exists to avoid,
+       * and it was reproduced in a real backgrounded Chrome tab.
+       *
+       * If the page is not visible when this runs, the animation is skipped and
+       * the content simply stays rendered.
+       */
+      const visible = document.visibilityState === 'visible'
+
+      if (visible && !reduced && targets.length > 0 && 'IntersectionObserver' in window) {
         document.documentElement.classList.add('js-reveal')
 
         const observer = new IntersectionObserver(

@@ -59,6 +59,37 @@ test.describe('homepage', () => {
     await context.close()
   })
 
+  test('renders fully in a backgrounded tab', async ({ page }) => {
+    /*
+     * A hidden document suspends both IntersectionObserver callbacks and CSS
+     * transitions. Arming the reveals there would hide every element with
+     * nothing able to un-hide it — the same shape of failure as the React
+     * build, reachable by ⌘-clicking a link, restoring a session, or being
+     * rendered by a prerender or screenshot service.
+     *
+     * So the enhancement refuses to arm unless the document is visible.
+     */
+    await page.addInitScript(() => {
+      Object.defineProperty(document, 'visibilityState', {
+        configurable: true,
+        get: () => 'hidden',
+      })
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
+    })
+    await page.goto('/')
+
+    expect(
+      await page.evaluate(() => document.documentElement.classList.contains('js-reveal')),
+      'reveals must not arm in a hidden document',
+    ).toBe(false)
+
+    const faded = await page
+      .locator('[data-reveal]')
+      .evaluateAll((nodes) => nodes.filter((n) => getComputedStyle(n).opacity !== '1').length)
+    expect(faded).toBe(0)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
+  })
+
   test('makes no third-party request on load', async ({ page }) => {
     // No trackers, no fonts from a CDN, no Turnstile before it is needed.
     const external: string[] = []

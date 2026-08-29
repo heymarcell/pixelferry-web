@@ -88,8 +88,7 @@ const faqs = [
           PixelFerry takes the pile. One queue, whatever went into it, and one set of output rules
           applied to all of it — format, quality, dimensions, destination — with {
             product.concurrency
-          }
-          files converting at a time and a readable result on every row.
+          }{' '}files converting at a time and a readable result on every row.
         </p>
       </div>
     </div>
@@ -151,8 +150,7 @@ const faqs = [
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
             {outputFormats.map((f) => f.label).join(', ')}. Quality {limits.quality.min}–{
               limits.quality.max
-            }
-            for JPG, WebP and AVIF; PNG and TIFF are lossless, GIF is a 256-colour palette.
+            }{' '}for JPG, WebP and AVIF; PNG and TIFF are lossless, GIF is a 256-colour palette.
           </dd>
         </div>
         <div>

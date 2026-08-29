@@ -20,10 +20,27 @@ const pages = indexable(await loadPages())
 /** Pages generated from a shared template, where duplication is the risk. */
 const templated = pages.filter((page) => /^(convert|guides)\//.test(page.rel))
 
-/** Visible prose of the <main> element, collapsed. */
+/**
+ * Visible prose of the <main> element, collapsed.
+ *
+ * Tags become a SPACE rather than being deleted. `.text` concatenates raw text
+ * nodes, so a heading ending "…in the file" followed by "Compression model"
+ * becomes "fileCompression" — which both distorts the shingles and buries the
+ * genuine run-together words this file also looks for.
+ */
 function bodyText(page) {
   const main = page.dom.querySelector('main') ?? page.dom
-  return main.text.replace(/\s+/g, ' ').trim()
+  return main.innerHTML
+    .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/\s+/g, ' ')
+    .trim()
 }
 
 /** Shingles: overlapping 8-word windows, the standard near-duplicate unit. */
@@ -126,6 +143,39 @@ for (const page of pages) {
   for (const { pattern, why } of FORBIDDEN) {
     const match = text.match(pattern)
     report.check(!match, `${page.rel}: ${why} — "${match?.[0]}"`)
+  }
+}
+
+// ── Words run together ────────────────────────────────────────────────────
+//
+// Astro 7 defaults to `compressHTML: 'jsx'`, which strips whitespace between
+// an expression and adjacent text. That silently shipped "with 4files
+// converting" and "Quality 1–100for JPG" on the homepage — invisible in the
+// source, obvious on the page. The fix is an explicit `{' '}`; this catches
+// the shape the omission leaves behind.
+const CODE_WORDS = new Set([
+  'compressionlevel',
+  'formatoptions',
+  'resamplewidth',
+  'resampleheight',
+  'resampleheightwidthmax',
+  'base64',
+  'utf8',
+  'wcag',
+  'jpeg2000',
+])
+
+for (const page of pages) {
+  const text = bodyText(page)
+  for (const match of text.matchAll(/\b(\w*?\d+[a-z]{3,}|[a-z]{3,}[A-Z][a-z]{3,})\b/g)) {
+    const word = match[0]
+    if (CODE_WORDS.has(word.toLowerCase())) continue
+    if (/^\d+(px|s|ms|kb|mb|gb|x)$/i.test(word)) continue
+    report.check(
+      false,
+      `${page.rel}: "${word}" reads as two words run together — an expression ` +
+        `next to text needs an explicit {' '}`,
+    )
   }
 }
 
