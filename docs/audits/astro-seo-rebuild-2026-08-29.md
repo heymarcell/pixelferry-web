@@ -355,11 +355,39 @@ it needs are the same ones §1 already asks for.
 `hello@pixelferry.app`, `privacy@pixelferry.app` and `beta@pixelferry.app` are
 linked from the site. They must exist before launch or be changed.
 
-### Cloudflare account actions
+### Cloudflare — preview verified, cutover outstanding
 
-Creating the preview Worker, and the production cutover itself, need
-authenticated Cloudflare access — see `docs/deployment.md` for the exact
-procedure and rollback.
+A non-production Worker was deployed and checked on real Cloudflare
+infrastructure:
+
+`https://pixelferry-web-preview.neongod-llc.workers.dev`
+
+| Check                                      | Result                                    |
+| ------------------------------------------ | ----------------------------------------- |
+| Unknown URL                                | **404** (the defect this migration fixes) |
+| `noindex, nofollow` on all 8 checked pages | present                                   |
+| `/privacy/` and `/privacy.html`            | 307 → `/privacy`                          |
+| CSP                                        | served, no `'unsafe-inline'`              |
+| `/_astro/*`                                | `max-age=31536000, immutable`             |
+| HTML                                       | `max-age=0, must-revalidate`              |
+| sitemap, robots, llms.txt, favicon.ico     | 200                                       |
+
+It is deployed from `wrangler.preview.jsonc` — a separate Worker name, with
+`workers_dev` enabled there and only there, and no routes. Production's config
+keeps `workers_dev: false` and declares no custom domain, so a `wrangler deploy`
+cannot move the live site.
+
+The cutover itself still needs explicit authorisation — see
+`docs/deployment.md`.
+
+### A legal-entity LEAD, deliberately not used
+
+The Cloudflare account is named **"neongod LLC"**. That is a lead, not a fact,
+and it has NOT been written into the Privacy Policy. An account name is not
+evidence of the data controller for this service — the controller could be a
+different entity, a sole trader, or a natural person, and the registered
+address, company number and EU-representative position are still unknown
+regardless. Confirm it out of band and fill in §1 deliberately.
 
 ### `www.pixelferry.app`
 

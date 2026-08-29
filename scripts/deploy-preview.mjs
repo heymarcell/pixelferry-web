@@ -37,6 +37,11 @@ if (!home.includes('content="noindex, nofollow"')) {
 }
 
 console.log(`\n▸ deploying to ${NAME} (workers.dev enabled for this Worker only)\n`)
-run('npx', ['wrangler', 'deploy', '--name', NAME, '--var', 'PF_ENV:preview'])
+// A SEPARATE config, not a flag override on production's. `wrangler.jsonc`
+// keeps `workers_dev: false` and declares no routes, so nothing here can reach
+// the live domain even by accident; `wrangler.preview.jsonc` turns workers.dev
+// on for this Worker alone, which is safe precisely because every page it
+// serves is noindexed (asserted above).
+run('npx', ['wrangler', 'deploy', '--config', 'wrangler.preview.jsonc', '--name', NAME])
 
 console.log('\n✓ preview deployed. Rebuild without PF_NOINDEX before any production deploy.\n')
