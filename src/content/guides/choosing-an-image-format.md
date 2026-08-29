@@ -155,11 +155,11 @@ great deal of software — which is why
 different software produces different results from the same file. See
 [RAW to JPG](/convert/raw-to-jpg) for what that means in practice.
 
-**TIFF** is the archive workhorse: a container that is usually lossless — though
-it can hold JPEG-compressed data too — 16-bit capable, CMYK capable, and
-enormous. Keep the 16-bit original as the master; PixelFerry reads it but writes
-8-bit LZW TIFF, like everything else it outputs. Then
-[convert copies for delivery](/convert/tiff-to-jpg).
+**TIFF** is what print and imaging workflows keep masters in: a container that
+is usually lossless — though it can hold JPEG-compressed data too — 16-bit
+capable, CMYK capable, and enormous. Keep the 16-bit original as the master;
+PixelFerry reads it but writes 8-bit LZW TIFF, like everything else it outputs.
+Then [convert copies for delivery](/convert/tiff-to-jpg).
 
 ## Practical rules
 
