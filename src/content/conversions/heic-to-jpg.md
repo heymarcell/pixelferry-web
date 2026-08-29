@@ -38,8 +38,9 @@ whatChanges:
       profile is carried across, so the JPEG stays P3-tagged and colour-managed
       apps keep showing the same colours.
 limitations:
-  - PixelFerry reads HEIC but never writes it, so this conversion is one-way.
-    Keep your originals if you might want the smaller files back.
+  - Converting is lossy in both directions, so keep the HEIC originals. (On
+    macOS PixelFerry can write HEIC as well as read it — but re-encoding a JPEG
+    back to HEIC compounds loss rather than undoing it.)
   - Live Photo motion and portrait depth maps are discarded, because JPEG has
     nowhere to put them.
   - JPEG is lossy and generational. Re-encoding an already-converted JPEG at a
@@ -79,9 +80,14 @@ the whole reason Apple switched.
 The catch is reach, and it is narrower than it used to be. macOS, iOS and
 current Windows all read HEIC, and many mainstream editors now do too. What
 still trips people up is everything else: upload forms with a fixed allow-list,
-older software, some content management systems, print portals — and web pages,
-since no browser displays HEIC natively. The failure is rarely graceful; a form
-rejects the type, or accepts it and produces a broken thumbnail.
+older software, some content management systems and print portals.
+
+On the web specifically, support is real but narrow. Safari has displayed HEIC
+in `<img>` and `<picture>` since version 17, and WKWebView with it. Outside
+WebKit it is limited — the HEVC patent licensing behind HEIC is the reason
+usually given — so JPEG, WebP and AVIF remain the safe choices for a page you do
+not control. The failure is rarely graceful either way; a form rejects the type,
+or accepts it and produces a broken thumbnail.
 
 Converting to JPG is how you stop thinking about it.
 

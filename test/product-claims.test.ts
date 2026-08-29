@@ -1,7 +1,7 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { product, inputFormats, outputFormats, limits } from '../src/data/product'
+import { product, readableFormats, writableFormats, limits } from '../src/data/product'
 
 /**
  * Guards against product-claim drift.
@@ -50,29 +50,24 @@ describe('product facts', () => {
     expect(limits.pdfPageCap).toBe(100)
   })
 
-  it('lists exactly the formats the app can write', () => {
-    // pixelferry-app README §2: PNG · JPG · WebP · AVIF · TIFF · GIF · ICO
-    expect(outputFormats.map((f) => f.label)).toEqual([
-      'PNG',
-      'JPG',
-      'WebP',
-      'AVIF',
-      'TIFF',
-      'GIF',
-      'ICO',
-    ])
-  })
-
-  it('never claims HEIC, PSD, PDF or SVG as an output', () => {
-    const outputs = outputFormats.map((f) => f.label.toUpperCase())
-    for (const inputOnly of ['HEIC', 'PSD', 'PDF', 'SVG', 'RAW']) {
-      expect(outputs).not.toContain(inputOnly)
+  /*
+   * The output set, and the ones that are genuinely never written, are pinned
+   * against the app's executable source in `format-model.test.ts`. The
+   * invariant that used to live here — "never claims HEIC as an output" —
+   * asserted the app README's stale §2 and was FALSE: the app has written HEIC
+   * via `encodeHeicViaSips` all along. Deleted rather than relaxed, because a
+   * test that enforces a wrong fact is worse than no test.
+   */
+  it('never claims PSD, PDF or SVG as an output', () => {
+    const outputs = writableFormats.map((f) => f.label.toUpperCase())
+    for (const readOnly of ['PSD', 'PDF', 'SVG', 'RAW']) {
+      expect(outputs.join(' ')).not.toContain(readOnly)
     }
   })
 
   it('marks the macOS-only decoders as macOS-only', () => {
-    const raw = inputFormats.find((f) => f.label === 'Camera RAW')
-    expect(raw?.macOSOnly).toBe(true)
+    const raw = readableFormats.find((f) => f.label === 'Camera RAW')
+    expect(raw?.read).toBe('macos')
   })
 })
 

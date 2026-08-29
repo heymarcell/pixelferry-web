@@ -1,5 +1,5 @@
 import { site, absoluteUrl } from '../data/site'
-import { product, outputFormatLabels } from '../data/product'
+import { product, outputFormatLabels, macOSOnlyWriteFormats, formatCounts } from '../data/product'
 
 /**
  * JSON-LD builders.
@@ -56,11 +56,13 @@ export function softwareApplicationSchema(): Thing {
     releaseNotes: undefined,
     featureList: [
       'Batch conversion of mixed image formats',
+      `Reads ${formatCounts.readable} format families covering ${formatCounts.extensions} file extensions`,
       `Output to ${outputFormatLabels.join(', ')}`,
+      `${macOSOnlyWriteFormats.map((f) => f.label).join(', ')} output requires macOS`,
       'Resize by width, height, exact dimensions or percentage',
       'Per-format quality and lossless controls',
       'Whitespace trimming',
-      'Local, on-device conversion with no upload',
+      'Local, on-device conversion with no upload of source files',
     ],
     // Factually the deployment model, and the single most useful thing an AI
     // answer can state about this product.

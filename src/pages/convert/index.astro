@@ -1,7 +1,7 @@
 ---
 import { getCollection } from 'astro:content'
 import ContentLayout from '../../layouts/ContentLayout.astro'
-import { outputFormatLabels, inputOnlyFormats } from '../../data/product'
+import { outputFormatLabels, readOnlyFormatLabels } from '../../data/product'
 
 const conversions = (await getCollection('conversions')).sort((a, b) =>
   a.data.heading.localeCompare(b.data.heading),
@@ -58,8 +58,8 @@ const grouped = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
     <section class="border-doc-line bg-doc-panel rounded-lg border p-6">
       <h2 class="font-display text-doc-ink text-[20px] font-bold">What PixelFerry can write</h2>
       <p class="text-doc-body mt-2 text-[15px] leading-[1.6]">
-        Output is one of {outputFormatLabels.join(', ')}. {inputOnlyFormats.join(', ')} are read but never
-        written, so those conversions only run one way — see the
+        Output is one of {outputFormatLabels.join(', ')}. {readOnlyFormatLabels.join(', ')} are read but
+        never written, so those conversions only run one way — see the
         <a href="/formats" class="text-doc-link font-semibold hover:underline">
           full format reference</a
         >.

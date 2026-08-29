@@ -1,6 +1,14 @@
 ---
 import Icon from '../Icon.astro'
-import { product, limits, outputFormats, inputOnlyFormats, capabilities } from '../../data/product'
+import {
+  product,
+  limits,
+  writableFormats,
+  readOnlyFormatLabels,
+  macOSOnlyWriteFormats,
+  qualityFormats,
+  capabilities,
+} from '../../data/product'
 import { getCollection } from 'astro:content'
 
 /**
@@ -43,8 +51,12 @@ const faqs = [
     a: `${product.minimumOS.label}, on ${product.architectures}. Windows and Linux targets exist in the codebase but have never been built, signed or tested, so they are not offered.`,
   },
   {
-    q: 'Can it convert to HEIC or write a PSD?',
-    a: `No. ${inputOnlyFormats.join(', ')} are read but never written. Output is one of ${outputFormats.map((f) => f.label).join(', ')}.`,
+    q: 'What can it convert to?',
+    a: `${writableFormats.map((f) => f.label).join(', ')}. Writing ${macOSOnlyWriteFormats
+      .map((f) => f.label)
+      .join(
+        ', ',
+      )} needs macOS, because that encode goes through the system sips tool; the rest work wherever the app runs. ${readOnlyFormatLabels.join(', ')} are read but never written.`,
   },
   {
     q: 'What happens to a multi-page PDF?',
@@ -148,9 +160,12 @@ const faqs = [
         <div>
           <dt class="font-display text-[15px] font-bold text-white">Format</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            {outputFormats.map((f) => f.label).join(', ')}. Quality {limits.quality.min}–{
-              limits.quality.max
-            }{' '}for JPG, WebP and AVIF; PNG and TIFF are lossless, GIF is a 256-colour palette.
+            {writableFormats.map((f) => f.label).join(', ')} — writing HEIC needs macOS. Quality{
+              ' '
+            }
+            {limits.quality.min}–{limits.quality.max} for{' '}
+            {qualityFormats.map((f) => f.label).join(', ')}; PNG and TIFF are lossless, GIF is a
+            256-colour palette.
           </dd>
         </div>
         <div>

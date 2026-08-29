@@ -1,19 +1,46 @@
 /**
  * The website's single source of truth for what PixelFerry actually is.
  *
- * Every product claim on this site reads from here, so a fact can only be
- * wrong in ONE place. The values are transcribed from the private product
- * repo `heymarcell/pixelferry-app` — `README.md` §1/§2/§7 and `CLAUDE.md` —
- * which is the authority. When the app changes, change this file, not the
- * pages.
+ * Every product claim on this site reads from here (and from `formats.ts`), so
+ * a fact can only be wrong in ONE place.
  *
- * `npm test` guards the facts that have already drifted once (see
- * `test/product-claims.test.ts`): the minimum macOS version, and the word
- * "native" used as a technical claim rather than as "native-feeling".
+ * ── Source-of-truth order ──────────────────────────────────────────────────
+ *
+ * Values are transcribed from the private product repo
+ * `heymarcell/pixelferry-app`, reconciled in this order:
+ *
+ *   1. executable source
+ *   2. tests exercising that source
+ *   3. typed shared configuration used by the UI and pipeline
+ *   4. only then README / docs
+ *
+ * When source and README disagree, SOURCE AND TESTS WIN. That is not
+ * theoretical: at the pinned commit below the app README §2 still says
+ * "SVG, HEIC, PSD, PDF, RAW are input-only", while `shared/settings.ts` lists
+ * `heic` in VALID_FORMATS, OUTPUT_FORMAT_ORDER and QUALITY_FORMATS,
+ * `main.ts` dispatches `format === 'heic'` to `encodeHeicViaSips`, and
+ * `pipeline.test.ts` tests `buildHeicSipsArgs`. HEIC output is real; the
+ * README is stale, and this site follows the source.
+ *
+ * `npm test` guards the facts that have already drifted (see
+ * `test/product-claims.test.ts`).
  */
 
-/** Bump when re-synced against pixelferry-app so drift is auditable. */
+/** Date of the last manual reconciliation against the app repo. */
 export const PRODUCT_FACTS_SYNCED = '2026-08-29'
+
+/**
+ * The EXACT `pixelferry-app` revision these capabilities were verified against.
+ *
+ * A date is too weak for a cross-repository truth snapshot — it says when
+ * someone looked, not what they looked at. This says what they looked at.
+ *
+ * It is an audit marker for humans and agents, not a runtime dependency: public
+ * CI must never clone the private repo. The tests in this repo prove the
+ * website agrees with THIS SNAPSHOT, not that it will agree with app `main`
+ * tomorrow. Re-verify and bump both when syncing.
+ */
+export const PRODUCT_FACTS_APP_COMMIT = '3309d0b5c89b29abeb458a39e37c554ad5364011'
 
 export const product = {
   name: 'PixelFerry',
@@ -64,124 +91,52 @@ export const product = {
 } as const
 
 // ─── Formats ────────────────────────────────────────────────────────────────
+//
+// The format capability model lives in `formats.ts` and is re-exported here so
+// existing imports keep working. It tracks read and write SEPARATELY and per
+// format, because they genuinely differ — ICO is read only on macOS but written
+// anywhere, HEIC is read anywhere but written only on macOS.
+//
+// There is deliberately no hand-written `inputOnlyFormats` array any more. The
+// last one listed five entries, called HEIC input-only (wrong), and could not
+// express a group like ICO/ICNS where one member is writable and the other is
+// not. `readOnlyFormats` is derived instead.
 
-export type FormatSupport = {
-  /** Uppercase display label, e.g. 'HEIC'. */
-  label: string
-  /** Lowercase extensions the app accepts, without the dot. */
-  extensions: string[]
-  /** Short, factual description of the format. */
-  summary: string
-  /** True when macOS ImageIO does the decoding (so it is macOS-only). */
-  macOSOnly?: boolean
-  /** Anything a user would be annoyed to discover after the fact. */
-  caveat?: string
+export {
+  type Availability,
+  type Format,
+  formats,
+  readableFormats,
+  writableFormats,
+  readOnlyFormats,
+  macOSOnlyReadFormats,
+  macOSOnlyWriteFormats,
+  qualityFormats,
+  allInputExtensions,
+  allOutputLabels,
+  OUTPUT_ORDER,
+  groups,
+  capabilityOf,
+} from './formats'
+
+import {
+  readableFormats as _readable,
+  writableFormats as _writable,
+  readOnlyFormats as _readOnly,
+} from './formats'
+
+/** Output format labels, in the order the app offers them. */
+export const outputFormatLabels = _writable.map((f) => f.label)
+
+/** Read-but-never-written format labels. Derived — never asserted by hand. */
+export const readOnlyFormatLabels = _readOnly.map((f) => f.label)
+
+/** Counts used in prose, so a sentence cannot drift from the model. */
+export const formatCounts = {
+  readable: _readable.length,
+  writable: _writable.length,
+  extensions: new Set(_readable.flatMap((f) => f.extensions)).size,
 }
-
-/** Formats the app can read. Source: pixelferry-app README §2. */
-export const inputFormats: FormatSupport[] = [
-  {
-    label: 'JPEG',
-    extensions: ['jpg', 'jpeg'],
-    summary: 'The universal lossy photo format.',
-  },
-  {
-    label: 'PNG',
-    extensions: ['png'],
-    summary: 'Lossless, with an alpha channel.',
-  },
-  {
-    label: 'WebP',
-    extensions: ['webp'],
-    summary: 'Lossy or lossless, with alpha and animation.',
-  },
-  {
-    label: 'AVIF',
-    extensions: ['avif'],
-    summary: 'AV1-based, the smallest of the modern web formats.',
-  },
-  {
-    label: 'HEIC / HEIF',
-    extensions: ['heic', 'heif', 'hif'],
-    summary: 'What an iPhone saves photos as by default.',
-    caveat: 'Input only — PixelFerry reads HEIC but does not write it.',
-  },
-  {
-    label: 'TIFF',
-    extensions: ['tiff', 'tif'],
-    summary: 'Lossless, the print and archive workhorse.',
-  },
-  {
-    label: 'GIF',
-    extensions: ['gif'],
-    summary: 'A 256-colour palette, with animation.',
-  },
-  {
-    label: 'SVG',
-    extensions: ['svg'],
-    summary: 'Vector artwork, rasterised on conversion.',
-    caveat: 'Input only — output is always a raster image.',
-  },
-  {
-    label: 'PSD / PSB',
-    extensions: ['psd', 'psb'],
-    summary: 'Photoshop documents.',
-    caveat: 'Flattened to their composite before conversion. Input only.',
-  },
-  {
-    label: 'PDF',
-    extensions: ['pdf'],
-    summary: 'Rendered to one image per page.',
-    caveat: 'Input only, and capped at the first 100 pages.',
-  },
-  {
-    label: 'Camera RAW',
-    extensions: ['dng', 'cr2', 'cr3', 'nef', 'arw', 'raf', 'orf', 'rw2'],
-    summary: 'Canon, Nikon, Sony, Fujifilm, Olympus, Panasonic, Adobe DNG and more.',
-    macOSOnly: true,
-    caveat: 'Demosaiced by macOS ImageIO. Input only.',
-  },
-  {
-    label: 'EXR / HDR',
-    extensions: ['exr', 'hdr'],
-    summary: 'High dynamic range, tone-mapped to a displayable range on conversion.',
-    macOSOnly: true,
-  },
-  {
-    label: 'BMP / TGA',
-    extensions: ['bmp', 'tga'],
-    summary: 'Legacy uncompressed raster formats.',
-    macOSOnly: true,
-  },
-  {
-    label: 'ICO / ICNS',
-    extensions: ['ico', 'icns'],
-    summary: 'Windows and macOS icon containers.',
-    macOSOnly: true,
-  },
-  {
-    label: 'JPEG XL / JPEG 2000',
-    extensions: ['jxl', 'jp2'],
-    summary: 'Newer and older JPEG successors.',
-    macOSOnly: true,
-  },
-]
-
-/** Formats the app can write. Source: pixelferry-app README §2. */
-export const outputFormats: FormatSupport[] = [
-  { label: 'PNG', extensions: ['png'], summary: 'Lossless, keeps transparency.' },
-  { label: 'JPG', extensions: ['jpg'], summary: 'Lossy, quality 1–100, optional progressive.' },
-  { label: 'WebP', extensions: ['webp'], summary: 'Lossy or lossless, keeps transparency.' },
-  { label: 'AVIF', extensions: ['avif'], summary: 'Lossy or lossless, the smallest files.' },
-  { label: 'TIFF', extensions: ['tiff'], summary: 'Lossless LZW.' },
-  { label: 'GIF', extensions: ['gif'], summary: 'A 256-colour palette.' },
-  { label: 'ICO', extensions: ['ico'], summary: 'Windows icon bundles.' },
-]
-
-/** Read but never written. Stated plainly so nobody expects a round trip. */
-export const inputOnlyFormats = ['HEIC', 'PSD', 'PDF', 'SVG', 'camera RAW'] as const
-
-export const outputFormatLabels = outputFormats.map((f) => f.label)
 
 /** Hard, quotable product limits. Each one is checked against the app repo. */
 export const limits = {
@@ -210,6 +165,13 @@ export const capabilities = {
    */
   metadata:
     'Removing metadata strips EXIF, XMP and IPTC but keeps the ICC colour profile, so a Display P3 image stays Display P3.',
+  /**
+   * HEIC output does NOT go through `applyFormat` — `main.ts` dispatches it to
+   * `encodeHeicViaSips` before the encoder switch — so the metadata option
+   * above does not govern it. What survives is whatever `sips` carries across.
+   */
+  metadataHeicCaveat:
+    'HEIC output is transcoded by the system sips tool rather than the bundled encoder, so the metadata option does not apply to it.',
   targetSize: 'A target file size re-encodes at successive quality values until the output fits.',
 } as const
 

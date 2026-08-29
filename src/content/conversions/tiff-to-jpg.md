@@ -70,8 +70,9 @@ channel, it carries CMYK and spot colour, and it has been stable long enough
 that a file written in 1995 still opens.
 
 That makes it right for scanning, print production and digital preservation, and
-wrong for almost everything else. Browsers do not display it. Email clients
-choke on the size. Most web tools reject it.
+wrong for almost everything else. Safari displays TIFF; other browsers do not
+without an add-on, so it is not a format to put on a page. Email clients choke
+on the size, and most web upload tools reject it outright.
 
 So the archive stays TIFF, and you convert copies.
 
