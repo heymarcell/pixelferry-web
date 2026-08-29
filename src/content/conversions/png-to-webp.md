@@ -1,9 +1,8 @@
 ---
 title: Convert PNG to WebP on Mac — lossless, and usually smaller
 description:
-  WebP's lossless mode keeps every pixel and every alpha value, and Google
-  measures it about 26% smaller than PNG on average. When that holds, when it
-  does not, and how to batch a folder of UI assets.
+  Lossless WebP keeps every pixel and every alpha value, and Google measures it
+  about 26% smaller than PNG on average. When that holds, and when it does not.
 heading: Convert PNG to WebP on a Mac
 from: PNG
 to: WebP

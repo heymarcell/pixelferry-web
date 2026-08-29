@@ -46,9 +46,12 @@ npm run verify     # the full pre-push chain
 | `npm run audit:content`                    | anti-scaled-content: uniqueness, substance, honesty                   |
 | `npm run lighthouse`                       | performance budgets (`-- --desktop` for desktop)                      |
 | `npm run icons`                            | regenerate the favicon set                                            |
-| **`npm run verify`**                       | **everything above, in order**                                        |
+| **`npm run verify`**                       | **everything above except Lighthouse, in order**                      |
+| `npm run verify:full`                      | `verify` plus Lighthouse (mobile and desktop)                         |
 
 `verify` builds _before_ it tests — the audits and E2E suite all read `dist/`.
+It stops short of Lighthouse, which is slow and wants a quiet machine; CI runs
+that as its own step and `verify:full` runs it locally.
 
 ## Pages
 
@@ -136,13 +139,14 @@ block, and the `[PROVIDER NAME AND COUNTRY]` rows. §8 names the Hungarian DPA
 
 ## Documentation
 
-|                                                  |                                                                                         |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------- |
-| [`CLAUDE.md`](./CLAUDE.md)                       | agent guide: product, waitlist, SEO, privacy and security invariants                    |
-| [`docs/architecture.md`](./docs/architecture.md) | rendering model, what JavaScript ships, relationship to the API                         |
-| [`docs/seo.md`](./docs/seo.md)                   | metadata system, structured-data policy, the anti-scaled-content rule, launch procedure |
-| [`docs/deployment.md`](./docs/deployment.md)     | Cloudflare target, preview deploys, cutover **and rollback**                            |
-| [`docs/audits/`](./docs/audits/)                 | the migration audit and its evidence                                                    |
+|                                                        |                                                                                         |
+| ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| [`CLAUDE.md`](./CLAUDE.md)                             | agent guide: product, waitlist, SEO, privacy and security invariants                    |
+| [`docs/architecture.md`](./docs/architecture.md)       | rendering model, what JavaScript ships, relationship to the API                         |
+| [`docs/seo.md`](./docs/seo.md)                         | metadata system, structured-data policy, the anti-scaled-content rule, launch procedure |
+| [`docs/deployment.md`](./docs/deployment.md)           | Cloudflare target, preview deploys, merge safety, cutover **and rollback**              |
+| [`docs/content-sources.md`](./docs/content-sources.md) | where every non-obvious technical claim on the site comes from                          |
+| [`docs/audits/`](./docs/audits/)                       | the migration audit and its evidence                                                    |
 
 ## Before going live
 

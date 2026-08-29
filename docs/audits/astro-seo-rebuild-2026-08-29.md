@@ -324,6 +324,126 @@ npm run verify
 
 ---
 
+## 8b. Independent audit corrections (2026-08-29, second pass)
+
+An independent review found the migration sound but the PASS premature. Four
+classes of defect, all now fixed and guarded.
+
+### A no-JavaScript privacy failure (P0)
+
+The waitlist form had no `method` and no `action`, with `name="email"` and
+`name="consent"`. Without JavaScript the browser's defaults applied, and
+submitting navigated to:
+
+```
+/?email=pii-leak-test%40example.invalid&consent=on
+```
+
+Reproduced in a JavaScript-disabled Chromium before any change. The address
+reached the URL, the history entry and any downstream referrer or log, and an
+unverified `consent=on` was recorded alongside it. Source comments asserted the
+opposite — that the form was safely progressively enhanced and browser-validated
+— and both claims were false.
+
+Fixed fail-closed, three independent ways: `method="dialog"` (a spec-defined
+no-op with no ancestor `<dialog>`, verified on click and Enter in Chromium and
+WebKit), no `name` on either control (only named controls enter the form data
+set), and no `action`. A `<noscript>` block offers a mailto: route to the beta
+address with nothing pre-filled and nothing implying consent.
+
+`test/e2e/no-js-waitlist.spec.ts` — 6 tests × 3 browsers. Each of the three
+layers was mutation-tested independently, plus the original defect restored in
+full; all four fail the suite.
+
+### Factually wrong content (P0)
+
+The anti-scaled-content audit measures uniqueness, not truth, and several
+confident claims were simply wrong. Verified against primary sources and
+corrected:
+
+| Claim                                                                           | Source that contradicts it                                                                                                                                         |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| "Tools → Adjust Size works on one image at a time"                              | Apple: "To resize multiple images at the same time, display the images in the same window, select them in that window's sidebar, then choose Tools > Adjust Size." |
+| "lossy WebP is the only way to have both alpha and small files"                 | MDN: AVIF has alpha support, lossy and lossless, 8/10/12-bit                                                                                                       |
+| lossless WebP is "strictly better" / "no downside" / "a free win"               | Google's WebP FAQ documents conversions where WebP is **larger**                                                                                                   |
+| "25–35% smaller", "40–50%", "15–20%", "roughly half", "a tenth of"              | Google's study measures **25–34%** at matched SSIM; the rest had no source                                                                                         |
+| "WebP q ≈ JPEG q + 5–10", "AVIF 60–65 ≈ JPEG 85"                                | quality is an encoder-specific control, not a unit                                                                                                                 |
+| "AVIF takes several times longer" (generic)                                     | now measured on PixelFerry's own encoder                                                                                                                           |
+| "RAW keeps 12–14 bits per channel", "recover a blown sky", ImageIO is "neutral" | photosites record one value each, not channels; clipped data is unrecoverable; Apple's rendering is a choice                                                       |
+| "almost nothing outside Apple's ecosystem reads HEIC"                           | current Windows and many editors do                                                                                                                                |
+
+**Benchmarked, not asserted.** sharp 0.35.4 / libvips 8.18.6, multithreaded, 12
+MP photographic source, median of 3:
+
+| Encoder call (as in `pipeline.ts`)   | Time     | Size      |
+| ------------------------------------ | -------- | --------- |
+| `jpeg({quality: 80, mozjpeg: true})` | 446 ms   | 770 KiB   |
+| `webp({quality: 80})`                | 762 ms   | 1,465 KiB |
+| `avif({quality: 80})`                | 2,308 ms | 2,991 KiB |
+| `avif({quality: 60})`                | 1,638 ms | 949 KiB   |
+
+So AVIF q80 is ~5x mozjpeg and ~3x WebP — now stated as a PixelFerry
+measurement. The same run also produced an AVIF _larger_ than the WebP at the
+same nominal quality on noisy content, which is now the page's illustration that
+the quality scales are not comparable.
+
+Sources are recorded in `docs/content-sources.md`, and `audit:content` gained
+eight patterns pinning the specific false statements plus a check that any "N–M%
+smaller" has a source within ~140 characters. Five representative mutations fail
+the audit.
+
+### An impossible step in the cutover runbook (P1)
+
+The runbook said to deploy the production Worker and then "verify the deployment
+on its own hostname". With `workers_dev: false` and `preview_urls: false` there
+_is_ no hostname — deliberately, since that is what prevents an indexable
+duplicate. Corrected to say so plainly, to point at the preview Worker as the
+thing that is actually verified, and to describe the supported alternative
+(`wrangler versions upload` with `preview_urls` on, **behind Cloudflare
+Access**) as account configuration requiring its own authorisation.
+
+### Merging could not deploy production — verified (P0 gate)
+
+A Git-connected Pages project deploys on every push to its production branch, so
+merging PR #2 could in principle have changed `pixelferry.app` — and, because
+the old build read `VITE_*` and this one reads `PUBLIC_*`, it would have shipped
+without a waitlist endpoint or Turnstile sitekey.
+
+It cannot. `wrangler pages project list` reports **`Git Provider: No`** for
+`pixelferry-web`, and `wrangler pages download config` returns no build
+configuration: it is a **Direct Upload** project, which by design does not
+deploy on a push. All four deployments were manual uploads; the most recent
+matches `main` at `a365f7e`, a month old. The dashboard re-check is in
+`docs/deployment.md`.
+
+### Repository protection did not exist (P1)
+
+`ci.yml` claimed `check` was "the required status context in the `protect-main`
+ruleset". There were no rulesets (`[]`) and no classic branch protection (404).
+
+Created, mirroring `pixelferry-app`'s ruleset exactly: PR required, `check`
+required (the bare job id, verified against the contexts PR #2 emits), squash
+merges only, no force-push, no deletion, admin bypass so the owner is never
+locked out. Verified active; `main` now reports all four rules; PR #2 remains
+`MERGEABLE` / `CLEAN`.
+
+### Consistency
+
+- `npm run verify` never ran Lighthouse while the report grouped it under "Tests
+  — npm run verify". `verify` now says so, and `verify:full` adds it.
+- `astro.config.mjs` referenced a `custom-sitemap-lastmod` implementation that
+  never existed. The behaviour — emit no `lastmod` at all — is now described
+  accurately.
+- `cf:preview` ran `wrangler versions upload`, which returns a preview URL only
+  when `preview_urls` is enabled; production has it off, so it could never do
+  what its name promised. It now runs the preview-deploy script.
+- npm's `allowScripts` warning was actionable, not cosmetic: install scripts run
+  today but npm 12 will **skip** unapproved ones, and esbuild, workerd and
+  fsevents all need theirs to fetch platform binaries. All five entries approved
+  and pinned; a clean `npm ci` is now silent on both macOS and Linux.
+
+---
+
 ## 9. Unresolved external blockers
 
 None of these can be closed from inside this repository, and none of them are

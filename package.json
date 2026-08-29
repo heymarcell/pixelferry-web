@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Public marketing site for PixelFerry \u2014 batch image conversion for macOS.",
+  "description": "Public marketing site for PixelFerry — batch image conversion for macOS.",
   "license": "UNLICENSED",
   "engines": {
     "node": ">=22.12.0"
@@ -24,10 +24,11 @@
     "audit:content": "node scripts/audit-content.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
     "verify": "npm run format:check && npm run lint && npm run check && npm run build && npm test && npm run audit:seo && npm run audit:links && npm run audit:content && npm run test:e2e",
-    "cf:preview": "wrangler versions upload",
+    "cf:preview": "node scripts/deploy-preview.mjs",
     "cf:deploy": "wrangler deploy",
     "icons": "node scripts/make-icons.mjs",
-    "serve:dist": "node scripts/serve-dist.mjs"
+    "serve:dist": "node scripts/serve-dist.mjs",
+    "verify:full": "npm run verify && npm run lighthouse && npm run lighthouse -- --desktop"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
@@ -51,5 +52,12 @@
     "typescript-eslint": "^8.68.0",
     "vitest": "^4.1.11",
     "wrangler": "^4.127.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "esbuild@0.28.1": true,
+    "workerd@1.20260828.1": true,
+    "fsevents@2.3.2": true,
+    "fsevents@2.3.3": true
   }
 }

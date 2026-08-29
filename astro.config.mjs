@@ -42,9 +42,11 @@ export default defineConfig({
       // 404 is reachable but must never be offered to a crawler as content.
       filter: (page) => !page.includes('/404'),
       serialize(item) {
-        // Never fake `lastmod`: a build timestamp on every URL tells Search
-        // the whole site changed on every deploy, which is a lie that costs
-        // trust. Real per-page dates are set in `custom-sitemap-lastmod`.
+        // Never fake `lastmod`: a build timestamp on every URL tells Search the
+        // whole site changed on every deploy, which is untrue and costs crawl
+        // trust. No `lastmod` is emitted at all. The real per-page dates live
+        // in the content frontmatter (`updated`) and are rendered on the page
+        // and in `Article` structured data, where they mean something.
         delete item.lastmod
         delete item.changefreq
         delete item.priority

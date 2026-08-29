@@ -128,7 +128,38 @@ Preconditions:
 - [ ] the legal blockers in `audits/astro-seo-rebuild-2026-08-29.md` §9
       resolved, or an explicit decision to launch with the DRAFT badge
 
-Steps:
+### First: the legacy Pages project must not be able to deploy
+
+The live site is still served by the Cloudflare **Pages** project
+`pixelferry-web`. Before merging anything, confirm that merging cannot itself
+change production.
+
+A Git-connected Pages project deploys automatically on every push to its
+production branch. If `main` were wired up that way, **merging the migration PR
+would deploy the new site to `pixelferry.app` immediately** — bypassing this
+runbook entirely. It would also almost certainly break the waitlist, because the
+old build read `VITE_*` variables and this one reads `PUBLIC_*`; a surprise
+build would ship with no endpoint and no Turnstile sitekey.
+
+**Verified state (2026-08-29):** `wrangler pages project list` reports
+`Git Provider: No` for `pixelferry-web`, and `wrangler pages download config`
+returns no build configuration. It is a **Direct Upload** project, which by
+design does not deploy on a push. Its four deployments were all manual uploads;
+the most recent matches `main` at `a365f7e` and is a month old. Merging PR #2
+therefore cannot change production.
+
+Re-confirm in the dashboard before merging, because this is the one assumption
+that would be expensive to get wrong:
+
+> Workers & Pages → `pixelferry-web` → **Settings**. A Direct Upload project has
+> no **Build** section and no **Branch control**. If a **Build → Branch
+> control** section exists, the project is Git-connected: turn **Enable
+> automatic production branch deployments** OFF before merging.
+
+Do not change that setting as part of this task — it is a production
+configuration change and needs its own authorisation.
+
+### Then the cutover
 
 1. **Deploy the Worker without the domain.**
 
@@ -137,7 +168,37 @@ Steps:
    npx wrangler deploy    # no custom domain yet — nothing user-facing changes
    ```
 
-2. **Verify the deployment** on its own hostname before it owns the domain.
+2. **Understand what can and cannot be verified here.**
+
+   The production Worker has **no hostname of its own**. `workers_dev: false`
+   and `preview_urls: false` are deliberate — they are what guarantees no
+   `*.workers.dev` duplicate of the site exists for Search to find. The
+   consequence is that this deployed-but-undomained Worker is genuinely
+   unreachable, and there is nothing to open.
+
+   That is the intended trade, and it is why the **preview Worker** exists.
+   `pixelferry-web-preview` serves the same `dist/`, from the same `assets`
+   configuration, with the same `_headers` — so the 404 handling, the redirects,
+   the CSP and the caching are all verified there, on real Cloudflare
+   infrastructure, before this step. The only difference is that the preview
+   build is noindexed; the production build's indexability is asserted by
+   `test/seo-output.test.ts` rather than by looking at a page.
+
+   **If you need to verify the exact production artifact before it is live**,
+   there is a supported way, and it is account configuration rather than
+   something this repo can do:
+
+   - Set `preview_urls: true` on the production Worker and use
+     `wrangler versions upload`, which uploads a version **without deploying
+     it** and returns a `<version>-pixelferry-web.<subdomain>.workers.dev` URL.
+   - **Protect that URL with Cloudflare Access first.** Without it you have
+     created exactly the indexable duplicate the config exists to prevent — an
+     indexable production build on a second hostname.
+   - Turn `preview_urls` back off afterwards.
+
+   Do not do this casually. The preview Worker covers the behaviour; this only
+   adds "the bytes I am about to promote", and it costs a temporary second
+   hostname.
 
 3. **Attach the custom domain.** Cloudflare dashboard → Workers & Pages →
    `pixelferry-web` → Settings → Domains & Routes → add `pixelferry.app` as a
@@ -185,9 +246,19 @@ old build from git
 domain at it. **Do not delete the Pages project until the Worker has been live
 and healthy for a meaningful period.**
 
+## Merge safety
+
+Merging the migration PR is safe **only while the Pages project stays Direct
+Upload**. Re-check that before every merge that touches the build — see the
+first section of the cutover above. If the project is ever connected to Git,
+turn off automatic production branch deployments before merging anything.
+
 ## What must never happen without explicit authorisation
 
 - switching the `pixelferry.app` custom domain
+- enabling or disabling Pages automatic production deployments
+- enabling `preview_urls` or `workers_dev` on the production Worker without
+  Cloudflare Access in front of them
 - deleting the Pages project
 - changing DNS
 - setting `PUBLIC_GTM_ID` or `PUBLIC_META_PIXEL_ID`

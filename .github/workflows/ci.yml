@@ -6,9 +6,13 @@ on:
     branches: [main]
   workflow_dispatch:
 
-# The job id `check` is the required status context in the `protect-main` ruleset.
-# Renaming it does not fail — it silently leaves main with a gate that can never
-# report, so every PR waits forever or gets waved through. Change both or neither.
+# The job id `check` IS the required status context in the `protect-main` ruleset
+# on this repository (verified: repos/heymarcell/pixelferry-web/rulesets, rule
+# `required_status_checks`, context "check"). Note it is the bare job id, not
+# "ci / check".
+#
+# Renaming this job does not fail the build — it silently leaves main with a gate
+# that can never report, so every PR waits forever. Change both or neither.
 
 # Superseded pull request runs are cancelled; pushes to main are not. A cancelled
 # run reports `cancelled`, which is not a passing state for a required check, and

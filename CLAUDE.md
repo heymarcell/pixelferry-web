@@ -117,6 +117,19 @@ architecture that goes wrong.
 - If a new conversion page has nothing true and specific to say, **do not write
   it**.
 
+**Any new numerical compression, quality, compatibility, performance or
+macOS-behaviour claim must be verified against a current primary source or an
+actual PixelFerry benchmark before publication.** If neither exists, the number
+does not go on the page. Record what you used in `docs/content-sources.md`.
+
+This is not hypothetical: the first draft of this content shipped several
+confident, plausible, wrong claims — that Preview resizes one image at a time
+(Apple documents the opposite), that WebP is the only format with lossy
+compression plus alpha (AVIF does it too), that lossless WebP is "strictly
+better" than PNG (Google documents cases where it is larger), and several
+unattributed percentages. `audit:content` now pins those specific phrases, but
+it cannot judge a NEW claim. Only reading the source can.
+
 ## Privacy invariants
 
 - With `PUBLIC_GTM_ID` and `PUBLIC_META_PIXEL_ID` unset — the current state —
@@ -181,10 +194,15 @@ typed surface silently becomes `never`.
 | `npm run audit:content`                                    | anti-scaled-content: uniqueness, substance, honesty      |
 | `npm run lighthouse`                                       | budgets; `-- --desktop` for the desktop preset           |
 | `npm run icons`                                            | regenerate the favicon set from `public/favicon.svg`     |
-| **`npm run verify`**                                       | **the full local pre-push chain**                        |
+| **`npm run verify`**                                       | **the full local pre-push chain** (no Lighthouse)        |
+| `npm run verify:full`                                      | `verify` plus Lighthouse, mobile and desktop             |
 
 `npm run verify` builds **before** it tests: the audits and the E2E suite all
 read `dist/`.
+
+`verify` deliberately stops short of Lighthouse — it takes minutes and wants a
+quiet machine. CI runs it as its own step, and `verify:full` runs it locally. Do
+not describe `verify` as proving performance; it does not.
 
 ## Deployment
 
@@ -200,7 +218,10 @@ rollback are in `docs/deployment.md`, and it needs explicit authorisation.
 ## Working agreements
 
 - **Never commit to `main`.** Branch (`feat/…`, `fix/…`, `refactor/…`,
-  `chore/…`, `docs/…`), open a PR, let `ci / check` go green, squash-merge.
+  `chore/…`, `docs/…`), open a PR, let the `check` job go green, squash-merge.
+  This is enforced: the `protect-main` ruleset requires a PR and the `check`
+  status context, and forbids force-pushes and deletion. Repository admins can
+  bypass it, so the owner is never locked out.
 - Conventional Commits.
 - **Inspect before editing.** Read the component, the test and the audit that
   cover an area before changing it.
