@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  type Availability,
+  type Format,
   formats,
+  outputFormats,
+  outputFormatLabels,
   readableFormats,
   writableFormats,
   readOnlyFormats,
@@ -237,13 +241,164 @@ describe('read-only status is derived, not asserted', () => {
 })
 
 describe('capability phrasing', () => {
+  /*
+   * These assertions previously ENFORCED the bug. `capabilityOf` rendered each
+   * side as a bare verb and joined them with "and", so HEIC came out as
+   * "read and write on macOS" — and the test asserted exactly that string, as
+   * did test/format-surfaces.test.ts against the generated llms.txt.
+   *
+   * HEIC reads ANYWHERE. The published phrase said the opposite of the truth on
+   * the one format whose asymmetry the whole model exists to express, and three
+   * green tests held it in place.
+   */
   it.each([
-    ['jpeg', 'read and write'],
-    ['heic', 'read and write on macOS'],
-    ['ico', 'read on macOS and write'],
-    ['svg', 'read only'],
+    ['jpeg', 'read anywhere; write anywhere'],
+    ['heic', 'read anywhere; write on macOS'],
+    ['ico', 'read on macOS; write anywhere'],
+    ['svg', 'read anywhere only'],
     ['raw', 'read on macOS only'],
   ])('describes %s as "%s"', (id, expected) => {
     expect(capabilityOf(formats.find((f) => f.id === id)!)).toBe(expected)
+  })
+
+  it("never lets one side inherit the other side's platform scope", () => {
+    for (const format of formats) {
+      const phrase = capabilityOf(format)
+      if (format.read === 'anywhere' && format.write === 'macos') {
+        expect(phrase, `${format.label} must not imply macOS-only reading`).toContain(
+          'read anywhere',
+        )
+      }
+      if (format.read === 'macos' && format.write === 'anywhere') {
+        expect(phrase, `${format.label} must not imply macOS-only writing`).toContain(
+          'write anywhere',
+        )
+      }
+      // The old ambiguous shapes, forbidden outright.
+      expect(phrase).not.toMatch(/^read and write/)
+      expect(phrase).not.toMatch(/read on macOS and write$/)
+    }
+  })
+
+  /*
+   * Synthetic records, so a format added later with an availability combination
+   * nothing currently has cannot reintroduce an ambiguous phrase.
+   */
+  it.each([
+    ['anywhere', 'anywhere', 'read anywhere; write anywhere'],
+    ['anywhere', 'macos', 'read anywhere; write on macOS'],
+    ['macos', 'anywhere', 'read on macOS; write anywhere'],
+    ['macos', 'macos', 'read on macOS; write on macOS'],
+    ['anywhere', false, 'read anywhere only'],
+    ['macos', false, 'read on macOS only'],
+    [false, 'anywhere', 'write anywhere only'],
+    [false, 'macos', 'write on macOS only'],
+    [false, false, 'unsupported'],
+  ] as [Availability, Availability, string][])(
+    'read=%s write=%s -> "%s"',
+    (read, write, expected) => {
+      const synthetic: Format = {
+        id: 'synthetic',
+        label: 'Synthetic',
+        extensions: ['syn'],
+        read,
+        write,
+        group: 'Specialist and legacy',
+        summary: 'A record that exists only to pin the phrasing matrix.',
+      }
+      expect(capabilityOf(synthetic)).toBe(expected)
+    },
+  )
+})
+
+describe('canonical output order', () => {
+  /*
+   * `writableFormats` follows this file's GROUPING order, which puts AVIF before
+   * HEIC. Every public "what it writes" list derived from it, under a comment
+   * claiming it was the app's order. Set-equality tests passed throughout,
+   * because the set was never wrong — only the sequence was.
+   */
+  it('matches the app OUTPUT_FORMAT_ORDER exactly, as a sequence', () => {
+    expect(outputFormats.map((f) => f.id)).toEqual([
+      'jpeg',
+      'png',
+      'webp',
+      'heic',
+      'avif',
+      'tiff',
+      'gif',
+      'ico',
+    ])
+  })
+
+  it('is a different order from writableFormats — which is why this test exists', () => {
+    expect(outputFormats.map((f) => f.id)).not.toEqual(writableFormats.map((f) => f.id))
+  })
+
+  it('covers every writable format exactly once', () => {
+    expect(outputFormats).toHaveLength(writableFormats.length)
+    expect(new Set(outputFormats.map((f) => f.id)).size).toBe(outputFormats.length)
+  })
+
+  it('labels follow the same sequence', () => {
+    expect(outputFormatLabels).toEqual(outputFormats.map((f) => f.label))
+    expect(outputFormatLabels[3]).toBe('HEIC / HEIF')
+    expect(outputFormatLabels[4]).toBe('AVIF')
+  })
+})
+
+describe('the format model states capabilities, not folklore', () => {
+  /*
+   * The model itself carried the same editorial superlatives this project spent
+   * three passes removing from the prose — "the universal lossy photo format",
+   * "usually the smallest of the modern web formats", "the print and archive
+   * workhorse". They render on /formats and in llms.txt, so they are published
+   * claims. The app removed the identical class of wording from its own format
+   * blurbs, for the same reason: a ranking the software cannot know.
+   */
+  const FOLKLORE =
+    /\b(?:universal|the smallest|best|workhorse|archival format|successor|industry standard|gold standard)\b/i
+
+  it.each(formats.map((f) => [f.label, f] as const))('%s says what it is', (label, format) => {
+    expect(format.summary, `${label} summary reads as a ranking`).not.toMatch(FOLKLORE)
+    if (format.caveat) {
+      expect(format.caveat, `${label} caveat reads as a ranking`).not.toMatch(FOLKLORE)
+    }
+  })
+
+  it('never calls TIFF lossless without saying what PixelFerry writes', () => {
+    const tiff = formats.find((f) => f.id === 'tiff')!
+    // A container is not a compression scheme — TIFF can hold JPEG data.
+    expect(tiff.summary).not.toMatch(/\blossless\b/i)
+    expect(tiff.caveat).toMatch(/LZW/)
+    expect(tiff.caveat).toMatch(/8-bit/)
+  })
+
+  it('scopes bit depth on the formats PixelFerry writes 8-bit', () => {
+    for (const id of ['png', 'avif']) {
+      expect(formats.find((f) => f.id === id)!.summary).toMatch(/8-bit/)
+    }
+  })
+
+  it('states the PSD decoder limits rather than implying fidelity', () => {
+    const psd = formats.find((f) => f.id === 'psd')!
+    expect(psd.caveat).toMatch(/8-bit/)
+    expect(psd.caveat).toMatch(/CMYK/)
+    expect(psd.caveat).toMatch(/ICC/)
+  })
+})
+
+describe('the product model describes the real trim', () => {
+  it('does not claim the border colour comes from the top-left pixel alone', async () => {
+    const { readFile } = await import('node:fs/promises')
+    const path = await import('node:path')
+    const src = await readFile(
+      path.join(path.dirname(import.meta.dirname), 'src', 'data', 'product.ts'),
+      'utf8',
+    )
+    // detectBorderColor samples all four corners and takes the dominant one.
+    const trimLine = src.split('\n').find((l) => l.trimStart().startsWith('trim:'))!
+    expect(trimLine).not.toMatch(/top[- ]left/i)
+    expect(trimLine).toMatch(/dominant corner/i)
   })
 })

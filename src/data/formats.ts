@@ -62,7 +62,7 @@ export const formats: Format[] = [
     write: 'anywhere',
     quality: true,
     group: 'Photos and web',
-    summary: 'The universal lossy photo format.',
+    summary: 'Widely supported lossy still-image format.',
     caveat: 'No alpha channel — transparency is flattened onto white on output.',
   },
   {
@@ -72,7 +72,7 @@ export const formats: Format[] = [
     read: 'anywhere',
     write: 'anywhere',
     group: 'Photos and web',
-    summary: 'Lossless, with an alpha channel.',
+    summary: 'Lossless, with an alpha channel. PixelFerry writes 8-bit PNG.',
   },
   {
     id: 'webp',
@@ -82,7 +82,7 @@ export const formats: Format[] = [
     write: 'anywhere',
     quality: true,
     group: 'Photos and web',
-    summary: 'Lossy or lossless, with alpha and animation.',
+    summary: 'Lossy or lossless, with alpha and animation. 8-bit only, by design.',
   },
   {
     id: 'avif',
@@ -92,7 +92,7 @@ export const formats: Format[] = [
     write: 'anywhere',
     quality: true,
     group: 'Photos and web',
-    summary: 'AV1-based, usually the smallest of the modern web formats.',
+    summary: 'AV1-based; lossy or lossless, with alpha. PixelFerry writes 8-bit AVIF.',
   },
   {
     id: 'heic',
@@ -102,7 +102,7 @@ export const formats: Format[] = [
     write: 'macos',
     quality: true,
     group: 'Photos and web',
-    summary: 'What an iPhone saves photos as by default.',
+    summary: "Apple's HEIF profile — what an iPhone saves in High Efficiency mode.",
     caveat:
       'Reading works anywhere; writing is macOS-only, because the encode goes through the system `sips` tool.',
   },
@@ -113,8 +113,9 @@ export const formats: Format[] = [
     read: 'anywhere',
     write: 'anywhere',
     group: 'Photos and web',
-    summary: 'Lossless, the print and archive workhorse.',
-    caveat: 'PixelFerry writes LZW-compressed TIFF.',
+    summary: 'Flexible raster container used in print and imaging workflows.',
+    caveat:
+      'The container can hold JPEG-compressed data and so is not lossless by definition. PixelFerry writes 8-bit LZW-compressed TIFF, which is.',
   },
   {
     id: 'gif',
@@ -144,8 +145,9 @@ export const formats: Format[] = [
     read: 'anywhere',
     write: false,
     group: 'Design and documents',
-    summary: 'Photoshop documents.',
-    caveat: 'Read only, and flattened to the stored composite before conversion.',
+    summary: 'Photoshop documents, read via the stored composite.',
+    caveat:
+      'Read only. The bundled decoder reads 8-bit composites and does not consult the document colour mode, so 16-bit fails and CMYK is misread rather than converted. No embedded ICC profile is carried through.',
   },
   {
     id: 'pdf',
@@ -217,7 +219,8 @@ export const formats: Format[] = [
     read: 'macos',
     write: false,
     group: 'Specialist and legacy',
-    summary: 'Legacy uncompressed raster formats.',
+    summary:
+      'Legacy raster formats, usually stored uncompressed though both define run-length variants.',
     caveat: 'Read only.',
   },
   {
@@ -258,7 +261,7 @@ export const formats: Format[] = [
     read: 'macos',
     write: false,
     group: 'Specialist and legacy',
-    summary: "JPEG's newer successor.",
+    summary: 'A newer still-image codec from the JPEG committee.',
     caveat: 'Read only.',
   },
   {
@@ -268,7 +271,7 @@ export const formats: Format[] = [
     read: 'macos',
     write: false,
     group: 'Specialist and legacy',
-    summary: "JPEG's older successor, still used in archival and cinema work.",
+    summary: 'A wavelet-based JPEG committee format, used in archival and cinema work.',
     caveat: 'Read only.',
   },
   {
@@ -278,7 +281,8 @@ export const formats: Format[] = [
     read: 'macos',
     write: false,
     group: 'Specialist and legacy',
-    summary: 'Plain-text and float raster formats from the Unix imaging world.',
+    summary:
+      'Simple raster formats from the Unix imaging world, in ASCII and binary variants, plus the float-valued PFM.',
     caveat: 'Read only.',
   },
   {
@@ -345,10 +349,40 @@ export const qualityFormats = formats.filter((f) => f.write !== false && f.quali
 /** Every accepted extension, deduped and sorted — the completeness check. */
 export const allInputExtensions = [...new Set(readableFormats.flatMap((f) => f.extensions))].sort()
 
-export const allOutputLabels = writableFormats.map((f) => f.label)
-
-/** The order the app offers outputs in (OUTPUT_FORMAT_ORDER). */
+/**
+ * The order the app offers outputs in — `OUTPUT_FORMAT_ORDER` in the app's
+ * `shared/settings.ts`. These are the APP's format keys, not this file's ids:
+ * the app says `jpg`, the model says `jpeg`.
+ */
 export const OUTPUT_ORDER = ['jpg', 'png', 'webp', 'heic', 'avif', 'tiff', 'gif', 'ico'] as const
+
+/** App output key -> model id. Only JPEG differs. */
+const OUTPUT_KEY_TO_ID: Record<string, string> = { jpg: 'jpeg' }
+
+/**
+ * Every writable format IN THE APP'S OWN PICKER ORDER.
+ *
+ * `writableFormats` follows this file's grouping order, which puts AVIF BEFORE
+ * HEIC. Anything describing "the formats the app writes" that derived from it
+ * therefore published an order the app does not use, under a comment claiming
+ * it did. Set-equality tests could never catch that, because the set is right.
+ *
+ * Every public surface mirroring the app's output picker must use THIS.
+ *
+ * The mapping is validated here rather than asserted in a test: if OUTPUT_ORDER
+ * and the model ever disagree, the build fails instead of shipping a silently
+ * short or misordered list.
+ */
+export const outputFormats: Format[] = OUTPUT_ORDER.map((key) => {
+  const id = OUTPUT_KEY_TO_ID[key] ?? key
+  const format = formats.find((f) => f.id === id)
+  if (!format) throw new Error(`OUTPUT_ORDER names "${key}" but no format has id "${id}"`)
+  if (format.write === false) throw new Error(`OUTPUT_ORDER names "${key}" but it is not writable`)
+  return format
+})
+
+/** Output labels in the app's picker order. */
+export const outputFormatLabels = outputFormats.map((f) => f.label)
 
 export const groups: Format['group'][] = [
   'Photos and web',
@@ -357,13 +391,30 @@ export const groups: Format['group'][] = [
   'Specialist and legacy',
 ]
 
-/** One-line capability phrase for a format, used by /formats and llms.txt. */
+const readPhrase = (a: Availability) =>
+  a === 'anywhere' ? 'read anywhere' : a === 'macos' ? 'read on macOS' : null
+
+const writePhrase = (a: Availability) =>
+  a === 'anywhere' ? 'write anywhere' : a === 'macos' ? 'write on macOS' : null
+
+/**
+ * One-line capability phrase, used by /formats and llms.txt.
+ *
+ * SYMMETRIC BY CONSTRUCTION. The previous version rendered each side as a bare
+ * verb and joined them with "and", so HEIC — which reads anywhere and writes
+ * only on macOS — came out as "read and write on macOS". The macOS scope leaked
+ * backwards onto the read verb and stated the opposite of the truth on the one
+ * format whose asymmetry matters most. ICO, asymmetric the other way, produced
+ * the equally loose "read on macOS and write".
+ *
+ * Each side now carries its own scope and neither can inherit the other's, so
+ * the bug is not merely fixed, it is unexpressible.
+ */
 export function capabilityOf(format: Format): string {
-  const read =
-    format.read === 'anywhere' ? 'read' : format.read === 'macos' ? 'read on macOS' : null
-  const write =
-    format.write === 'anywhere' ? 'write' : format.write === 'macos' ? 'write on macOS' : null
-  if (read && write) return `${read} and ${write}`
+  const read = readPhrase(format.read)
+  const write = writePhrase(format.write)
+  if (read && write) return `${read}; ${write}`
   if (read) return `${read} only`
-  return write ? `${write} only` : 'unsupported'
+  if (write) return `${write} only`
+  return 'unsupported'
 }

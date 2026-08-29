@@ -61,7 +61,45 @@ with app `main` — say that, rather than implying live parity.
 CI must never clone the private repo. The guard is a test over this repo's own
 content, not a cross-repo diff.
 
+## OPEN UPSTREAM DEPENDENCY — read before touching product copy
+
+Some behaviour this site describes exists ONLY on **`pixelferry-app` PR #70**
+(`fix/conversion-pipeline-truth`), which is **OPEN and UNMERGED**.
+
+| Ref               | SHA                                        |
+| ----------------- | ------------------------------------------ |
+| App `origin/main` | `e3f3fbf5a845213ca0cc68cb5875522f5f55bcb4` |
+| App PR #70 head   | `048a5a49aba943941e940b5109bb78a65a510fc9` |
+
+**`048a5a4` is not app main.** Never describe its commits as merged. Resolve app
+state with `git rev-parse origin/main`, never from a local checkout — a previous
+pass pinned SHAs read off a locally checked-out feature branch, two of which
+were rebase artefacts existing on no remote.
+
+Requires PR #70 to be true: `PDF → HEIC` and `PDF → ICO` (they throw on main),
+trim and target-size on PDF pages, and HEIC output honouring the metadata/ICC
+policy. Everything else on the site is true on main today. The full split, and
+the release sequence, are in `src/data/product.ts`;
+`test/upstream-dependency.test.ts` enforces the language.
+
+**Web PR #2 must not merge before app PR #70.**
+
 ## Product invariants — never state otherwise
+
+- **Capability phrasing is symmetric.** `capabilityOf` must render read and
+  write with their own scopes — `read anywhere; write on macOS`, never
+  `read and write on macOS`. The old version joined bare verbs with "and", so
+  the macOS scope leaked backwards onto the read verb and said the opposite of
+  the truth about HEIC. Three tests asserted the broken string.
+- **The app's output order is `OUTPUT_ORDER`, not `writableFormats`.** The
+  latter follows this file's grouping, which puts AVIF before HEIC. Any public
+  list mirroring the app's picker must use `outputFormats`. Test the exact
+  SEQUENCE — set-equality passes while the order is wrong, which is how it
+  shipped.
+- **The format model publishes claims.** `summary` and `caveat` render on
+  /formats and in llms.txt, so no superlatives: no "universal", "smallest",
+  "best", "workhorse", "archival", "successor". TIFF is a container and is not
+  lossless by definition; say what PixelFerry writes instead.
 
 - **The pipeline is 8-bit end to end.** Every encoder branch in the app's
   `applyFormat` is called without a `bitdepth`, so PNG, TIFF, lossless WebP and

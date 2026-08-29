@@ -2,8 +2,31 @@
 
 A claim-level forensic review of every factual assertion this site publishes.
 
-**Web branch** `feat/astro7-seo-rebuild` · **app source of truth**
-`heymarcell/pixelferry-app@f6bd954889fd1d21ba85153517f91b02addec147`
+**Web branch** `feat/astro7-seo-rebuild`
+
+## The three refs this ledger talks about
+
+They are three different things, and an earlier revision of this document
+conflated them.
+
+| Ref                                               | SHA                                        | Status             |
+| ------------------------------------------------- | ------------------------------------------ | ------------------ |
+| App `origin/main`                                 | `e3f3fbf5a845213ca0cc68cb5875522f5f55bcb4` | released           |
+| App PR #70 head — `fix/conversion-pipeline-truth` | `048a5a49aba943941e940b5109bb78a65a510fc9` | **OPEN, UNMERGED** |
+| What the web copy is verified against             | PR #70 head                                | pending            |
+
+PR #70 branched from `3309d0b`, so it is not a descendant of current app main
+either. **`048a5a4` is not app main and its commits have not merged.**
+
+An earlier pass called those commits "landed" and pinned them as though they
+were main. That happened because it resolved app state from a locally
+checked-out feature branch rather than `origin/main` — and the local branch was
+itself a rebased copy with different SHAs that exist nowhere remote. The
+correction is recorded rather than silently applied, because "I read the wrong
+ref" is the same class of error this ledger exists to catch.
+
+Sections below marked **historical** record what was believed at the time. The
+present source-of-truth is this table.
 
 ## Why this pass happened
 
@@ -258,33 +281,65 @@ call patterns and would not catch Node `http`/`https`, `child_process`,
 `sendBeacon`, an aliased call or a dependency. Scoped on the page and in
 `CLAUDE.md`.
 
-## 10. The app moved while this review was running
+## 10. The upstream dependency (supersedes the earlier "the app moved" section)
 
-Between starting this pass and finishing it, `pixelferry-app` advanced three
-commits — `3309d0b` → `f6bd954` → `1627350`. Two of them changed behaviour this
-site describes. This is the clearest possible argument for pinning a commit
-rather than a date, so it is recorded rather than quietly absorbed.
+**Historical note.** An earlier revision of this section described four app
+commits as having "landed on main during the review". They had not. They are the
+four commits of **open PR #70**, and the SHAs that revision pinned mid-way
+(`f6bd954`, `1627350`) were local rebase artefacts that exist on no remote. The
+corrected account follows.
 
-| App commit | What changed                                                                                                                                                              | Effect on this site                                                                                                                                                                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `61c52fa`  | PDF pages now run through the same pipeline as every other source. `PDF → HEIC` and `PDF → ICO` previously **threw**; trim and target size were silently ignored per page | `/formats` says "Any input can be converted to any of these". That is true now. It was **false** when this branch was written, and no one noticed because the claim was about the app, not the site                                                |
-| `06e780b`  | HEIC output now honours the metadata policy. Its PNG intermediate had inherited Sharp's strip-everything default, so a Display P3 photo came out untagged                 | `capabilities.metadataHeicCaveat` said the metadata option "does not apply" to HEIC — correct at `f6bd954`, **false** at `1627350`. Rewritten. What survives: `sips` writes a small EXIF block of its own, so a HEIC is never completely EXIF-free |
-| `1627350`  | Adds `e2e/pipeline-parity.spec.ts`, pinning that both source paths reach the same capabilities                                                                            | None directly. It is the app adopting the same lesson this ledger records — every helper had passing unit tests, and nothing proved both callers reached them                                                                                      |
+### What is true on app main today
 
-The format matrix is unaffected. Re-verified at `1627350`: `OUTPUT_FORMAT_ORDER`
-= jpg, png, webp, heic, avif, tiff, gif, ico; `QUALITY_FORMATS` = jpg, jpeg,
-webp, avif, heic; 17 cross-platform and 59 macOS-only extensions — identical to
-the snapshot in `test/format-model.test.ts`.
+`e3f3fbf`. No dependency; the site can say all of this now.
 
-A fourth commit, `048a5a4`, landed while this section was being written. It
-rewrites the app's own format blurbs to drop superlatives — "AV1 · best size"
-removed as "a ranking the app cannot know". Display strings only:
-`OUTPUT_FORMAT_ORDER`, `QUALITY_FORMATS` and the extension lists are
-byte-identical, verified rather than assumed.
+- the entire read/write format matrix, and the 76 extensions across 23 families
+- the 8-bit output pipeline
+- four-corner border detection for whitespace trim
+- the PSD decoder's limits — 8-bit composites only, no ICC carried, CMYK misread
+- metadata removal on by default, quality default 80, the 100-page PDF cap
 
-The pin is now `048a5a49aba943941e940b5109bb78a65a510fc9`. Four app commits
-landed during one review. The snapshot is only ever true of the commit it names,
-which is the argument for naming one.
+### What requires PR #70 to merge
+
+| Behaviour                       | On app main today                                                                      | On PR #70                                     |
+| ------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------- |
+| `PDF → HEIC`, `PDF → ICO`       | **throws** "Unsupported output format"                                                 | works                                         |
+| trim, target size on PDF pages  | silently ignored per page                                                              | applied                                       |
+| HEIC output metadata/ICC policy | not applied — `resized.png()` with no policy, so a Display P3 photo comes out untagged | applied, same contract as every other encoder |
+| README's input-only list        | still names HEIC (`e3f3fbf:README.md:81`)                                              | HEIC removed (`048a5a4:README.md:87`)         |
+
+`/formats` says "Any input can be converted to any of these". That is true on
+the PR branch and **false on main today**.
+
+### Why the site describes the pending state
+
+Web PR #2 is not permitted to merge before app PR #70. Reverting the copy to
+main's behaviour would mean writing limitations that are already fixed upstream,
+then rewriting them again on merge. The dependency is instead made explicit and
+mechanically checked — `src/data/product.ts` carries the three refs, the split
+above, and the release sequence, and `test/upstream-dependency.test.ts` fails if
+any document describes one of the PR's commits as merged, or presents its head
+SHA as the released branch.
+
+That test caught this very section, and then caught the sentence describing it.
+
+### Release sequence
+
+1. Independently approve app PR #70.
+2. Merge app PR #70.
+3. Fetch the resulting real `pixelferry-app/main` SHA.
+4. Verify the behaviour survived the merge — a squash rewrites SHAs and a rebase
+   can drop a commit.
+5. Re-pin `PRODUCT_FACTS_APP_COMMIT` to that main SHA and re-verify the snapshot
+   arrays in `test/format-model.test.ts`.
+6. Re-run the web gates.
+7. Only then consider merging web PR #2 or cutting over production.
+
+The format matrix is unaffected either way. Verified at `048a5a4`:
+`OUTPUT_FORMAT_ORDER` = jpg, png, webp, heic, avif, tiff, gif, ico;
+`QUALITY_FORMATS` = jpg, jpeg, webp, avif, heic; 17 cross-platform and 59
+macOS-only extensions — identical to the snapshot in
+`test/format-model.test.ts`.
 
 ## 11. What remains open
 

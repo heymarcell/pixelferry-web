@@ -1,7 +1,12 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { beforeAll, describe, expect, it } from 'vitest'
-import { writableFormats, readOnlyFormats, macOSOnlyWriteFormats } from '../src/data/formats'
+import {
+  writableFormats,
+  readOnlyFormats,
+  macOSOnlyWriteFormats,
+  outputFormatLabels,
+} from '../src/data/formats'
 
 const DIST = path.join(path.dirname(import.meta.dirname), 'dist')
 
@@ -35,9 +40,29 @@ describe('format surfaces agree with the model', () => {
     }
   })
 
-  it('llms.txt names HEIC as writable on macOS', () => {
-    expect(llms).toMatch(/HEIC \/ HEIF[^\n]*read and write on macOS/)
+  it('llms.txt states HEIC asymmetrically — reads anywhere, writes on macOS', () => {
+    // This assertion used to REQUIRE "read and write on macOS", which says HEIC
+    // cannot be read off macOS. It can. The test held the bug in place.
+    expect(llms).toMatch(/HEIC \/ HEIF[^\n]*read anywhere; write on macOS/)
+    expect(llms).not.toMatch(/HEIC \/ HEIF[^\n]*read and write on macOS/)
     expect(llms).not.toMatch(/HEIC[^\n]{0,40}read but never written/)
+  })
+
+  it('llms.txt states ICO asymmetrically the other way', () => {
+    expect(llms).toMatch(/ICO[^\n]*read on macOS; write anywhere/)
+  })
+
+  it('llms.txt carries no ambiguous capability phrase for any format', () => {
+    const matrix = llms.split('## Format matrix')[1] ?? ''
+    expect(matrix).not.toMatch(/read and write/)
+    expect(matrix).not.toMatch(/read on macOS and write/)
+  })
+
+  it('llms.txt lists outputs in the app picker order, not the model order', () => {
+    const line = llms.split('\n').find((l) => l.startsWith('- Writes'))!
+    expect(line).toContain(outputFormatLabels.join(', '))
+    // The specific inversion that shipped: AVIF before HEIC.
+    expect(line.indexOf('HEIC / HEIF')).toBeLessThan(line.indexOf('AVIF'))
   })
 
   it('llms.txt does not call HEIC read-only', () => {

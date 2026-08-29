@@ -3,7 +3,7 @@ import Icon from '../Icon.astro'
 import {
   product,
   limits,
-  writableFormats,
+  outputFormats,
   macOSOnlyWriteFormats,
   qualityFormats,
   capabilities,
@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     q: 'What can it convert to?',
-    a: `${writableFormats.map((f) => f.label).join(', ')}. Writing ${macOSOnlyWriteFormats
+    a: `${outputFormats.map((f) => f.label).join(', ')}. Writing ${macOSOnlyWriteFormats
       .map((f) => f.label)
       .join(
         ', ',
@@ -160,9 +160,7 @@ const faqs = [
         <div>
           <dt class="font-display text-[15px] font-bold text-white">Format</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            {writableFormats.map((f) => f.label).join(', ')} — writing HEIC needs macOS. Quality{
-              ' '
-            }
+            {outputFormats.map((f) => f.label).join(', ')} — writing HEIC needs macOS. Quality{' '}
             {limits.quality.min}–{limits.quality.max} for{' '}
             {qualityFormats.map((f) => f.label).join(', ')}; PNG and TIFF are lossless, GIF is a
             256-colour palette.

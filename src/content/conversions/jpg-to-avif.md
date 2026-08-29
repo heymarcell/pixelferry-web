@@ -1,8 +1,8 @@
 ---
 title: Convert JPG to AVIF on Mac — the smallest current web format
 description:
-  AVIF usually makes the smallest files of the current web formats, at a real
-  cost in encoding time — several times mozjpeg. When to prefer WebP instead.
+  AVIF is usually among the smallest of the current web formats, at a real cost
+  in encoding time — several times mozjpeg. When to prefer WebP instead.
 heading: Convert JPG to AVIF on a Mac
 from: JPG
 to: AVIF
@@ -14,7 +14,7 @@ summary:
   gradients. It is also the slowest to encode, which is what shapes when it is
   worth using.
 whatChanges:
-  - label: A substantially better codec
+  - label: A newer, more capable codec
     detail:
       AVIF uses AV1's intra-frame coding — larger and variable block sizes, far
       more prediction modes, and a better transform than JPEG's fixed 8×8 DCT.

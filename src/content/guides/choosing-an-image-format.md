@@ -69,8 +69,8 @@ The lossless default. Every pixel exact, real alpha channel.
 - Excellent on flat colour, text and line art — the DEFLATE compression finds
   the repetition.
 - Poor on photographs, where there is no repetition to find. A photographic PNG
-  is typically several times the size of an equivalent JPEG, and the multiple
-  depends heavily on the image.
+  is typically much larger than an equivalent JPEG, by a margin that depends
+  heavily on the image.
 - Still the safest transparent format for compatibility.
 
 **Use it when:** you need transparency or exactness and cannot rely on WebP.

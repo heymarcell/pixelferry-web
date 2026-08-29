@@ -34,10 +34,10 @@ worth knowing exactly what you already have.
 
 **Where:** select files in Finder → right-click → Quick Actions → Convert Image.
 
-Apple added this in macOS Monterey and it is the fastest route by a distance.
-Select any number of files, right-click, choose **JPEG**, **PNG** or **HEIF**,
-pick a size from Small / Medium / Large / Actual Size, and optionally preserve
-metadata. New files appear beside the originals.
+Apple added this in macOS Monterey and it is the quickest route for a small
+selection. Select any number of files, right-click, choose **JPEG**, **PNG** or
+**HEIF**, pick a size from Small / Medium / Large / Actual Size, and optionally
+preserve metadata. New files appear beside the originals.
 
 **What it does well:** it is two clicks, it handles HEIC and camera RAW, and it
 never touches the originals.
@@ -50,9 +50,9 @@ never touches the originals.
 - The output lands beside the originals, which is awkward for a delivery set.
 - If a file fails, you find out by counting the results.
 
-For converting a folder of iPhone photos to JPEG, this is genuinely the correct
-tool and nothing else is needed. See [HEIC to JPG](/convert/heic-to-jpg) for
-what that conversion costs.
+For converting a folder of iPhone photos to JPEG, this is usually the right tool
+and nothing else is needed. See [HEIC to JPG](/convert/heic-to-jpg) for what
+that conversion costs.
 
 ## 2. Preview
 

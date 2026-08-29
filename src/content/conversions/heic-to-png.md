@@ -2,7 +2,7 @@
 title: Convert HEIC to PNG on Mac without re-compressing twice
 description:
   PNG's compression is lossless, but PixelFerry writes 8-bit PNG — so a 10-bit
-  HEIC is quantised on the way through, and files get much larger. When that
+  HEIC is quantised on the way through, and the files get much larger. When that
   trade is right.
 heading: Convert HEIC to PNG on a Mac
 from: HEIC
@@ -11,9 +11,8 @@ published: 2026-08-29
 updated: 2026-08-29
 summary:
   PNG adds no compression artefacts of its own, but PixelFerry writes 8-bit PNG,
-  so a 10-bit HEIC is quantised. It also produces files several times larger
-  than the source, which makes this the right conversion for editing and the
-  wrong one for sharing.
+  so a 10-bit HEIC is quantised. It also produces much larger files, which makes
+  this the right conversion for editing and the wrong one for sharing.
 whatChanges:
   - label: Compression model
     detail:
@@ -24,8 +23,9 @@ whatChanges:
       baked in.
   - label: File size, upward
     detail:
-      Expect the PNG to be several times the size of the HEIC, often by a large
-      multiple. PNG's DEFLATE compression is built for flat colour and sharp
+      Expect the PNG to be much larger than the HEIC. No published corpus fixes
+      the ratio and this site does not invent one — it depends heavily on the
+      photograph. PNG's DEFLATE compression is built for flat colour and sharp
       edges, and photographic noise is close to worst case for it — so the exact
       ratio depends heavily on the photograph.
   - label: Alpha channel
@@ -57,7 +57,7 @@ macOSAlternative:
   detail:
     Right-clicking a selection in Finder and choosing Convert Image offers PNG
     alongside JPEG and HEIF, and it will happily do a large selection in place.
-    It is genuinely the fastest way to convert a handful of files.
+    For a handful of files it is usually the simplest built-in route.
   breaksDownWhen:
     You need to resize in the same pass, want the results in a separate folder
     rather than beside the originals, or need to know which specific file failed
@@ -98,7 +98,8 @@ and DEFLATE has little repetition to exploit in photographic noise. A result
 many times the size of the HEIC is normal, and not a sign anything went wrong.
 
 If the destination can read them, [WebP](/convert/png-to-webp) in lossless mode
-reproduces that same 8-bit result exactly, at a substantially smaller size.
+reproduces that same 8-bit result exactly, and is usually smaller — see that
+page for Google's published figures and their baselines.
 
 ## Running a batch
 

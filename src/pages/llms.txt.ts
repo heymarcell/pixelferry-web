@@ -6,7 +6,7 @@ import {
   limits,
   capabilities,
   formats,
-  writableFormats,
+  outputFormats,
   readOnlyFormats,
   macOSOnlyWriteFormats,
   formatCounts,
@@ -56,7 +56,7 @@ JavaScript to read, so crawling the HTML directly works just as well.
 - Platform: ${product.minimumOS.label}, on ${product.architectures}.
 - Reads ${formatCounts.readable} format families covering ${formatCounts.extensions} file
   extensions; writes ${formatCounts.writable}.
-- Writes: ${writableFormats.map((f) => f.label).join(', ')}.
+- Writes, in the order the app offers them: ${outputFormats.map((f) => f.label).join(', ')}.
   Writing ${macOSOnlyWriteFormats.map((f) => f.label).join(', ')} is macOS-only — that encode
   goes through the system \`sips\` tool. Everything else writes wherever the app runs.
 - Quality slider (1–100) on: ${formats

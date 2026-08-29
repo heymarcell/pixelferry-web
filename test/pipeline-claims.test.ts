@@ -1,6 +1,6 @@
 import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 import { limits } from '../src/data/product'
 
 const CONTENT = path.join(path.dirname(import.meta.dirname), 'src', 'content')
@@ -121,5 +121,66 @@ describe('the 8-bit pipeline invariant', () => {
     // Remove either half and the page contradicts itself again.
     expect(text).toMatch(/PixelFerry writes 8-bit PNG/)
     expect(text).toMatch(/quantised/i)
+  })
+})
+
+/**
+ * `docs/content-sources.md` is the evidence document. It had accumulated rows
+ * that its own later sections contradicted — the no-browser-HEIC claim, the
+ * misattributed 26% figure, and a 7x decode ratio sourced to a README the same
+ * file elsewhere says is not authoritative. A source document that contradicts
+ * itself is worse than none, so it was cleaned rather than appended to, and
+ * these keep it clean.
+ */
+describe('the evidence document states only what is currently defensible', () => {
+  let sources: string
+  /** The asserting part — everything before the explicit removal list. */
+  let asserted: string
+
+  beforeAll(async () => {
+    sources = await readFile(
+      path.join(path.dirname(import.meta.dirname), 'docs', 'content-sources.md'),
+      'utf8',
+    )
+    // The "deliberately not claimed" list NAMES the false phrases on purpose.
+    // Guards must read only the part of the document that asserts.
+    asserted = sources.split('## What is deliberately')[0]!
+    expect(asserted.length).toBeGreaterThan(1000)
+  })
+
+  it('does not assert that no browser displays HEIC', () => {
+    expect(asserted).not.toMatch(/no browsers? displays? \*{0,2}HEIC/i)
+    expect(asserted).toMatch(/Safari has displayed HEIC/)
+    // ...and the removal list still records it as a known-false phrase.
+    expect(sources).toMatch(/No browser displays HEIC/)
+  })
+
+  it('does not attribute the 26% figure to the lossless study', () => {
+    expect(asserted).not.toMatch(/Lossless and Alpha Study[^|\n]{0,80}\b26\s?%/i)
+    expect(sources).toMatch(/23%/)
+    expect(sources).toMatch(/42%/)
+  })
+
+  it('carries no README-sourced 7x decode ratio as evidence', () => {
+    expect(asserted).not.toMatch(/~?7\s?[x×][^\n]{0,60}(?:faster|speed)/i)
+    // The real measurement, with its conditions, is present instead.
+    expect(sources).toMatch(/12\.2/)
+    expect(sources).toMatch(/153 ms/)
+  })
+
+  it('puts executable source above the README in the trust order', () => {
+    const src = sources.indexOf('Executable source')
+    const readme = sources.indexOf('README and docs, last')
+    expect(src).toBeGreaterThan(-1)
+    expect(readme).toBeGreaterThan(src)
+  })
+
+  it('separates TIFF the container from what PixelFerry writes', () => {
+    expect(sources).toMatch(/TIFF is a \*\*container\*\*/)
+    expect(sources).not.toMatch(/TIFF[^\n]{0,30}\bis lossless\b/i)
+  })
+
+  it('marks the PR #70 rows as not true on app main', () => {
+    expect(sources).toMatch(/Requires PR #70 — not true on app main today/i)
   })
 })

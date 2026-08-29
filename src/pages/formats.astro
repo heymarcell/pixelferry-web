@@ -5,7 +5,7 @@ import WaitlistCta from '../components/content/WaitlistCta.astro'
 import {
   formats,
   groups,
-  writableFormats,
+  outputFormats,
   readOnlyFormats,
   macOSOnlyReadFormats,
   macOSOnlyWriteFormats,
@@ -73,7 +73,7 @@ const toneClass: Record<string, string> = {
         </p>
         <ul class="grid list-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {
-            writableFormats.map((format) => (
+            outputFormats.map((format) => (
               <li class="border-doc-line bg-doc-panel rounded-lg border p-4">
                 <span class="text-doc-ink font-mono text-[13px] font-bold">{format.label}</span>
                 {format.write === 'macos' && (
@@ -235,7 +235,10 @@ const toneClass: Record<string, string> = {
             <p class="font-display text-doc-ink text-[16px] font-bold">PSD files are flattened</p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
               Conversion uses the composite Photoshop stores in the file, so the result reflects the
-              document exactly as it was last saved. Hidden layers stay hidden.
+              document as it was last saved. Hidden layers stay hidden. The bundled decoder reads
+              8-bit composites only, does not consult the document colour mode, and does not carry
+              an embedded ICC profile through — so 16-bit files fail and CMYK is misread rather than
+              converted for screen.
               <a href="/convert/psd-to-png" class="text-doc-link font-semibold hover:underline">
                 More on PSD conversion</a
               >.
