@@ -127,6 +127,66 @@ Preconditions:
       production build
 - [ ] the legal blockers in `audits/astro-seo-rebuild-2026-08-29.md` §9
       resolved, or an explicit decision to launch with the DRAFT badge
+- [ ] **the `www` redirect is in place — do this BEFORE the cutover, not after**
+
+### Why `www` has to be redirected first
+
+`www.pixelferry.app` is a **custom domain on the Pages project**, not an alias
+of the apex. Today it serves a byte-identical copy of the site (verified: same
+sha256 as the apex, both 200, no redirect). Its canonical tag points at the
+apex, which is what has kept the duplicate mostly harmless.
+
+The cutover moves **only** `pixelferry.app` onto the Worker. `www` stays on
+Pages. So if the redirect is added afterwards, there is a window in which:
+
+- `pixelferry.app` serves the **new** site, and
+- `www.pixelferry.app` serves the **old** one,
+
+with `www`'s canonical still pointing at the apex — two hosts, different
+content, one claiming to be the other. That is worse than the duplicate it
+replaces.
+
+Adding the redirect first removes the window entirely: `www` then 301s to the
+apex whatever the apex happens to be serving.
+
+**This cannot be done with Wrangler.** Redirect Rules are part of the Rules
+product; `wrangler` has no rules, ruleset, zone or DNS surface at all, and the
+OAuth token it uses is scoped `zone (read)`. It needs the dashboard, or an API
+token with **Zone → Config → Edit** (or Rulesets edit) on the zone:
+
+> Dashboard → the `pixelferry.app` zone → **Rules → Redirect Rules → Create
+> rule**. Match `hostname eq "www.pixelferry.app"`, action **Dynamic redirect**
+> to `concat("https://pixelferry.app", http.request.uri.path)`, status **301**,
+> **preserve query string** on.
+
+```bash
+# Or via the API, with a token that has Zone → Config → Edit:
+curl -X POST \
+  "https://api.cloudflare.com/client/v4/zones/$ZONE_ID/rulesets/phases/http_request_dynamic_redirect/entrypoint" \
+  -H "Authorization: Bearer $CF_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "rules": [{
+      "expression": "(http.host eq \"www.pixelferry.app\")",
+      "description": "www -> apex, 301",
+      "action": "redirect",
+      "action_parameters": {
+        "from_value": {
+          "status_code": 301,
+          "target_url": { "expression": "concat(\"https://pixelferry.app\", http.request.uri.path)" },
+          "preserve_query_string": true
+        }
+      }
+    }]
+  }'
+```
+
+Verify with `curl -sSI https://www.pixelferry.app/` — expect `301` and a
+`location:` on the apex.
+
+Leaving `www` attached to the Pages project afterwards is fine: a Redirect Rule
+runs at the edge, before the request reaches Pages. Detaching it instead would
+make `www` stop resolving, which is worse than redirecting it.
 
 ### First: the legacy Pages project must not be able to deploy
 
@@ -205,10 +265,10 @@ configuration change and needs its own authorisation.
    custom domain. Cloudflare manages the DNS record and detaches it from the
    Pages project. _This is the moment the live site changes._
 
-4. **Add the `www` redirect.** Rules → Redirect Rules → new rule:
-   `hostname eq "www.pixelferry.app"` → dynamic redirect to
-   `concat("https://pixelferry.app", http.request.uri.path)`, **301**, preserve
-   query string. This closes a duplicate-host issue that predates the migration.
+4. **Confirm the `www` redirect is live** (it should already be — see the
+   precondition above). If it is not, `www.pixelferry.app` is right now serving
+   the OLD Pages build while the apex serves the new one. Fix that before
+   announcing anything.
 
 5. **Verify production immediately:**
 
