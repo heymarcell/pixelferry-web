@@ -60,6 +60,21 @@ describe('built output', () => {
     }
   })
 
+  it('keeps the CSS budget', async () => {
+    // Tailwind output grows with the page count, so this is a ceiling rather
+    // than a target. The old React build shipped 44 KB raw / 8.8 KB gzip for
+    // 3 pages; this covers 21.
+    const files = await readdir(path.join(DIST, '_astro'))
+    const sizes = await Promise.all(
+      files
+        .filter((f) => f.endsWith('.css'))
+        .map(async (f) => (await readFile(path.join(DIST, '_astro', f))).byteLength),
+    )
+    const largest = Math.max(...sizes)
+    // Any single page loads one stylesheet, so the largest is what a visitor pays.
+    expect(largest).toBeLessThan(70_000)
+  })
+
   it('emits a real 404 page that is noindex', async () => {
     const page = await html('404.html')
     expect(page).toMatch(/<meta name="robots" content="noindex, nofollow">/)

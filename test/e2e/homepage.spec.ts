@@ -9,7 +9,10 @@ test.describe('homepage', () => {
      * waitlist form and reassurance line were all permanently invisible
      * (verified in Chrome 151: h1 computed opacity "0", no animations).
      *
-     * `toBeVisible()` in Playwright fails on opacity 0 for a reason.
+     * `toBeVisible()` alone is NOT enough to catch that: Playwright treats an
+     * element with a non-empty bounding box as visible and does not look at
+     * `opacity`. The computed-opacity assertion below is the one that would
+     * have failed on the live site.
      */
     await page.goto('/')
     const h1 = page.getByRole('heading', { level: 1 })
@@ -29,10 +32,22 @@ test.describe('homepage', () => {
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
     await expect(page.getByText('Your images stay on your Mac')).toBeVisible()
-    // Every reveal target must be visible, not merely present.
-    for (const el of await page.locator('[data-reveal]').all()) {
-      await expect(el).toBeVisible()
-    }
+
+    /*
+     * Every reveal target must be RENDERED, not merely present in the DOM.
+     * `toBeVisible()` does not check opacity, so it would pass on exactly the
+     * failure that shipped to production — assert the computed value.
+     */
+    const faded = await page
+      .locator('[data-reveal]')
+      .evaluateAll((nodes) =>
+        nodes
+          .filter((node) => getComputedStyle(node).opacity !== '1')
+          .map((node) => `${node.tagName}.${String(node.className).slice(0, 50)}`),
+      )
+    expect(faded, 'content must never be hidden when JavaScript does not run').toEqual([])
+    expect(await page.locator('[data-reveal]').count()).toBeGreaterThan(0)
+
     await context.close()
   })
 
