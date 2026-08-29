@@ -2,10 +2,39 @@
 import Icon from '../Icon.astro'
 import { CONSENT_TEXT } from '../../lib/waitlist-contract'
 
+import { productLinks } from '../../data/product'
+
 /**
- * Real HTML. The email field is `required type="email"` and the consent box is
- * `required` and unticked, so the browser validates the form and the whole
- * thing is readable and meaningful before any script runs.
+ * The form is server-rendered and readable without JavaScript, but it is
+ * deliberately NOT natively submittable — because there is no submission this
+ * site could safely perform without script.
+ *
+ * The waitlist needs a Turnstile token and a JSON body; a native submit can
+ * produce neither. Left to the browser's defaults (`method=GET`, `action` =
+ * the current URL) this form navigated to
+ * `/?email=someone@example.com&consent=on`, putting the visitor's address into
+ * the URL, their history, and any referrer or log downstream — and recording
+ * an "on" consent that nothing had actually verified. That is a privacy
+ * failure, not a fallback.
+ *
+ * Three independent things now make native submission impossible, so a single
+ * mistake cannot re-open it:
+ *
+ *   1. `method="dialog"`. Per the HTML standard, submitting a dialog-method
+ *      form with no ancestor <dialog> aborts submission entirely. Verified
+ *      no-op on click AND on Enter in Chromium and WebKit.
+ *   2. No `name` on the email or consent controls. Only *named* controls enter
+ *      the form data set, so there is nothing to serialise even if some engine
+ *      submitted anyway. The enhancement reads them by id, never by name.
+ *   3. No `action`, so there is no endpoint for a submission to reach.
+ *
+ * Validation is the script's job, not the browser's: `novalidate` is set, and
+ * `initWaitlistForm` calls `reportValidity()` itself so the native bubbles
+ * appear at the moment it decides to submit.
+ *
+ * Without JavaScript the visitor gets the <noscript> block below — a real
+ * mailto: route to the beta address. `test/e2e/no-js-waitlist.spec.ts` asserts
+ * all of it, including that the sentinel address never reaches the URL.
  *
  * GDPR consent must be a positive act, so the box is never pre-ticked and
  * never implied. The label renders `CONSENT_TEXT` — the same constant the
@@ -15,7 +44,21 @@ import { CONSENT_TEXT } from '../../lib/waitlist-contract'
 ---
 
 <div class="flex w-full max-w-[700px] flex-col items-center gap-4">
-  <form data-waitlist class="flex w-full flex-col gap-4" novalidate>
+  <noscript>
+    <p
+      class="w-full rounded-lg bg-white/[0.05] px-5 py-4 text-center text-[15px] leading-[1.55] text-white/80 shadow-[inset_0_0_0_1px_#FFFFFF24]"
+    >
+      The waitlist form needs JavaScript, because each signup is verified with a Cloudflare
+      Turnstile challenge. To join without it, email{' '}
+      <a
+        href={`mailto:${productLinks.betaEmail}?subject=PixelFerry%20beta%20waitlist`}
+        class="font-semibold text-[#C8D8FF] underline underline-offset-4"
+        >{productLinks.betaEmail}</a
+      > and say you would like a beta invite. Your address is never put into a link or a URL.
+    </p>
+  </noscript>
+
+  <form data-waitlist method="dialog" class="flex w-full flex-col gap-4" novalidate>
     <div
       class="waitlist-pill flex w-full flex-col gap-2 rounded-lg bg-white/[0.05] p-1.5 shadow-[inset_0_0_0_1px_#FFFFFF24,0_12px_30px_-8px_#00000066] sm:h-[62px] sm:flex-row sm:items-center sm:gap-3 sm:py-0 sm:pr-1.5 sm:pl-5"
     >
@@ -25,7 +68,6 @@ import { CONSENT_TEXT } from '../../lib/waitlist-contract'
         <Icon name="mail" size={18} class="shrink-0 text-white/45" />
         <input
           id="waitlist-email"
-          name="email"
           type="email"
           required
           autocomplete="email"
@@ -69,9 +111,9 @@ import { CONSENT_TEXT } from '../../lib/waitlist-contract'
         appearance-none and the tick supplied as a background image when checked.
       */
       }
+      {/* No `name`, like the email field above — see the note at the top. */}
       <input
         id="waitlist-consent"
-        name="consent"
         type="checkbox"
         required
         class="checked:border-blue checked:bg-blue checked:bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%2220 6 9 17 4 12%22/></svg>')] mt-0.5 size-[18px] shrink-0 appearance-none rounded-[4px] border border-[#FFFFFF52] bg-[#FFFFFF0A] bg-[length:12px_12px] bg-center bg-no-repeat transition-colors duration-150 disabled:opacity-60"
