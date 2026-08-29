@@ -1,0 +1,22 @@
+---
+import { product } from '../../data/product'
+
+/**
+ * The CTA used on every content page. There is no download, so it never
+ * pretends there is: the only honest call to action is the waitlist.
+ */
+---
+
+<div class="rounded-lg border border-[#0062FF24] bg-[#E8F1FF] p-5">
+  <h2 class="font-display text-[17px] font-bold text-[#003B9B]">Convert the whole folder</h2>
+  <p class="mt-2 text-[14px] leading-[1.5] text-[#1E3A5F]">
+    PixelFerry takes mixed formats in one queue and applies one set of output rules to all of them,
+    on your Mac. {product.releaseState.label}.
+  </p>
+  <a
+    href="/#waitlist"
+    class="bg-blue mt-4 inline-flex h-[42px] items-center rounded-md px-4 text-[14px] font-bold text-white transition-colors hover:bg-[#1A73FF]"
+  >
+    Join the beta waitlist
+  </a>
+</div>

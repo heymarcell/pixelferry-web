@@ -1,0 +1,110 @@
+---
+import { getCollection, render } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+import ContentLayout from '../../layouts/ContentLayout.astro'
+import WaitlistCta from '../../components/content/WaitlistCta.astro'
+import { product } from '../../data/product'
+
+export const getStaticPaths = (async () => {
+  const pages = await getCollection('conversions')
+  return pages.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}) satisfies GetStaticPaths
+
+const { entry } = Astro.props
+const { data } = entry
+const { Content } = await render(entry)
+
+const all = await getCollection('conversions')
+const related = data.related
+  .map((slug) => all.find((candidate) => candidate.id === slug))
+  .filter((candidate) => candidate !== undefined)
+---
+
+<ContentLayout
+  title={data.title}
+  description={data.description}
+  path={`/convert/${entry.id}`}
+  heading={data.heading}
+  summary={data.summary}
+  eyebrow={`${data.from} → ${data.to}`}
+  updated={data.updated}
+  crumbs={[
+    { name: 'PixelFerry', path: '/' },
+    { name: 'Conversions', path: '/convert' },
+  ]}
+>
+  <div class="flex flex-col gap-12 lg:flex-row lg:gap-14">
+    <article class="prose-doc max-w-[760px] min-w-0 flex-1">
+      <h2>What changes in the file</h2>
+      <dl class="flex flex-col gap-4">
+        {
+          data.whatChanges.map((item) => (
+            <div class="border-doc-line bg-doc-panel rounded-lg border p-5">
+              <dt class="font-display text-doc-ink text-[16px] font-bold">{item.label}</dt>
+              <dd class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">{item.detail}</dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <Content />
+
+      <h2>When people do this</h2>
+      <ul>
+        {data.useCases.map((useCase) => <li>{useCase}</li>)}
+      </ul>
+
+      <h2>What macOS already does</h2>
+      <p>
+        <strong>{data.macOSAlternative.method}.</strong>
+        {data.macOSAlternative.detail}
+      </p>
+      <p>
+        <strong>Where it stops being enough:</strong>
+        {data.macOSAlternative.breaksDownWhen}
+      </p>
+
+      <h2>Limitations worth knowing first</h2>
+      <ul>
+        {data.limitations.map((limitation) => <li>{limitation}</li>)}
+      </ul>
+      <p class="text-doc-muted text-[15px]">
+        PixelFerry requires {product.minimumOS.label} on {product.architectures}. Conversion runs
+        entirely on your Mac — no file, and no part of one, is uploaded anywhere.
+      </p>
+    </article>
+
+    <aside class="flex w-full shrink-0 flex-col gap-6 lg:w-[280px]">
+      <nav
+        aria-label="Related conversions"
+        class="border-doc-line bg-doc-panel rounded-lg border p-5"
+      >
+        <h2 class="text-doc-muted font-mono text-[10px] font-bold tracking-[1px]">
+          RELATED CONVERSIONS
+        </h2>
+        <ul class="mt-3.5 flex list-none flex-col gap-3">
+          {
+            related.map((item) => (
+              <li>
+                <a
+                  href={`/convert/${item.id}`}
+                  class="text-doc-link text-[14px] font-semibold hover:underline"
+                >
+                  {item.data.from} to {item.data.to}
+                </a>
+                <p class="text-doc-muted mt-0.5 text-[13px] leading-[1.45]">{item.data.heading}</p>
+              </li>
+            ))
+          }
+        </ul>
+        <a
+          href="/formats"
+          class="text-doc-link mt-4 inline-block text-[13px] font-semibold hover:underline"
+          >Every supported format →</a
+        >
+      </nav>
+
+      <WaitlistCta />
+    </aside>
+  </div>
+</ContentLayout>

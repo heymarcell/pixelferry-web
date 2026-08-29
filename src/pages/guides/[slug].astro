@@ -1,0 +1,89 @@
+---
+import { getCollection, render } from 'astro:content'
+import type { GetStaticPaths } from 'astro'
+import ContentLayout from '../../layouts/ContentLayout.astro'
+import WaitlistCta from '../../components/content/WaitlistCta.astro'
+import { articleSchema } from '../../lib/schema'
+
+export const getStaticPaths = (async () => {
+  const pages = await getCollection('guides')
+  return pages.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}) satisfies GetStaticPaths
+
+const { entry } = Astro.props
+const { data } = entry
+const { Content } = await render(entry)
+
+const path = `/guides/${entry.id}`
+const iso = (date: Date) => date.toISOString()
+
+const conversions = await getCollection('conversions')
+const related = data.relatedConversions
+  .map((slug) => conversions.find((candidate) => candidate.id === slug))
+  .filter((candidate) => candidate !== undefined)
+---
+
+<ContentLayout
+  title={data.title}
+  description={data.description}
+  path={path}
+  heading={data.heading}
+  summary={data.summary}
+  eyebrow="GUIDE"
+  type="article"
+  article={{ published: iso(data.published), modified: iso(data.updated), section: 'Guides' }}
+  updated={data.updated}
+  crumbs={[
+    { name: 'PixelFerry', path: '/' },
+    { name: 'Guides', path: '/guides' },
+  ]}
+  schema={[
+    articleSchema({
+      headline: data.heading,
+      description: data.description,
+      path,
+      published: iso(data.published),
+      modified: iso(data.updated),
+    }),
+  ]}
+>
+  <div class="flex flex-col gap-12 lg:flex-row lg:gap-14">
+    <article class="prose-doc max-w-[760px] min-w-0 flex-1">
+      <div class="rounded-lg border border-[#0062FF24] bg-[#E8F1FF] p-6">
+        <h2 class="font-display mt-0 text-[18px] font-bold text-[#003B9B]">In short</h2>
+        <ul class="mt-3 text-[15px] text-[#1E3A5F]">
+          {data.takeaways.map((takeaway) => <li>{takeaway}</li>)}
+        </ul>
+      </div>
+
+      <Content />
+    </article>
+
+    <aside class="flex w-full shrink-0 flex-col gap-6 lg:w-[280px]">
+      <nav
+        aria-label="Related conversions"
+        class="border-doc-line bg-doc-panel rounded-lg border p-5"
+      >
+        <h2 class="text-doc-muted font-mono text-[10px] font-bold tracking-[1px]">
+          CONVERSION GUIDES
+        </h2>
+        <ul class="mt-3.5 flex list-none flex-col gap-3">
+          {
+            related.map((item) => (
+              <li>
+                <a
+                  href={`/convert/${item.id}`}
+                  class="text-doc-link text-[14px] font-semibold hover:underline"
+                >
+                  {item.data.from} to {item.data.to}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <WaitlistCta />
+    </aside>
+  </div>
+</ContentLayout>

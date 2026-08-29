@@ -41,8 +41,15 @@ export function absoluteUrl(path: string): string {
 
 /** Footer / nav destinations, in one place so nothing links to a dead route. */
 export const navigation = {
-  primary: [],
+  primary: [
+    { label: 'Formats', href: '/formats' },
+    { label: 'Conversions', href: '/convert' },
+    { label: 'Guides', href: '/guides' },
+  ],
   footer: [
+    { label: 'Supported formats', href: '/formats' },
+    { label: 'Conversions', href: '/convert' },
+    { label: 'Guides', href: '/guides' },
     { label: 'Privacy policy', href: '/privacy' },
     { label: 'Cookie policy', href: '/cookies' },
     { label: 'Contact', href: `mailto:${productLinks.contactEmail}` },

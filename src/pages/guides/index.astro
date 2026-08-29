@@ -1,0 +1,43 @@
+---
+import { getCollection } from 'astro:content'
+import ContentLayout from '../../layouts/ContentLayout.astro'
+
+const guides = (await getCollection('guides')).sort(
+  (a, b) => b.data.published.valueOf() - a.data.published.valueOf(),
+)
+const iso = (date: Date) => date.toISOString().slice(0, 10)
+---
+
+<ContentLayout
+  title="Guides — batch image conversion and resizing on macOS"
+  description="Practical guides to converting and resizing images on a Mac: every built-in method and its limits, how to choose a format, and how to resize a batch safely."
+  path="/guides"
+  heading="Guides"
+  summary="How to get image work done on a Mac, starting with what the operating system already does for free and being honest about where it stops."
+  eyebrow="GUIDES"
+  crumbs={[{ name: 'PixelFerry', path: '/' }]}
+>
+  <ul class="grid list-none gap-5 sm:grid-cols-2">
+    {
+      guides.map((guide) => (
+        <li>
+          <a
+            href={`/guides/${guide.id}`}
+            class="border-doc-line bg-doc-panel hover:border-doc-link flex h-full flex-col gap-2.5 rounded-lg border p-6 transition-colors"
+          >
+            <span class="font-display text-doc-ink text-[19px] leading-tight font-bold">
+              {guide.data.heading}
+            </span>
+            <span class="text-doc-body text-[15px] leading-[1.55]">{guide.data.summary}</span>
+            <time
+              datetime={iso(guide.data.updated)}
+              class="text-doc-muted mt-auto pt-2 text-[12px] font-semibold"
+            >
+              Updated {iso(guide.data.updated)}
+            </time>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</ContentLayout>

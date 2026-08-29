@@ -1,0 +1,310 @@
+---
+import BaseLayout from './BaseLayout.astro'
+import BrandMark from '../components/landing/BrandMark.astro'
+import CookieConsent from '../components/CookieConsent.astro'
+import JsonLd from '../components/seo/JsonLd.astro'
+import { breadcrumbSchema, clean } from '../lib/schema'
+import { navigation } from '../data/site'
+import { productLinks } from '../data/product'
+
+/**
+ * The light document shell shared by the formats hub, conversion pages and
+ * guides. Everything below the header is ordinary flow content — no reveals,
+ * no islands, no client JS at all on these pages beyond the shared enhancement
+ * module.
+ */
+export interface Props {
+  title: string
+  description: string
+  path: string
+  heading: string
+  /** Rendered under the h1. */
+  summary: string
+  eyebrow?: string
+  type?: 'website' | 'article'
+  article?: { published?: string; modified?: string; section?: string }
+  /** Breadcrumb trail, excluding the current page (added automatically). */
+  crumbs: { name: string; path: string }[]
+  /** Extra JSON-LD beyond the breadcrumb. */
+  schema?: Record<string, unknown>[]
+  updated?: Date
+}
+
+const {
+  title,
+  description,
+  path,
+  heading,
+  summary,
+  eyebrow,
+  type = 'website',
+  article,
+  crumbs,
+  schema = [],
+  updated,
+} = Astro.props
+
+const trail = [...crumbs, { name: heading, path }]
+const structured = [clean(breadcrumbSchema(trail)), ...schema.map(clean)]
+
+const iso = (date: Date) => date.toISOString().slice(0, 10)
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={path}
+  type={type}
+  article={article}
+  scheme="light"
+  bodyClass="bg-doc-bg"
+>
+  <JsonLd slot="head" data={structured} />
+
+  <div class="bg-doc-bg min-h-dvh">
+    {/* Same two-row wrap as the landing nav — see Nav.astro. */}
+    <header
+      class="bg-void flex min-h-[74px] flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3 sm:h-[74px] sm:flex-nowrap sm:px-8 sm:py-0 lg:px-16"
+    >
+      <a
+        href="/"
+        class="flex shrink-0 items-center gap-2.5 rounded-lg"
+        aria-label="PixelFerry — home"
+      >
+        <BrandMark size={30} />
+        <span class="font-display text-[21px] font-bold text-white">PixelFerry</span>
+      </a>
+      <nav
+        aria-label="Primary"
+        class="-mx-1.5 flex flex-1 items-center gap-0.5 sm:flex-none sm:gap-2"
+      >
+        {
+          navigation.primary.map((item) => (
+            <a
+              href={item.href}
+              aria-current={path.startsWith(item.href) ? 'page' : undefined}
+              class:list={[
+                'rounded-md px-1.5 py-2 text-[13px] font-semibold transition-colors sm:px-3 sm:text-[14px]',
+                path.startsWith(item.href) ? 'text-white' : 'text-white/64 hover:text-white',
+              ]}
+            >
+              {item.label}
+            </a>
+          ))
+        }
+      </nav>
+    </header>
+
+    {/* Breadcrumbs, matching the BreadcrumbList emitted above. */}
+    <nav
+      aria-label="Breadcrumb"
+      class="border-doc-line bg-doc-panel border-b px-5 py-3 sm:px-8 lg:px-16"
+    >
+      <ol class="mx-auto flex max-w-[1080px] list-none flex-wrap items-center gap-2 text-[13px]">
+        {
+          trail.map((crumb, i) => (
+            <li class="flex items-center gap-2">
+              {i > 0 && <span class="text-doc-muted">/</span>}
+              {i === trail.length - 1 ? (
+                <span class="text-doc-ink font-semibold" aria-current="page">
+                  {crumb.name}
+                </span>
+              ) : (
+                <a href={crumb.path} class="text-doc-link font-medium hover:underline">
+                  {crumb.name}
+                </a>
+              )}
+            </li>
+          ))
+        }
+      </ol>
+    </nav>
+
+    <main id="main">
+      <div
+        class="border-doc-line bg-doc-panel border-b px-5 py-12 sm:px-8 lg:px-16 lg:pt-16 lg:pb-14"
+      >
+        <div class="mx-auto flex max-w-[1080px] flex-col items-start gap-4">
+          {
+            eyebrow && (
+              <p class="text-doc-link font-mono text-[11px] font-bold tracking-[1.2px]">
+                {eyebrow}
+              </p>
+            )
+          }
+          <h1
+            class="font-display tracking-display text-doc-ink text-[clamp(2rem,4vw,3.25rem)] leading-[1.06] font-bold"
+          >
+            {heading}
+          </h1>
+          <p class="text-doc-body max-w-[760px] text-[18px] leading-[1.6]">{summary}</p>
+          {
+            updated && (
+              <p class="text-doc-muted text-[13px] font-semibold">
+                Updated <time datetime={iso(updated)}>{iso(updated)}</time>
+              </p>
+            )
+          }
+        </div>
+      </div>
+
+      <div class="px-5 py-14 sm:px-8 lg:px-16 lg:py-16">
+        <div class="mx-auto max-w-[1080px]">
+          <slot />
+        </div>
+      </div>
+    </main>
+
+    <footer class="bg-void px-5 py-10 sm:px-8 lg:px-16">
+      <div
+        class="mx-auto flex max-w-[1080px] flex-col items-center gap-6 sm:flex-row sm:items-start sm:justify-between"
+      >
+        <a href="/" class="flex items-center gap-2.5 rounded-lg">
+          <BrandMark size={26} />
+          <span class="font-display text-[17px] font-bold text-white/80">PixelFerry</span>
+        </a>
+        <nav aria-label="Footer" class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+          {
+            navigation.footer.map((link) => (
+              <a
+                href={link.href}
+                class="rounded text-[13px] font-semibold text-white/64 transition-colors hover:text-white"
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+      <p
+        class="mx-auto mt-8 max-w-[1080px] text-center text-[12px] font-medium text-white/56 sm:text-left"
+      >
+        © 2026 PixelFerry · Private beta coming soon ·
+        <a href={`mailto:${productLinks.contactEmail}`} class="hover:text-white/80">
+          {productLinks.contactEmail}
+        </a>
+      </p>
+    </footer>
+  </div>
+
+  <CookieConsent />
+</BaseLayout>
+
+<style is:global>
+  /*
+   * Typography for markdown bodies. Scoped to `.prose-doc` so it cannot leak
+   * into the landing page's dark design system.
+   */
+  .prose-doc {
+    color: var(--color-doc-body);
+    font-size: 17px;
+    line-height: 1.7;
+  }
+
+  .prose-doc > * + * {
+    margin-top: 1.1em;
+  }
+
+  .prose-doc h2 {
+    margin-top: 2.4em;
+    font-family: var(--font-display);
+    font-size: clamp(1.375rem, 2.2vw, 1.75rem);
+    font-weight: 700;
+    letter-spacing: -0.4px;
+    line-height: 1.2;
+    color: var(--color-doc-ink);
+  }
+
+  .prose-doc h3 {
+    margin-top: 1.8em;
+    font-family: var(--font-display);
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-doc-ink);
+  }
+
+  .prose-doc a {
+    color: var(--color-doc-link);
+    font-weight: 600;
+    text-underline-offset: 3px;
+    text-decoration: underline;
+  }
+
+  .prose-doc strong {
+    color: var(--color-doc-ink);
+    font-weight: 650;
+  }
+
+  .prose-doc ul,
+  .prose-doc ol {
+    padding-left: 1.35em;
+  }
+
+  .prose-doc li + li {
+    margin-top: 0.4em;
+  }
+
+  .prose-doc ul {
+    list-style: disc;
+  }
+
+  .prose-doc ol {
+    list-style: decimal;
+  }
+
+  .prose-doc code {
+    background-color: #eef0f4;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    padding: 0.15em 0.4em;
+    color: var(--color-doc-ink);
+  }
+
+  .prose-doc pre {
+    background-color: #101420;
+    border-radius: 10px;
+    overflow-x: auto;
+    padding: 1.1rem 1.25rem;
+    font-size: 13.5px;
+    line-height: 1.6;
+  }
+
+  .prose-doc pre code {
+    background: none;
+    color: #dfe4f0;
+    padding: 0;
+    font-size: inherit;
+  }
+
+  /*
+   * Deliberately NOT a scroll container. `display: block; overflow-x: auto`
+   * turns a table into a scrollable region that keyboard users cannot reach,
+   * and markdown gives no hook to add tabindex. These tables are narrow, so
+   * they wrap instead.
+   */
+  .prose-doc table {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 15px;
+    table-layout: auto;
+  }
+
+  .prose-doc td,
+  .prose-doc th {
+    overflow-wrap: anywhere;
+  }
+
+  .prose-doc th,
+  .prose-doc td {
+    border: 1px solid var(--color-doc-line);
+    padding: 0.6rem 0.8rem;
+    text-align: left;
+  }
+
+  .prose-doc th {
+    background-color: #f1f3f7;
+    color: #374151;
+    font-weight: 600;
+  }
+</style>

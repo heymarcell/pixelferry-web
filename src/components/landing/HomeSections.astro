@@ -1,0 +1,344 @@
+---
+import Icon from '../Icon.astro'
+import { product, limits, outputFormats, inputOnlyFormats, capabilities } from '../../data/product'
+import { getCollection } from 'astro:content'
+
+/**
+ * Everything below the original Pencil design, in the same design system.
+ *
+ * The rule for this file: no sentence here is here to hold keywords. Every
+ * claim traces to `src/data/product.ts`, and where the product has a limit,
+ * the limit is stated rather than omitted.
+ */
+
+const conversions = (await getCollection('conversions')).sort((a, b) =>
+  a.data.heading.localeCompare(b.data.heading),
+)
+const guides = (await getCollection('guides')).sort((a, b) =>
+  a.data.heading.localeCompare(b.data.heading),
+)
+
+const steps = [
+  {
+    title: 'Drop in files or folders',
+    body: 'Drag anything onto the window, paste from the clipboard, or open a folder — PixelFerry walks subfolders and picks up everything it can read.',
+  },
+  {
+    title: 'Set the output rules once',
+    body: `Choose the format, quality, dimensions and destination. They apply to every file in the queue, however many formats went in.`,
+  },
+  {
+    title: 'Convert, four at a time',
+    body: 'Each row shows its own progress, its own result, and its own error if something failed. The summary bar estimates the time left from files that have already finished.',
+  },
+]
+
+const faqs = [
+  {
+    q: 'Does PixelFerry upload my images?',
+    a: 'No. Every conversion runs on your Mac. HEIC and camera RAW decode through the macOS system codecs, and everything else through the bundled image pipeline. No file, and no part of one, is sent anywhere.',
+  },
+  {
+    q: 'Which macOS versions does it run on?',
+    a: `${product.minimumOS.label}, on ${product.architectures}. Windows and Linux targets exist in the codebase but have never been built, signed or tested, so they are not offered.`,
+  },
+  {
+    q: 'Can it convert to HEIC or write a PSD?',
+    a: `No. ${inputOnlyFormats.join(', ')} are read but never written. Output is one of ${outputFormats.map((f) => f.label).join(', ')}.`,
+  },
+  {
+    q: 'What happens to a multi-page PDF?',
+    a: `Each page becomes its own image, in a folder named after the document. Long documents stop at the first ${limits.pdfPageCap} pages — rendering is held in memory — and the conversion tells you it stopped rather than truncating silently.`,
+  },
+  {
+    q: 'Are my originals modified?',
+    a: 'Never. Output is written as new files, and it will not overwrite the source or an existing file — a colliding name gets a `_converted` suffix.',
+  },
+  {
+    q: 'Is metadata kept?',
+    a: 'By default yes. Turning on metadata removal drops EXIF, XMP and IPTC — camera model, editing history, GPS coordinates — while deliberately keeping the ICC colour profile, so removing your location does not silently reinterpret your colours.',
+  },
+  {
+    q: 'When can I use it?',
+    a: `PixelFerry is in ${product.releaseState.stage}. Joining the waitlist is how you get an invite when the next round opens; there is no public download yet.`,
+  },
+]
+---
+
+<section class="border-t border-white/[0.07] px-5 py-20 sm:px-8 lg:px-16 lg:py-[104px]">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-16">
+    {/* ── What it is ── */}
+    <div class="flex flex-col gap-5">
+      <h2
+        data-reveal
+        class="font-display tracking-display max-w-[820px] text-[clamp(1.75rem,3.2vw,2.5rem)] leading-[1.12] font-bold text-white"
+      >
+        Batch image conversion built for the way Mac work actually arrives
+      </h2>
+      <div
+        data-reveal
+        class="grid max-w-[900px] gap-6 text-[16px] leading-[1.65] text-white/72 sm:grid-cols-2"
+      >
+        <p>
+          Real folders are messy. A shoot comes back as camera RAW, the client sends HEIC from a
+          phone, the designer supplies a PSD, and the brief is a PDF. Every built-in macOS tool
+          makes you sort that pile by type and run a separate pass over each one.
+        </p>
+        <p>
+          PixelFerry takes the pile. One queue, whatever went into it, and one set of output rules
+          applied to all of it — format, quality, dimensions, destination — with {
+            product.concurrency
+          }
+          files converting at a time and a readable result on every row.
+        </p>
+      </div>
+    </div>
+
+    {/* ── Mixed queue ── */}
+    <div class="flex flex-col gap-6">
+      <h2
+        data-reveal
+        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+      >
+        Drop mixed formats into one queue
+      </h2>
+      <p data-reveal class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
+        Drag files or whole folders onto the window, paste from the clipboard, or use Open with.
+        PixelFerry walks subfolders, picks up everything it can read, and quietly ignores what it
+        cannot.
+      </p>
+      <ul data-reveal class="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
+          <h3 class="font-display text-[16px] font-bold text-white">From a phone</h3>
+          <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
+            HEIC and HEIF, decoded with the macOS hardware codec rather than a JavaScript fallback —
+            roughly seven times faster on a large import.
+          </p>
+        </li>
+        <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
+          <h3 class="font-display text-[16px] font-bold text-white">From a camera</h3>
+          <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
+            Canon CR2 and CR3, Nikon NEF, Sony ARW, Fujifilm RAF, Olympus ORF, Panasonic RW2 and
+            DNG, demosaiced by macOS ImageIO.
+          </p>
+        </li>
+        <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
+          <h3 class="font-display text-[16px] font-bold text-white">From a designer</h3>
+          <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
+            PSD and PSB flattened to their stored composite, TIFF, SVG rasterised, and PDF rendered
+            one image per page.
+          </p>
+        </li>
+      </ul>
+      <p data-reveal class="text-[15px] text-white/60">
+        <a href="/formats" class="text-blue-soft font-semibold underline-offset-4 hover:underline"
+          >See every supported format, including the macOS-only ones →</a
+        >
+      </p>
+    </div>
+
+    {/* ── Output rules ── */}
+    <div class="flex flex-col gap-6">
+      <h2
+        data-reveal
+        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+      >
+        One set of output rules for the whole batch
+      </h2>
+      <dl data-reveal class="grid max-w-[900px] gap-x-10 gap-y-5 sm:grid-cols-2">
+        <div>
+          <dt class="font-display text-[15px] font-bold text-white">Format</dt>
+          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
+            {outputFormats.map((f) => f.label).join(', ')}. Quality {limits.quality.min}–{
+              limits.quality.max
+            }
+            for JPG, WebP and AVIF; PNG and TIFF are lossless, GIF is a 256-colour palette.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-display text-[15px] font-bold text-white">Size</dt>
+          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
+            By {capabilities.resizeModes.join(', ')} — with {capabilities.fitModes.join(', ')} when you
+            give exact dimensions.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-display text-[15px] font-bold text-white">Target file size</dt>
+          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
+            Set a size and the encoder searches quality values until the output fits, instead of you
+            guessing a number and checking the folder.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-display text-[15px] font-bold text-white">Whitespace trim</dt>
+          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
+            Finds the content bounding box from a uniform border and crops tight to it — useful on
+            scans and exported artboards.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-display text-[15px] font-bold text-white">Destination</dt>
+          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
+            Beside the source, or a folder you choose. Output never replaces the source or an
+            existing file — a collision gets a <code class="font-mono text-[13px]">_converted</code>
+            suffix.
+          </dd>
+        </div>
+        <div>
+          <dt class="font-display text-[15px] font-bold text-white">Metadata</dt>
+          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
+            Optionally strip EXIF, XMP and IPTC — including GPS — while keeping the ICC colour
+            profile, so a Display P3 photo stays Display P3.
+          </dd>
+        </div>
+      </dl>
+    </div>
+
+    {/* ── Privacy ── */}
+    <div
+      data-reveal
+      class="flex flex-col gap-4 rounded-2xl bg-white/[0.04] p-7 shadow-[inset_0_0_0_1px_#FFFFFF14] sm:p-9"
+    >
+      <div class="flex items-center gap-3">
+        <span
+          class="bg-blue/12 text-blue-soft grid size-[42px] shrink-0 place-items-center rounded-lg shadow-[inset_0_0_0_1px_#0062FF33]"
+        >
+          <Icon name="shield-check" size={20} />
+        </span>
+        <h2
+          class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+        >
+          Your images stay on your Mac
+        </h2>
+      </div>
+      <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
+        There is no server in this product. Conversion happens locally: HEIC and camera RAW decode
+        through macOS system codecs, everything else through the bundled image pipeline. Files,
+        clipboard contents and metadata are never uploaded — not for processing, not for analytics,
+        not for crash reports.
+      </p>
+      <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
+        Originals are never modified. That matters for the obvious reasons and for one less obvious
+        one: it means an interrupted batch leaves your source folder exactly as it was.
+      </p>
+    </div>
+
+    {/* ── How it works ── */}
+    <div class="flex flex-col gap-6">
+      <h2
+        data-reveal
+        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+      >
+        How PixelFerry works
+      </h2>
+      <ol data-reveal class="grid list-none gap-5 sm:grid-cols-3">
+        {
+          steps.map((step, i) => (
+            <li class="flex flex-col gap-2.5">
+              <span class="text-blue-soft font-mono text-[11px] font-bold tracking-[1.2px]">
+                STEP {i + 1}
+              </span>
+              <h3 class="font-display text-[17px] font-bold text-white">{step.title}</h3>
+              <p class="text-[15px] leading-[1.55] text-white/70">{step.body}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    {/* ── Conversion index ── */}
+    <div class="flex flex-col gap-6">
+      <h2
+        data-reveal
+        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+      >
+        Conversions, explained properly
+      </h2>
+      <p data-reveal class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
+        One page per conversion, covering what actually changes in the file, what macOS already does
+        for free, and the limitations worth knowing before you start.
+      </p>
+      <ul data-reveal class="grid list-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          conversions.map((entry) => (
+            <li>
+              <a
+                href={`/convert/${entry.id}`}
+                class="flex items-center justify-between gap-3 rounded-lg bg-white/[0.04] px-4 py-3.5 text-[15px] font-semibold text-white/80 shadow-[inset_0_0_0_1px_#FFFFFF14] transition-colors hover:bg-white/[0.08] hover:text-white"
+              >
+                <span>
+                  {entry.data.from} <span class="text-white/40">→</span> {entry.data.to}
+                </span>
+                <Icon name="arrow-right" size={15} class="text-blue-soft shrink-0" />
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p data-reveal class="flex flex-wrap gap-x-6 gap-y-2 text-[15px] text-white/60">
+        {
+          guides.map((guide) => (
+            <a
+              href={`/guides/${guide.id}`}
+              class="text-blue-soft font-semibold underline-offset-4 hover:underline"
+            >
+              {guide.data.heading} →
+            </a>
+          ))
+        }
+      </p>
+    </div>
+
+    {/* ── FAQ ── */}
+    <div class="flex flex-col gap-6">
+      <h2
+        data-reveal
+        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+      >
+        Questions people actually ask
+      </h2>
+      {
+        /*
+        Deliberately NOT marked up as FAQPage. Google restricted that rich
+        result to well-known authoritative government and health sites, so
+        emitting it here would be schema aimed at a result this site is not
+        eligible for. The content is useful on its own merits.
+      */
+      }
+      <dl data-reveal class="flex max-w-[820px] list-none flex-col gap-6">
+        {
+          faqs.map((faq) => (
+            <div class="flex flex-col gap-1.5 border-b border-white/[0.08] pb-6 last:border-b-0">
+              <dt class="font-display text-[17px] font-bold text-white">{faq.q}</dt>
+              <dd class="text-[15px] leading-[1.6] text-white/72">{faq.a}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+
+    {/* ── Final CTA ── */}
+    <div
+      data-reveal
+      class="flex flex-col items-start gap-4 rounded-2xl bg-[image:linear-gradient(135deg,#0F1B3D,#0B0F1C)] p-8 shadow-[inset_0_0_0_1px_#FFFFFF1A] sm:p-10"
+    >
+      <h2
+        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+      >
+        Get an invite when the next round opens
+      </h2>
+      <p class="max-w-[620px] text-[16px] leading-[1.6] text-white/72">
+        PixelFerry is in {product.releaseState.stage}. There is no public download yet — the
+        waitlist is how invites go out, and it is a double opt-in, so you will get one confirmation
+        email and nothing else until there is something to tell you.
+      </p>
+      <a
+        href="#waitlist"
+        class="bg-blue mt-1 inline-flex h-[50px] items-center gap-2 rounded-md px-6 text-[15px] font-bold text-white shadow-[0_6px_18px_-4px_#0062FF55] transition-colors hover:bg-[#1A73FF]"
+      >
+        Join the waitlist
+        <Icon name="arrow-right" size={17} stroke={2.5} />
+      </a>
+    </div>
+  </div>
+</section>
