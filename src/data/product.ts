@@ -30,69 +30,53 @@
 export const PRODUCT_FACTS_SYNCED = '2026-08-29'
 
 /**
- * ── THIS SITE HAS AN OPEN UPSTREAM DEPENDENCY ──────────────────────────────
+ * ── THE UPSTREAM DEPENDENCY IS RESOLVED ────────────────────────────────────
  *
- * Some product behaviour described on this site exists ONLY on an unmerged
- * branch of `heymarcell/pixelferry-app`. Read this before changing any product
- * copy, and before merging or deploying anything.
+ * Some behaviour this site describes existed only on `pixelferry-app` PR #70
+ * (`fix/conversion-pipeline-truth`). That PR is now MERGED, and this snapshot
+ * is pinned to the resulting `origin/main`.
  *
- * The three refs, and they are three different things:
+ * The history is kept because it is the reason this block exists at all:
  *
- *   APP MAIN            e3f3fbf5a845213ca0cc68cb5875522f5f55bcb4
- *                       What is actually released today.
+ *   - An earlier pass pinned `f6bd954` and `1627350` as though they were app
+ *     main. They were not. It had resolved app state from a locally
+ *     checked-out feature branch instead of `origin/main`, and those SHAs were
+ *     pre-rebase artefacts. ALWAYS use `git rev-parse origin/main`.
+ *   - A later pass correctly identified PR #70 as open and pinned its head
+ *     `048a5a4` as a PENDING candidate. That head then moved to `5e0d58a`
+ *     before merging — two further commits — so even a correctly-identified
+ *     candidate SHA was not what shipped.
  *
- *   APP PR #70 HEAD     048a5a49aba943941e940b5109bb78a65a510fc9
- *                       Branch `fix/conversion-pipeline-truth`. OPEN and
- *                       UNMERGED. Branched from 3309d0b, so it does NOT
- *                       contain app main's latest commit either.
+ * Verified on the merged main rather than assumed from the PR: the HEIC
+ * metadata/ICC policy, the shared `processAndWriteImage` path, and
+ * `e2e/pipeline-parity.spec.ts` are all present, and the README no longer
+ * calls HEIC input-only. The format matrix is byte-identical to the snapshot
+ * in `test/format-model.test.ts` — `OUTPUT_FORMAT_ORDER`, `QUALITY_FORMATS`,
+ * and 17 cross-platform / 59 macOS-only extensions.
  *
- *   VERIFIED AGAINST    PR #70 head — see PRODUCT_FACTS_APP_COMMIT below.
- *
- * A previous pass called the PR #70 commits "landed" and pinned them as though
- * they were main. They were not, and are not. That mistake came from reading a
- * local checked-out feature branch instead of `origin/main`, and it is exactly
- * the class of error the pin exists to prevent — so it is recorded here rather
- * than quietly corrected.
+ * Two commits arrived between the audited candidate and the merge:
+ *   ff0540e  trim no longer discards the image's metadata lineage. Trim used to
+ *            continue the encode from a raw pixel buffer, which carries no ICC
+ *            or EXIF, so turning trim on silently inverted the metadata
+ *            contract in both directions. Nothing on this site claimed
+ *            otherwise, and the fix makes main MORE consistent with what the
+ *            site says about metadata and colour.
+ *   5e0d58a  a desktop e2e timing fix. No public behaviour.
  */
 
 /**
- * ── WHAT DEPENDS ON PR #70, AND WHAT DOES NOT ──────────────────────────────
+ * ── RE-SYNC PROCEDURE ──────────────────────────────────────────────────────
  *
- * TRUE ON APP MAIN TODAY (no dependency):
- *   - the whole read/write format matrix in `formats.ts`
- *   - the 8-bit output pipeline (`limits.bitDepth`)
- *   - four-corner border detection (`limits.trim`)
- *   - the PSD decoder's limits — 8-bit composites, no ICC, CMYK misread
- *   - metadata removal on by default, quality default 80, 100-page PDF cap
- *
- * REQUIRES PR #70 TO MERGE BEFORE IT IS TRUE:
- *   - PDF -> HEIC and PDF -> ICO. On main these THROW
- *     "Unsupported output format"; /formats says "Any input can be converted to
- *     any of these", which is true only on the PR branch.
- *   - whitespace trim and target-size applied to PDF pages. Silently ignored
- *     per page on main.
- *   - HEIC output honouring the metadata/ICC policy. On main the HEIC path is
- *     `resized.png()` with no policy, so it strips the ICC profile and a
- *     Display P3 photo comes out untagged. See `capabilities.metadataHeicCaveat`.
- *
- * The website deliberately describes the PR #70 state, because web PR #2 is not
- * permitted to merge before it. That is a sequencing decision, not an accident,
- * and it is why the dependency is written here in the file every product claim
- * reads from.
- */
-
-/**
- * ── RELEASE SEQUENCE — DO NOT REORDER ──────────────────────────────────────
- *
- *   1. Independently approve app PR #70.
- *   2. Merge app PR #70.
- *   3. Fetch the resulting real `pixelferry-app/main` SHA.
- *   4. Verify the behaviour above survived the merge (squash rewrites SHAs;
- *      a rebase can drop a commit).
- *   5. Re-pin PRODUCT_FACTS_APP_COMMIT to THAT main SHA and re-verify the
- *      snapshot arrays in `test/format-model.test.ts`.
- *   6. Re-run the web gates.
- *   7. Only then consider merging web PR #2 or cutting over production.
+ *   1. `git -C ../pixelferry-app fetch --all && git rev-parse origin/main`
+ *      — origin/main, never a local checkout, never a PR head.
+ *   2. If the sync target is an unmerged PR, pin it as a candidate and set
+ *      PRODUCT_FACTS_APP_PENDING accordingly. A candidate head can still move
+ *      before it merges, so re-verify against the merge result.
+ *   3. Re-read the four source files (see CLAUDE.md) and re-copy the snapshot
+ *      arrays in `test/format-model.test.ts`.
+ *   4. Bump PRODUCT_FACTS_SYNCED, PRODUCT_FACTS_APP_COMMIT and
+ *      PRODUCT_FACTS_APP_MAIN.
+ *   5. `npm run verify`.
  */
 
 /**
@@ -101,27 +85,26 @@ export const PRODUCT_FACTS_SYNCED = '2026-08-29'
  * A date is too weak for a cross-repository truth snapshot — it says when
  * someone looked, not what they looked at. This says what they looked at.
  *
- * THIS IS THE PENDING PR #70 CANDIDATE, NOT `origin/main`. It is an audit
- * marker for humans and agents, not a runtime dependency: public CI must never
- * clone the private repo. The tests here prove the website agrees with THIS
- * SNAPSHOT — not with app main, and not with whatever main becomes after the
- * PR merges.
+ * It is an audit marker for humans and agents, not a runtime dependency: public
+ * CI must never clone the private repo. The tests here prove the website agrees
+ * with THIS SNAPSHOT, not that it will agree with app main tomorrow.
  */
-export const PRODUCT_FACTS_APP_COMMIT: string = '048a5a49aba943941e940b5109bb78a65a510fc9'
+export const PRODUCT_FACTS_APP_COMMIT: string = 'f107ef72836c422f000e31a1100b129d23a53f8d'
 
 /** `origin/main` of the app at the time of the last reconciliation. */
-export const PRODUCT_FACTS_APP_MAIN: string = 'e3f3fbf5a845213ca0cc68cb5875522f5f55bcb4'
+export const PRODUCT_FACTS_APP_MAIN: string = 'f107ef72836c422f000e31a1100b129d23a53f8d'
 
 /**
  * Whether PRODUCT_FACTS_APP_COMMIT is an unmerged candidate rather than main.
- * `test/upstream-dependency.test.ts` fails if this is false while the two SHAs
- * differ, so the dependency cannot be silently dropped.
+ * `test/upstream-dependency.test.ts` requires the two SHAs to be equal when
+ * this is not pending, and to differ when it is — so a candidate pin cannot be
+ * quietly presented as released, and a released pin cannot be left flagged.
  */
 export const PRODUCT_FACTS_APP_PENDING = {
-  pending: true,
+  pending: false,
   pr: 70,
   branch: 'fix/conversion-pipeline-truth',
-  status: 'OPEN',
+  status: 'MERGED',
 } as const
 
 export const product = {
@@ -305,19 +288,13 @@ export const capabilities = {
    * above does not govern it. What survives is whatever `sips` carries across.
    */
   /**
-   * DEPENDS ON APP PR #70 (commit `06e780b`), which is OPEN and UNMERGED.
+   * Verified on the merged app main. The HEIC path previously bypassed the
+   * metadata policy — its PNG intermediate inherited Sharp's default, which
+   * strips even the ICC profile, so a Display P3 photo came out untagged. It now
+   * applies the same contract as every other encoder.
    *
-   * On app main today the HEIC path is `resized.png()` with no metadata policy,
-   * so it inherits Sharp's default, strips even the ICC profile, and a Display
-   * P3 photo comes out untagged. PR #70 makes it apply the same policy as every
-   * other encoder.
-   *
-   * The wording below describes the PR #70 behaviour, because web PR #2 cannot
-   * merge before it. If PR #70 is ever abandoned, this string must revert to
-   * saying the metadata option does not govern HEIC output.
-   *
-   * True in BOTH states: `sips` writes a small EXIF block of its own, so a HEIC
-   * is never completely EXIF-free — that block is macOS's, not the source's.
+   * True regardless: `sips` writes a small EXIF block of its own, so a HEIC is
+   * never completely EXIF-free — that block is macOS's, not the source's.
    */
   metadataHeicCaveat:
     'HEIC output follows the same metadata policy as every other format, but the system sips tool writes a small EXIF block of its own, so a HEIC is never completely EXIF-free.',

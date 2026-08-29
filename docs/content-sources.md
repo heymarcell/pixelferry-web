@@ -22,15 +22,15 @@ itself is worse than none.
 
 ## The upstream app state
 
-Two different things, and they must not be conflated:
+| Ref                                          | SHA                                        | Status     |
+| -------------------------------------------- | ------------------------------------------ | ---------- |
+| App `origin/main`                            | `f107ef72836c422f000e31a1100b129d23a53f8d` | released   |
+| App PR #70 (`fix/conversion-pipeline-truth`) | merged as the commit above                 | **MERGED** |
 
-| Ref                                          | SHA                                        | Status             |
-| -------------------------------------------- | ------------------------------------------ | ------------------ |
-| App `origin/main`                            | `e3f3fbf5a845213ca0cc68cb5875522f5f55bcb4` | released           |
-| App PR #70 (`fix/conversion-pipeline-truth`) | `048a5a49aba943941e940b5109bb78a65a510fc9` | **OPEN, UNMERGED** |
-
-Rows below marked **PR #70** describe behaviour that is not on app main today.
-The full split, and the release sequence, are in `src/data/product.ts`.
+Resolve app state with `git rev-parse origin/main` — never from a local
+checkout, and never from a PR head, which can move before it merges. Both
+mistakes were made here; see the pin history in
+`docs/audits/public-claim-ledger-2026-08-29.md`.
 
 ---
 
@@ -109,13 +109,14 @@ Secondary sources are used for orientation, never as the basis of a figure.
 | macOS 14+, Apple silicon and Intel                                                             | `apps/desktop/package.json` `build.mac.minimumSystemVersion: "14.0"`                                                                                                                                                                                                                                                                                                                                              |
 | The format matrix — 76 extensions across 23 families, output set, quality formats              | `shared/constants.ts` `CROSS_PLATFORM_EXTENSIONS` (17) and `MACOS_ONLY_EXTENSIONS` (59); `shared/settings.ts` `OUTPUT_FORMAT_ORDER` and `QUALITY_FORMATS`. Mirrored into `src/data/formats.ts`, pinned by `test/format-model.test.ts`                                                                                                                                                                             |
 
-### Requires PR #70 — not true on app main today
+### Merged in PR #70 — verified on the resulting main
 
-| Claim                                                                                      | Status                                                                                                                              |
-| ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `PDF → HEIC` and `PDF → ICO` work; `/formats` says any input converts to any output format | On main these **throw** "Unsupported output format". Fixed on PR #70 by routing PDF pages through the shared `processAndWriteImage` |
-| Whitespace trim and target size apply to **PDF pages**                                     | Silently ignored per page on main                                                                                                   |
-| HEIC output honours the metadata / ICC policy                                              | On main the HEIC path is `resized.png()` with no policy, so it strips the ICC profile and a Display P3 photo comes out untagged     |
+| Claim                                                                                      | Evidence                                                                                                                                             |
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PDF → HEIC` and `PDF → ICO` work; `/formats` says any input converts to any output format | PDF pages route through the shared `processAndWriteImage`. Before the merge these threw "Unsupported output format"                                  |
+| Whitespace trim and target size apply to **PDF pages**                                     | Same change; previously they sat after an early return and were silently skipped per page                                                            |
+| HEIC output honours the metadata / ICC policy                                              | The HEIC path was `resized.png()` with no policy, so it stripped the ICC profile and a Display P3 photo came out untagged                            |
+| Enabling trim no longer destroys metadata                                                  | Trim continued the encode from a raw pixel buffer, which carries no ICC or EXIF. The buffer is now geometry only and the encode reopens the original |
 
 ---
 

@@ -4,29 +4,40 @@ A claim-level forensic review of every factual assertion this site publishes.
 
 **Web branch** `feat/astro7-seo-rebuild`
 
-## The three refs this ledger talks about
+## The app refs this ledger talks about
 
-They are three different things, and an earlier revision of this document
-conflated them.
+Resolved from `origin`, not from a local checkout.
 
-| Ref                                               | SHA                                        | Status             |
-| ------------------------------------------------- | ------------------------------------------ | ------------------ |
-| App `origin/main`                                 | `e3f3fbf5a845213ca0cc68cb5875522f5f55bcb4` | released           |
-| App PR #70 head — `fix/conversion-pipeline-truth` | `048a5a49aba943941e940b5109bb78a65a510fc9` | **OPEN, UNMERGED** |
-| What the web copy is verified against             | PR #70 head                                | pending            |
+| Ref                                          | SHA                                        | Status                         |
+| -------------------------------------------- | ------------------------------------------ | ------------------------------ |
+| App `origin/main` **now**                    | `f107ef72836c422f000e31a1100b129d23a53f8d` | released — PR #70 merge commit |
+| App PR #70 — `fix/conversion-pipeline-truth` | merged as above; final head `5e0d58a`      | **MERGED**                     |
 
-PR #70 branched from `3309d0b`, so it is not a descendant of current app main
-either. **`048a5a4` is not app main and its commits have not merged.**
+### The pin history, because it is the finding
 
-An earlier pass called those commits "landed" and pinned them as though they
-were main. That happened because it resolved app state from a locally
-checked-out feature branch rather than `origin/main` — and the local branch was
-itself a rebased copy with different SHAs that exist nowhere remote. The
-correction is recorded rather than silently applied, because "I read the wrong
-ref" is the same class of error this ledger exists to catch.
+This project got the cross-repo pin wrong three times, each differently:
 
-Sections below marked **historical** record what was believed at the time. The
-present source-of-truth is this table.
+1. A pass pinned `f6bd954` and `1627350` as app main. They were **pre-rebase
+   commits on a locally checked-out feature branch**, existing on no remote. It
+   had read the local checkout instead of `origin/main`.
+2. A later pass correctly identified those commits as belonging to **open** PR
+   #70 and pinned the PR head `048a5a4` as a pending candidate — but several
+   documents still described the commits as merged.
+3. That candidate head then **moved to `5e0d58a`** before merging, adding two
+   further commits. So even a correctly-identified candidate SHA was not what
+   shipped.
+
+The pin is now the merged main, and the behaviour was verified **on the merge
+result** rather than assumed from the PR: the HEIC metadata/ICC policy, the
+shared `processAndWriteImage` path, and `e2e/pipeline-parity.spec.ts` are all
+present, the README no longer calls HEIC input-only, and the format matrix is
+byte-identical to the snapshot in `test/format-model.test.ts`.
+
+`test/upstream-dependency.test.ts` now enforces the invariant in both directions
+— a candidate pin cannot be presented as released, and a released pin cannot be
+left flagged pending. It caught this very table.
+
+Sections below marked **historical** record what was believed at the time.
 
 ## Why this pass happened
 
@@ -281,65 +292,35 @@ call patterns and would not catch Node `http`/`https`, `child_process`,
 `sendBeacon`, an aliased call or a dependency. Scoped on the page and in
 `CLAUDE.md`.
 
-## 10. The upstream dependency (supersedes the earlier "the app moved" section)
+## 10. The upstream dependency, and how it resolved
 
-**Historical note.** An earlier revision of this section described four app
-commits as having "landed on main during the review". They had not. They are the
-four commits of **open PR #70**, and the SHAs that revision pinned mid-way
-(`f6bd954`, `1627350`) were local rebase artefacts that exist on no remote. The
-corrected account follows.
+**Historical.** Earlier revisions of this section described four app commits as
+having "landed on main during the review", then as a pending candidate. The
+accurate account is in the pin history above. What follows is the outcome.
 
-### What is true on app main today
+### What PR #70 changed, verified on the merged main
 
-`e3f3fbf`. No dependency; the site can say all of this now.
+| Behaviour                       | Before                                                                                                                                                       | After                                                            |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------- |
+| `PDF → HEIC`, `PDF → ICO`       | threw "Unsupported output format"                                                                                                                            | works                                                            |
+| trim, target size on PDF pages  | silently ignored per page                                                                                                                                    | applied                                                          |
+| HEIC output metadata/ICC policy | not applied — a Display P3 photo came out untagged                                                                                                           | applied, same contract as every other encoder                    |
+| trim vs metadata                | trim continued the encode from a raw pixel buffer, which carries no ICC or EXIF, so enabling trim silently inverted the metadata contract in both directions | the raw buffer is geometry only; the encode reopens the original |
+| README input-only list          | named HEIC                                                                                                                                                   | HEIC removed                                                     |
 
-- the entire read/write format matrix, and the 76 extensions across 23 families
-- the 8-bit output pipeline
-- four-corner border detection for whitespace trim
-- the PSD decoder's limits — 8-bit composites only, no ICC carried, CMYK misread
-- metadata removal on by default, quality default 80, the 100-page PDF cap
+`/formats` says "Any input can be converted to any of these". That was **false**
+when this branch was written and is **true** on the merged main.
 
-### What requires PR #70 to merge
+The last row arrived after the audited candidate — it was not in `048a5a4`. It
+does not contradict anything published here; it makes the app more consistent
+with what this site already said about metadata and colour. It is recorded
+because it is the concrete reason step 4 of the release sequence exists.
 
-| Behaviour                       | On app main today                                                                      | On PR #70                                     |
-| ------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------- |
-| `PDF → HEIC`, `PDF → ICO`       | **throws** "Unsupported output format"                                                 | works                                         |
-| trim, target size on PDF pages  | silently ignored per page                                                              | applied                                       |
-| HEIC output metadata/ICC policy | not applied — `resized.png()` with no policy, so a Display P3 photo comes out untagged | applied, same contract as every other encoder |
-| README's input-only list        | still names HEIC (`e3f3fbf:README.md:81`)                                              | HEIC removed (`048a5a4:README.md:87`)         |
+### The site's own claims are unaffected by the merge
 
-`/formats` says "Any input can be converted to any of these". That is true on
-the PR branch and **false on main today**.
-
-### Why the site describes the pending state
-
-Web PR #2 is not permitted to merge before app PR #70. Reverting the copy to
-main's behaviour would mean writing limitations that are already fixed upstream,
-then rewriting them again on merge. The dependency is instead made explicit and
-mechanically checked — `src/data/product.ts` carries the three refs, the split
-above, and the release sequence, and `test/upstream-dependency.test.ts` fails if
-any document describes one of the PR's commits as merged, or presents its head
-SHA as the released branch.
-
-That test caught this very section, and then caught the sentence describing it.
-
-### Release sequence
-
-1. Independently approve app PR #70.
-2. Merge app PR #70.
-3. Fetch the resulting real `pixelferry-app/main` SHA.
-4. Verify the behaviour survived the merge — a squash rewrites SHAs and a rebase
-   can drop a commit.
-5. Re-pin `PRODUCT_FACTS_APP_COMMIT` to that main SHA and re-verify the snapshot
-   arrays in `test/format-model.test.ts`.
-6. Re-run the web gates.
-7. Only then consider merging web PR #2 or cutting over production.
-
-The format matrix is unaffected either way. Verified at `048a5a4`:
-`OUTPUT_FORMAT_ORDER` = jpg, png, webp, heic, avif, tiff, gif, ico;
-`QUALITY_FORMATS` = jpg, jpeg, webp, avif, heic; 17 cross-platform and 59
-macOS-only extensions — identical to the snapshot in
-`test/format-model.test.ts`.
+The format matrix, the 8-bit pipeline, four-corner border detection, the PSD
+decoder limits, metadata-on-by-default, quality 80 and the 100-page PDF cap were
+all true on main before PR #70 and remain true after.
 
 ## 11. What remains open
 

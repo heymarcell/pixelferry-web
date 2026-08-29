@@ -180,7 +180,11 @@ describe('the evidence document states only what is currently defensible', () =>
     expect(sources).not.toMatch(/TIFF[^\n]{0,30}\bis lossless\b/i)
   })
 
-  it('marks the PR #70 rows as not true on app main', () => {
-    expect(sources).toMatch(/Requires PR #70 — not true on app main today/i)
+  it('records the app main SHA and how to resolve it', () => {
+    // The evidence file must name the ref it was checked against, and must say
+    // how to get it — reading a local checkout is what produced two bad pins.
+    expect(sources).toMatch(/App `origin\/main`/)
+    expect(sources).toMatch(/rev-parse origin\/main/)
+    expect(sources).toMatch(/never from a local\s+checkout/)
   })
 })
