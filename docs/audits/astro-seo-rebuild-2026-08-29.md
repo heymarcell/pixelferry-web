@@ -511,7 +511,19 @@ regardless. Confirm it out of band and fill in §1 deliberately.
 
 ### `www.pixelferry.app`
 
-Currently answers **200** with the same content rather than redirecting. The
-canonical tag mitigates it, but a 301 is correct and it cannot be done from
-`_headers` (no hostname matching). It needs a Cloudflare Redirect Rule; the step
-is in `docs/deployment.md`.
+Currently answers **200** with byte-identical content rather than redirecting
+(verified: same sha256 as the apex, both 200, and `www` is fully crawlable). The
+canonical tag on `www` points at the apex, which is what has kept the duplicate
+mostly harmless.
+
+It is a **custom domain on the Pages project**, not an alias — which makes it a
+cutover hazard rather than just an SEO tidy-up. The cutover moves only the apex
+onto the Worker, so `www` would keep serving the OLD build while the apex serves
+the new one. `docs/deployment.md` therefore makes the redirect a
+**precondition** of the cutover, not a step after it.
+
+It cannot be done from `_headers` (no hostname matching), and it **cannot be
+done with Wrangler**: Redirect Rules belong to the Rules product, `wrangler` has
+no rules, ruleset, zone or DNS commands, and its OAuth token is scoped
+`zone (read)`. It needs the dashboard or an API token with Zone → Config → Edit.
+Exact steps and a ready-to-run API call are in `docs/deployment.md`.
