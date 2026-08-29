@@ -131,3 +131,83 @@ These were removed during the correction pass, and should not come back:
 - **"Invisible" / "indistinguishable"** as absolutes about lossy compression.
 - **"Neutral"** for Apple's RAW rendering. It is a rendering choice like any
   other, and calling it neutral implies an authority nothing here establishes.
+
+## Third pass — claim-level forensic review (2026-08-29)
+
+Triggered by a reported self-contradiction on `/convert/heic-to-png`, which
+turned out to be one instance of a systemic class. Two earlier passes and every
+automated check had gone green over it, because each half of the contradiction
+is true in isolation.
+
+### The 8-bit pipeline — measured, not inferred
+
+Every encoder branch in the app's `applyFormat` is called without a `bitdepth`
+option, so libvips writes 8 bits per channel whatever the source was. Measured
+with sharp 0.35.3 / libvips 8.18.3, feeding a 16-bit `rgb16` source into the
+exact shipping calls and reading the result back:
+
+| Shipping call | Output depth |
+| --- | --- |
+| `png({ compressionLevel: 9 })` | `uchar` (8-bit) |
+| `tiff({ compression: 'lzw' })` | `uchar` (8-bit) |
+| `webp({ lossless: true })` | `uchar` (8-bit) |
+| `avif({ lossless: true })` | `uchar` (8-bit) |
+
+And on the macOS HEIC read path, `sips -s format tiff` genuinely produces a
+16-bit intermediate (`depth: ushort`, `space: rgb16`) which the final encode then
+drops to 8. **The precision loss is real, and it happens at the encode step.**
+
+So "lossless" is a true statement about the codec and a false one about the
+conversion. Recorded as `limits.bitDepth` in `src/data/product.ts` and guarded by
+`test/pipeline-claims.test.ts`. The app enforces the same rule on itself —
+`shared/settings.ts` forbids the format blurbs from saying "HDR" for this reason.
+
+### HEIC decode, hardware vs portable
+
+`sips -s format tiff` versus the bundled `heic-convert` fallback, 12 MP HEIC
+(6.6 MB, synthetic photographic source), median of 3, one machine:
+
+| Path | Time |
+| --- | --- |
+| `sips` (ImageIO, hardware HEVC) | 153 ms |
+| `heic-convert` (pure JS) | 1868 ms |
+
+That is **12.2×**, not the "roughly seven times" the homepage claimed. The 7×
+figure came from a code comment in `main/macos.ts` and the app README — never
+from a measurement — while the homepage said "PixelFerry measures". One
+synthetic run on one machine is not grounds for a precise public number either,
+so the site now says "several times faster" and the measurement lives here.
+
+### Citation integrity
+
+`/convert/png-to-webp` attributed **26% smaller than PNG** to Google's _WebP
+Lossless and Alpha Study_, by name, in four places. That study reports **23%
+against ZopfliPNG** and **42% against libpng**; the 26% headline is from the WebP
+overview page at `developers.google.com/speed/webp`. Both halves were
+individually true, which is what made it survive.
+
+The lossy figure (25–34% vs JPEG at matched SSIM) is correctly attributed, but
+its baseline is **libjpeg 6b with `-optimize`** — and PixelFerry encodes JPEG
+with mozjpeg, which is stronger, so the gap against its own output is narrower.
+Both pages now say so.
+
+### macOS built-in capability
+
+`sips --formats` on macOS 26.5.1 lists `public.avif` as **Writable** and
+`org.webmproject.webp` as not. `/guides/batch-convert-images-on-mac` said "No
+WebP or AVIF output" and made it one of three headline reasons a dedicated tool
+exists, while `/convert/jpg-to-avif` on the same site said the opposite. The
+AVIF half was false; the WebP half is correct and now carries the evidence.
+
+### App defaults that the site described backwards
+
+Verified in `shared/settings.ts` `DEFAULT_RECIPE` / `DEFAULT_SETTINGS`:
+
+| Fact | Source | Site had said |
+| --- | --- | --- |
+| `removeMetadata: true` | `settings.ts:225` | "Optionally strip EXIF…" |
+| `dontUpscale: true` | `settings.ts:226` | not mentioned for Crop/Fill |
+| `defaultSaveLocation: input-folder` | `settings.ts:245` | "leaves your source folder exactly as it was" |
+| `TARGET_MAX_ITERATIONS = 8`, may miss target | `pipeline.ts:20, 290-309` | "searches quality values until the output fits" |
+| walk caps: 5000 files, depth 10, no dotfiles or symlinks | `collectImages.ts:36-37, 76, 88` | "picks up everything it can read" |
+| only `mac` build target declared; win32/linux paths unit-tested | `package.json`, `clipboardFile.test.ts:39-40` | "never been built, signed or tested" |

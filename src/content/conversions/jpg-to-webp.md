@@ -24,7 +24,9 @@ whatChanges:
       WebP's VP8-derived intra coding uses better prediction and a smarter
       transform than JPEG's. Google's own WebP study measured files 25–34%
       smaller than JPEG at the same SSIM across four image sets — an average per
-      corpus, not a promise for any one photograph.
+      corpus, not a promise for any one photograph. That study's baseline was
+      libjpeg 6b; PixelFerry writes JPEG with mozjpeg, which is a stronger
+      encoder, so the gap against a JPEG it produced is narrower.
   - label: An alpha channel becomes available
     detail:
       WebP supports transparency, which JPEG does not. Nothing to carry over
@@ -81,12 +83,13 @@ faithfully reproducing those artefacts.
 
 The practical consequences:
 
-- Convert at a **reasonably high quality** (80–85) and the result is usually
-  hard to tell apart from the source at normal viewing size, while still being
-  meaningfully smaller. This is the normal case and it works well.
-- Convert at a **low quality** (below 65) and the two generations compound. You
-  get a file that is small and visibly worse than a single-pass encode at the
-  same size would have been.
+- Convert at a **reasonably high quality** — the app's default of 80 is the
+  place to start — and the result is usually hard to tell apart from the source
+  at normal viewing size, while still being meaningfully smaller. This is the
+  normal case and it works well.
+- Push the quality **low** and the two generations compound. You get a file that
+  is small and visibly worse than a single-pass encode at the same size would
+  have been.
 - If you still have the RAW, TIFF or PSD source, converting from that instead
   skips the problem entirely.
 

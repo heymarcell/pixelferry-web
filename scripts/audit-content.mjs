@@ -169,6 +169,49 @@ const FORBIDDEN = [
       /\b(?:only|sole) (?:common |widely[- ]used )?format\b[^.]{0,60}\b(?:alpha|transparen)/i,
     why: 'false exclusivity — AVIF also supports lossy compression with alpha (MDN)',
   },
+  /*
+   * The 8-bit pipeline. Measured against the app's shipping encoder calls with a
+   * 16-bit source, every output reads back `depth: 'uchar'` — PNG, TIFF LZW,
+   * lossless WebP and lossless AVIF alike. "Lossless" is therefore true of the
+   * codec and false of the conversion, and /convert/heic-to-png shipped both
+   * claims at once. See src/data/product.ts `limits.bitDepth`.
+   */
+  {
+    pattern: /\bperfect copy\b/i,
+    why: 'an 8-bit re-encode of a deeper source is not a perfect copy — limits.bitDepth',
+  },
+  {
+    pattern: /adds no (?:new|further) (?:quality )?loss/i,
+    why: 'quantisation to 8 bits IS a new loss — say what the conversion costs',
+  },
+  {
+    pattern: /picks up no new compression artefacts/i,
+    why: 'true of DEFLATE, false of the conversion — the depth drop is not an artefact claim',
+  },
+  {
+    pattern: /\bpreserves? (?:the )?(?:full )?(?:10|12|14|16)[- ]bit\b/i,
+    why: 'the pipeline writes 8-bit in every format — it preserves no higher depth',
+  },
+  {
+    pattern: /\bhigher bit depth becomes available\b/i,
+    why: 'it does not — PixelFerry encodes 8-bit AVIF and 8-bit HEIC',
+  },
+  /*
+   * Citation integrity. The site attributed "26% smaller than PNG" to Google's
+   * WebP Lossless and Alpha Study by name, in four places. That study reports
+   * 23% against ZopfliPNG and 42% against libpng; the 26% headline is from the
+   * WebP overview page. A figure and a named source that do not belong together
+   * is a harder defect to catch than a wrong number, because both halves are
+   * individually true.
+   */
+  {
+    pattern: /Lossless and Alpha Study[^.]{0,80}\b26\s?%/i,
+    why: 'that study reports 23% (vs ZopfliPNG) and 42% (vs libpng) — 26% is the overview page',
+  },
+  {
+    pattern: /\b26\s?%[^.]{0,60}Lossless and Alpha Study/i,
+    why: 'that study reports 23% (vs ZopfliPNG) and 42% (vs libpng) — 26% is the overview page',
+  },
   {
     pattern: /\b(?:nothing else can|no other format can)\b/i,
     why: 'exclusivity claim — check it against MDN before writing it',

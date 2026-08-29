@@ -96,8 +96,9 @@ TIFF compression is optional and comes in several flavours. Uncompressed TIFF is
 width × height × channels × bytes, exactly. LZW and ZIP compress losslessly,
 with LZW doing well on flat content and poorly on noisy scans.
 
-That is why one 40-megapixel scan is 90 MB and another is 240 MB. Nothing is
-wrong with either. It also means the size reduction you get from converting to
+That is why two 40-megapixel scans can differ several-fold in size with nothing
+wrong with either — an uncompressed 16-bit one is fixed at width × height × 3 ×
+2 bytes, while an LZW one depends entirely on the content. It also means the size reduction you get from converting to
 JPEG varies enormously between files in the same batch, and the per-row
 before/after figures are the only reliable way to know what actually happened.
 

@@ -30,7 +30,7 @@ export const EFFECTIVE_DATE = '2026-07-25'
 export const privacyPolicy: LegalDoc = {
   title: 'Privacy Policy',
   intro:
-    'This Privacy Policy explains how [LEGAL COMPANY NAME], operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the coming-soon website at [DOMAIN] and the associated email waitlist.',
+    'This Privacy Policy explains how [LEGAL COMPANY NAME], operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the website at [DOMAIN] and the associated email waitlist, not to the desktop application.',
   effectiveDate: EFFECTIVE_DATE,
   summaryTitle: 'Current scope',
   summaryBody:
@@ -62,10 +62,10 @@ Email: [EU REPRESENTATIVE EMAIL]`,
 When you join the PixelFerry waitlist, we process:
 • Your email address
 • The date and time of registration
-• Your consent status and confirmation status
+• The verbatim consent wording you agreed to, and when
 • The version of the consent wording and Privacy Policy presented to you
 • The signup source or webpage
-• Technical information reasonably necessary to document registration, which may include your IP address
+• A salted, one-way pseudonym derived from your IP address, used to document registration and limit abuse. Your IP address itself is never stored
 
 We use this information to register you for the waitlist, confirm your email address, send launch and early-access updates, manage unsubscribe requests, and demonstrate that valid consent was obtained. The legal basis is consent under Article 6(1)(a) GDPR. Providing your email is voluntary.
 
@@ -85,8 +85,7 @@ After you unsubscribe, we stop marketing and product-update emails. We may retai
       id: 'retention',
       nav: '4. Retention',
       heading: '4. Retention periods',
-      body: `• Waitlist email and registration data: until you withdraw consent, or 24 months after our last waitlist or launch-related communication, whichever occurs first
-• Unconfirmed registrations: normally deleted within 30 days
+      body: `• Waitlist email and registration data: kept as the record of your consent, and deleted when you ask us to erase it. NOTE — there is currently no automated deletion schedule for this data; a retention period will be set before this policy leaves draft.
 • Website security and server logs: normally no longer than 30 days, unless needed to investigate an incident
 • Suppression records: minimum information may be retained for up to five years
 • Compliance records: consent and withdrawal records may be retained for the applicable legal limitation period

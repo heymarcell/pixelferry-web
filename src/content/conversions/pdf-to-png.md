@@ -16,9 +16,10 @@ summary:
 whatChanges:
   - label: Pages become separate files
     detail:
-      A multi-page PDF exports as `name.png`, `name-2.png`, `name-3.png` and so
-      on, into a folder named after the document. The conversion reports how
-      many pages it produced rather than leaving you to count.
+      A multi-page PDF exports as `name-1.png`, `name-2.png`, `name-3.png` and
+      so on, into a folder named after the document — every page is numbered,
+      including the first. The conversion reports how many pages it produced
+      rather than leaving you to count.
   - label: Text stops being text
     detail:
       Vector glyphs are rasterised. The output is no longer searchable,
@@ -66,9 +67,10 @@ related:
 This is a real limit and it is stated on purpose rather than discovered at run
 time.
 
-PDF rendering happens in memory, one page at a time, and the rendered pages
-accumulate before they are written. A 500-page scanned document at print
-resolution is several gigabytes of bitmap, and the honest outcome of attempting
+PDF rendering happens in memory: every requested page is rasterised before the
+writing starts. At the 2x viewport scale PixelFerry uses — roughly 144 dpi — a
+500-page scanned document is gigabytes of bitmap, and the honest outcome of
+attempting
 it is that the application dies partway through and you get an incomplete folder
 with no explanation.
 
@@ -102,14 +104,17 @@ batch of twenty PDFs at twenty pages each would otherwise put four hundred loose
 PNGs into one directory with names that collide the moment two documents both
 have a page 3.
 
-Inside, pages are numbered in order, so they sort correctly in Finder and in
-anything that reads the directory.
+Inside, pages are numbered in order. The numbers are not zero-padded, so Finder
+sorts them naturally but a plain lexicographic listing — `ls`, a glob, most
+`readdir` sorts — will put `name-10.png` before `name-2.png`. Worth knowing if
+you are feeding them to a script.
 
 ## Resolution
 
-Set a width if the pages are headed somewhere specific. Rasterising a page at
-print resolution produces something far wider than a wiki thumbnail or a slide
-needs, and it costs real disk space across a hundred pages.
+Set a width if the pages are headed somewhere specific. PixelFerry rasterises at
+a fixed 2x viewport scale — roughly 144 dpi, not user-configurable — which is
+still far wider than a wiki thumbnail or a slide needs, and it costs real disk
+space across a hundred pages.
 
 Resizing during the conversion rather than after it means the large intermediate
 never touches your disk.

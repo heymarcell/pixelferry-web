@@ -14,7 +14,8 @@ takeaways:
   - Photographs go to AVIF or WebP for the web, JPEG when it has to open
     anywhere.
   - Anything with sharp edges or flat colour — screenshots, logos, diagrams —
-    belongs in a lossless format, and WebP lossless beats PNG at that job.
+    belongs in a lossless format; WebP lossless is usually smaller than PNG, but
+    not on every file.
   - Transparency rules out JPEG entirely; WebP and AVIF both keep an alpha
     channel while compressing the colour lossily, which is what makes cut-outs
     small.
@@ -50,9 +51,11 @@ trying to put a 60 MB TIFF into an email.
 ### JPEG
 
 The universal default, and the reason is compatibility rather than quality.
-Every piece of software written in the last thirty years reads it.
+Effectively everything that opens images reads it — the standard dates to 1992.
 
-- **Lossy only.** No transparency, 8-bit only.
+- **Lossy, no transparency, 8-bit** in the baseline form everything actually
+  uses. The spec also defines 12-bit and lossless modes, but they are rare and
+  PixelFerry does not write them.
 - Compresses photographs well and everything else badly. Sharp edges get visible
   ringing, which is why screenshots saved as JPEG look wrong.
 - Degrades on every re-save. Never use it as a working format.
@@ -65,8 +68,9 @@ The lossless default. Every pixel exact, real alpha channel.
 
 - Excellent on flat colour, text and line art — the DEFLATE compression finds
   the repetition.
-- Poor on photographs, where there is no repetition to find. Expect ten to
-  twenty times the size of an equivalent JPEG.
+- Poor on photographs, where there is no repetition to find. A photographic PNG
+  is typically several times the size of an equivalent JPEG, and the multiple
+  depends heavily on the image.
 - Still the safest transparent format for compatibility.
 
 **Use it when:** you need transparency or exactness and cannot rely on WebP.
@@ -75,10 +79,13 @@ The lossless default. Every pixel exact, real alpha channel.
 
 The one that quietly replaced both of the above for web use.
 
-- **Two modes.** Google's studies measure lossy WebP 25–34% smaller than JPEG at
-  matched SSIM, and lossless WebP about 26% smaller than PNG with identical
-  pixels. Both are corpus averages; individual files vary, and Google documents
-  cases where WebP comes out larger.
+- **Two modes.** Google's WebP study measures lossy WebP 25–34% smaller than
+  JPEG at matched SSIM, against a libjpeg 6b baseline — PixelFerry encodes JPEG
+  with mozjpeg, which is stronger, so expect less than that against its own
+  output. For lossless, Google publishes 26% smaller than PNG, and its lossless
+  study measures 23% against a ZopfliPNG-optimised baseline. All are corpus
+  averages; individual files vary, and Google documents cases where WebP comes
+  out larger.
 - **Transparency with lossy colour**, which PNG (always lossless) and JPEG (no
   alpha) cannot offer. AVIF can do this too.
 - Supported in every current browser. Thinner support outside them.
@@ -87,16 +94,20 @@ The one that quietly replaced both of the above for web use.
 
 ### AVIF
 
-Usually the smallest, and reliably the slowest to make.
+Usually the smallest. Slow to encode at the effort level PixelFerry uses,
+though AVIF encode time depends heavily on the encoder's speed setting.
 
 - Generally smaller than JPEG and WebP at comparable quality, most clearly on
   large photographs. How much depends on the image and on both encoders'
   settings, so measure rather than assume a percentage.
 - Markedly better on smooth gradients — skies band far less.
-- Handles 10- and 12-bit and wide gamut natively, and supports alpha with lossy
-  colour.
+- The format handles 10- and 12-bit and wide gamut natively, and supports alpha
+  with lossy colour — though PixelFerry writes 8-bit AVIF, so the depth is the
+  format's headroom, not something this app can put in the file.
 - Encoding is the slow part: on PixelFerry's encoder, AVIF at quality 80 took
-  about 3x as long as WebP and 5x as long as mozjpeg on a 12 MP photograph.
+  roughly 2.5–3x as long as WebP and 3–5x as long as mozjpeg on a synthetic
+  12 MP photographic source — one machine, median of three runs, and the
+  multiple moves with the source and the libvips build.
   Support outside browsers is thin.
 
 **Use it when:** the image is large, the bytes matter, and you can serve a
@@ -145,8 +156,10 @@ great deal of software — which is why
 different software produces different results from the same file. See
 [RAW to JPG](/convert/raw-to-jpg) for what that means in practice.
 
-**TIFF** is the archive workhorse: lossless, 16-bit capable, CMYK capable, and
-enormous. Keep it as the master and
+**TIFF** is the archive workhorse: a container that is usually lossless — though
+it can hold JPEG-compressed data too — 16-bit capable, CMYK capable, and
+enormous. Keep the 16-bit original as the master; PixelFerry reads it but writes
+8-bit LZW TIFF, like everything else it outputs. Then
 [convert copies for delivery](/convert/tiff-to-jpg).
 
 ## Practical rules

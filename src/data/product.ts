@@ -39,8 +39,15 @@ export const PRODUCT_FACTS_SYNCED = '2026-08-29'
  * CI must never clone the private repo. The tests in this repo prove the
  * website agrees with THIS SNAPSHOT, not that it will agree with app `main`
  * tomorrow. Re-verify and bump both when syncing.
+ *
+ * Re-verified at `f6bd954`. The only commit since `3309d0b` touches
+ * `docs/legal/privacy-policy.md`, `docs/devops-plan.md` and a docblock in
+ * `packages/shared/src/bugReport.ts`; `git diff 3309d0b..f6bd954 --
+ * apps/desktop/src/shared apps/desktop/src/main` is EMPTY, so no capability in
+ * `formats.ts` is affected. The privacy wording it corrects IS reflected on
+ * /privacy.
  */
-export const PRODUCT_FACTS_APP_COMMIT = '3309d0b5c89b29abeb458a39e37c554ad5364011'
+export const PRODUCT_FACTS_APP_COMMIT = 'f6bd954889fd1d21ba85153517f91b02addec147'
 
 export const product = {
   name: 'PixelFerry',
@@ -148,6 +155,40 @@ export const limits = {
    * and those were opinions dressed as measurements.
    */
   defaultQuality: 80,
+
+  /**
+   * THE PIPELINE IS 8-BIT END TO END. Every encoder branch in `applyFormat` is
+   * called without a `bitdepth` option, so libvips writes 8 bits per channel
+   * whatever the source was.
+   *
+   * Measured against the shipping calls (sharp 0.35.3 / libvips 8.18.3), with a
+   * 16-bit `rgb16` source, reading the resulting file back:
+   *
+   *   png({compressionLevel: 9})   -> depth uchar
+   *   tiff({compression: 'lzw'})   -> depth uchar
+   *   webp({lossless: true})       -> depth uchar
+   *   avif({lossless: true})       -> depth uchar
+   *
+   * And on the macOS HEIC read path, `sips -s format tiff` really does produce a
+   * 16-bit intermediate (`depth ushort`) — which the final encode then drops to
+   * 8. So the precision loss is real and it happens at the encode step.
+   *
+   * This is why no page may say a conversion is "lossless", "pixel-exact" or a
+   * "perfect copy" without scoping it to 8 bits: those words were true of the
+   * CODEC and false of the PIPELINE, and /convert/heic-to-png asserted both at
+   * once. `test/pipeline-claims.test.ts` guards it.
+   *
+   * The app makes the same distinction for itself — `shared/settings.ts` notes
+   * that HEIC and AVIF may not advertise "HDR" because the pipeline cannot put
+   * any in them.
+   */
+  bitDepth: {
+    output: 8,
+    note: 'PixelFerry writes 8 bits per channel in every format it outputs.',
+    /** True of the codec, but not of what PixelFerry puts through it. */
+    losslessMeans:
+      'no compression artefacts are added; a source deeper than 8 bits per channel is still quantised on the way through',
+  },
   quality: { min: 1, max: 100 },
   dimensions: { min: 1, max: 30720 },
   scalePercent: { min: 1, max: 1000 },

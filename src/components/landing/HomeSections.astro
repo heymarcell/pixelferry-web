@@ -28,7 +28,7 @@ const guides = (await getCollection('guides')).sort((a, b) =>
 const steps = [
   {
     title: 'Drop in files or folders',
-    body: 'Drag anything onto the window, paste from the clipboard, or open a folder — PixelFerry walks subfolders and picks up everything it can read.',
+    body: 'Drag anything onto the window, paste from the clipboard, or open a folder — PixelFerry walks subfolders, up to 5,000 files and 10 levels deep, skipping hidden files and symlinks.',
   },
   {
     title: 'Set the output rules once',
@@ -43,11 +43,11 @@ const steps = [
 const faqs = [
   {
     q: 'Does PixelFerry upload my images?',
-    a: 'No. Every conversion runs on your Mac. HEIC and camera RAW decode through the macOS system codecs, and everything else through the bundled image pipeline. No file, and no part of one, is sent anywhere.',
+    a: 'No. Every conversion runs on your Mac. HEIC and the macOS-only formats — camera RAW, EXR, BMP, TGA, JPEG XL and the rest — decode through the macOS system codecs; PSD and PDF through bundled decoders; everything else through the bundled image pipeline. No file, and no part of one, is sent anywhere.',
   },
   {
     q: 'Which macOS versions does it run on?',
-    a: `${product.minimumOS.label}, on ${product.architectures}. Windows and Linux targets exist in the codebase but have never been built, signed or tested, so they are not offered.`,
+    a: `${product.minimumOS.label}, on ${product.architectures}. Only a macOS build target is declared. Cross-platform code paths exist and are unit-tested, but no Windows or Linux build has ever been produced or signed, so neither is offered.`,
   },
   {
     q: 'What can it convert to?',
@@ -92,8 +92,9 @@ const faqs = [
       >
         <p>
           Real folders are messy. A shoot comes back as camera RAW, the client sends HEIC from a
-          phone, the designer supplies a PSD, and the brief is a PDF. Every built-in macOS tool
-          makes you sort that pile by type and run a separate pass over each one.
+          phone, the designer supplies a PSD, and the brief is a PDF. The built-ins will take that
+          pile, but every file gets identical treatment, the PDF needs a different route, and
+          nothing tells you which ones did not make it.
         </p>
         <p>
           PixelFerry takes the pile. One queue, whatever went into it, and one set of output rules
@@ -114,15 +115,15 @@ const faqs = [
       </h2>
       <p data-reveal class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
         Drag files or whole folders onto the window, paste from the clipboard, or use Open with.
-        PixelFerry walks subfolders, picks up everything it can read, and quietly ignores what it
-        cannot.
+        PixelFerry walks subfolders and quietly ignores what it cannot read. The walk stops at
+        5,000 files and 10 levels deep, and skips hidden files and symlinks.
       </p>
       <ul data-reveal class="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
           <h3 class="font-display text-[16px] font-bold text-white">From a phone</h3>
           <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
             HEIC and HEIF, decoded with the macOS hardware codec rather than the bundled JavaScript
-            fallback — which PixelFerry measures at roughly seven times the speed.
+            fallback, which is several times faster on a large photo.
           </p>
         </li>
         <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
@@ -177,8 +178,9 @@ const faqs = [
         <div>
           <dt class="font-display text-[15px] font-bold text-white">Target file size</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            Set a size and the encoder searches quality values until the output fits, instead of you
-            guessing a number and checking the folder.
+            For JPEG, WebP and AVIF, set a size and the encoder searches quality values to fit it,
+            instead of you guessing a number and checking the folder. If even the lowest quality
+            overshoots, it saves that and says so rather than failing.
           </dd>
         </div>
         <div>
@@ -199,8 +201,8 @@ const faqs = [
         <div>
           <dt class="font-display text-[15px] font-bold text-white">Metadata</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            Optionally strip EXIF, XMP and IPTC — including GPS — while keeping the ICC colour
-            profile, so a Display P3 photo stays Display P3.
+            EXIF, XMP and IPTC — including GPS — are stripped by default, while the ICC colour
+            profile is kept, so a Display P3 photo stays Display P3. You can turn removal off.
           </dd>
         </div>
       </dl>
@@ -224,15 +226,19 @@ const faqs = [
         </h2>
       </div>
       <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
-        Conversion runs entirely on your Mac: HEIC and camera RAW decode through macOS system
-        codecs, everything else through the bundled image pipeline. The desktop app does not upload
+        Conversion runs entirely on your Mac. HEIC and the macOS-only formats decode through macOS
+        system codecs, PSD and PDF through bundled decoders, everything else through the bundled
+        image pipeline. The desktop app does not upload
         your source files, your clipboard contents or your conversion metadata — not for processing,
-        not for analytics, not for crash reports. Its own test suite fails the build if an outbound
-        request path is added to it.
+        not for analytics, not for crash reports. There is no update check, no licence call and no
+        telemetry in the shipping app, and its test suite scans the source for the common outbound
+        call patterns and fails the build if one appears.
       </p>
       <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
-        Originals are never modified. That matters for the obvious reasons and for one less obvious
-        one: it means an interrupted batch leaves your source folder exactly as it was.
+        Originals are never modified, and output never replaces an existing file. By default it is
+        written beside each source, so an interrupted batch leaves your originals intact with
+        finished conversions alongside them — pick a separate destination folder if you would
+        rather keep the two apart.
       </p>
     </div>
 

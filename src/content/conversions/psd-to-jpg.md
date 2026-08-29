@@ -36,8 +36,8 @@ whatChanges:
 limitations:
   - Transparency is destroyed, not preserved. If the asset has a cut-out
     background, use PNG or WebP instead.
-  - JPEG is 8-bit RGB. A 16-bit or CMYK document loses precision and is remapped
-    for screen.
+  - PixelFerry writes baseline 8-bit RGB JPEG. CMYK and 16-bit PSDs are not
+    supported by the bundled decoder at all — convert those in Photoshop.
   - PSD is input-only, so this is one-way — the JPEG cannot be turned back into
     a layered file.
 useCases:
@@ -93,9 +93,10 @@ is mostly interface or typography, err upward — or reconsider whether it shoul
 be a PNG.
 
 There is also a **target file size** mode, which re-encodes at successive
-quality values until the output fits under a limit you set. That is the honest
-way to meet an upload cap, rather than guessing at a quality number and checking
-the folder afterwards.
+quality values to fit a limit you set — up to eight attempts, down to quality
+10. If even that overshoots, it saves the smallest result and tells you it could
+not reach the target, rather than guessing at a quality number and checking the
+folder afterwards.
 
 ## Progressive encoding
 

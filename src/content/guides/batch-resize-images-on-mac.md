@@ -28,7 +28,9 @@ images smaller. Not "compress harder" — fewer pixels.
 
 A 4000×3000 photograph displayed in a 1200-pixel column is carrying about eleven
 times more pixel data than it will ever show. No codec choice recovers that.
-Halving the dimensions quarters the pixel count, and the file size follows.
+Halving the dimensions quarters the pixel count. Encoded size drops steeply too,
+though not by exactly four — lossy compression scales sub-linearly, and headers
+and the colour profile do not scale at all.
 
 ## The built-in options
 
@@ -51,8 +53,8 @@ Adjust Size to resize them together.
 
 The limits are practical rather than absolute. Every image has to be open in one
 window, Preview holds them all in memory, and there is no way to convert format
-or set quality in the same step — so it handles a folder of twenty comfortably
-and a folder of eight hundred badly.
+or set quality in the same step — so it is comfortable for a handful of images
+and painful for a large folder.
 
 ### sips
 
@@ -93,6 +95,12 @@ filling the space matters more than the edges.
 what you want, and it exists mostly for cases where the aspect ratios already
 match.
 
+One caveat that catches people with Crop and Fill: PixelFerry does not enlarge by
+default. A source smaller than the box keeps its own dimensions rather than being
+scaled up — there is nothing to crop or stretch — so you get an image that is not
+the size you asked for. Turn off "don't upscale" if you genuinely want it
+enlarged.
+
 The failure mode worth naming: batch-cropping a mixed set to a square. Landscape
 photographs lose their sides and portraits lose heads. If the set is
 inconsistent, fit is the safe choice.
@@ -122,7 +130,9 @@ the resize happens between the decode and the encode:
    percentage.
 5. Encode to the target format at your quality.
 
-One decode, one write, four files at a time. See
+One decode, one write, four files at a time — with two exceptions: a target file
+size re-runs the decode and resize for each quality it tries, up to eight times,
+and HEIC output writes an intermediate before `sips` transcodes it. See
 [JPG to WebP](/convert/jpg-to-webp) for what combining the two steps does to a
 real image folder.
 

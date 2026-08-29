@@ -36,9 +36,10 @@ whatChanges:
       is the right target for design work.
 limitations:
   - PixelFerry flattens to the stored composite. It does not render layers
-    itself, so a PSD saved without a compatibility composite will not convert.
-  - CMYK documents are converted for screen. A PNG is RGB by definition, so
-    anything destined for print should stay a PSD or TIFF.
+    itself, so a PSD saved without a compatibility composite has nothing useful
+    to read — save with "Maximize Compatibility" on.
+  - CMYK and 16-bit PSDs are not supported. The bundled decoder reads 8-bit RGB
+    composites only, so keep those in Photoshop.
   - PSD and PSB are input-only. There is no route from a PNG back to a layered
     document.
 useCases:
@@ -96,17 +97,18 @@ text that design files are full of.
 
 ## Colour, and the CMYK case
 
-Print-bound PSDs are often CMYK. PNG has no CMYK mode, so converting one
-necessarily maps it into RGB for screen.
+Print-bound PSDs are often CMYK, and this is the case to avoid. The bundled
+decoder reads the stored composite as 8-bit RGBA positionally — it does not
+consult the document's colour mode — so a CMYK PSD is not remapped for screen,
+it is misread. Convert those in Photoshop.
 
-That conversion is not lossless in the perceptual sense — some saturated CMYK
-colours have no RGB equivalent — and it is the correct behaviour for a screen
-asset. It is the wrong behaviour if the PNG was meant to go back to a printer.
-For print, keep the PSD, or convert to [TIFF](/convert/tiff-to-jpg) and stay in
-a format that can carry the intent.
+The same decoder handles 8-bit composites only, so a 16-bit PSD fails rather
+than losing precision quietly.
 
-The ICC profile rides along, so colour-managed software knows how to interpret
-what it receives.
+Colour management does not survive this route either. The composite is handed to
+the encoder as a bare pixel buffer, so the document's ICC profile is not carried
+into the PNG — unlike the HEIC and camera paths, where it is preserved. If the
+profile matters, export from Photoshop.
 
 ## Converting a folder
 

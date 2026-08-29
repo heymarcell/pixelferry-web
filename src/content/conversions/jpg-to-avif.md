@@ -2,7 +2,7 @@
 title: Convert JPG to AVIF on Mac — the smallest current web format
 description:
   AVIF usually makes the smallest files of the current web formats, at a real
-  cost in encoding time — 5x mozjpeg here. When to prefer WebP instead.
+  cost in encoding time — several times mozjpeg. When to prefer WebP instead.
 heading: Convert JPG to AVIF on a Mac
 from: JPG
 to: AVIF
@@ -24,22 +24,27 @@ whatChanges:
   - label: Encoding gets much slower
     detail:
       AV1 encoding is computationally heavy. Measured on PixelFerry's own
-      encoder (sharp 0.35 / libvips 8.18, multithreaded, 12 MP photographic
-      source) AVIF at quality 80 took about 5x as long as mozjpeg and 3x as long
-      as WebP. That is a one-time cost at export, not a cost to the visitor.
-  - label: Higher bit depth becomes available
+      encoder (sharp 0.35 / libvips 8.18, multithreaded, synthetic 12 MP
+      source) AVIF at quality 80 took roughly 3–5x as long as mozjpeg and
+      2.5–3x as long as WebP across repeat runs. The multiple moves with the
+      source and the libvips build, so treat it as an order of magnitude rather
+      than a constant. That is a one-time cost at export, not a cost to the
+      visitor.
+  - label: Bit depth, and what PixelFerry actually writes
     detail:
-      AVIF handles 10- and 12-bit per channel and wide colour gamuts natively.
-      Converting from an 8-bit JPEG gains nothing from this, but it means AVIF
-      does not become the bottleneck later.
+      The AVIF format handles 10- and 12-bit per channel and wide colour gamuts
+      natively. PixelFerry does not write them — it encodes 8-bit AVIF, the same
+      depth as the JPEG you started from. Nothing is lost converting an 8-bit
+      JPEG, but this is not a route to a higher-precision master.
   - label: Gradients hold together better
     detail:
       AVIF's handling of smooth tonal transitions is noticeably better than
       JPEG's. Skies, studio backdrops and soft shadows band far less at
       aggressive compression levels.
 limitations:
-  - Encoding is slow — roughly 5x mozjpeg and 3x WebP on PixelFerry's encoder,
-    measured on a 12 MP photograph. A large batch is a background job, not
+  - Encoding is slow — roughly 3–5x mozjpeg and 2.5–3x WebP on PixelFerry's encoder,
+    measured on a synthetic 12 MP source, one machine. A large batch is a
+    background job, not
     something to wait on.
   - Support is broad in browsers but thin outside them — desktop software, email
     clients and CMS validators frequently reject AVIF.
@@ -115,7 +120,7 @@ between encoders.
 Lossless AVIF exists and is available. For flat content
 [WebP lossless](/convert/png-to-webp) is the more common choice, and lossless
 anything is very large for photographs — but if you need AVIF specifically, for
-its colour handling or higher bit depth, convert a sample of your own content
+its colour handling, convert a sample of your own content
 and compare rather than taking that as given.
 
 ## Support, honestly
@@ -134,7 +139,7 @@ everything that is not a browser.
 
 ## Batching realistically
 
-Set AVIF, start around quality 55–65, set your delivery width, and start the
+Set AVIF, start at the app's default of 80, set your delivery width, and start the
 batch — then go and do something else. Four images encode concurrently, and each
 takes several times longer than the JPEG equivalent would.
 

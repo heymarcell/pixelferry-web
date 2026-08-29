@@ -16,10 +16,10 @@ takeaways:
     clicks and is the right answer for most quick jobs.
   - Preview's Export Selected Images gives you a quality slider that the Quick
     Action does not.
-  - sips is the only built-in that scales to thousands of files, and the only
-    one you can schedule.
-  - None of the built-ins report which specific file failed, which is what makes
-    large mixed batches painful.
+  - sips is the built-in that scales best to thousands of files, and the one
+    that composes with a script.
+  - None of the built-ins give you a readable per-file summary, which is what
+    makes large mixed batches painful.
 relatedConversions:
   - heic-to-jpg
   - raw-to-jpg
@@ -65,13 +65,14 @@ picker, and an Options panel for the format.
 
 **Where it stops:**
 
-- It gets slow and unreliable above a couple of hundred files. Preview is
-  holding all of them open.
+- It degrades on large selections, because Preview is holding every image open
+  at once.
 - No resizing during the export itself. Tools → Adjust Size is a separate step —
   though it does work on a multi-selection: Apple documents displaying the
   images in one window, selecting them in the sidebar, then choosing Tools →
   Adjust Size.
-- The format list is short, and PSD and PDF handling is inconsistent.
+- No WebP export. macOS has no WebP encoder — `sips --formats` lists
+  `org.webmproject.webp` without the Writable flag — so no built-in offers it.
 
 ## 3. Automator (or a Shortcut)
 
@@ -117,7 +118,8 @@ handles everything ImageIO handles — including camera RAW.
 
 **Where it stops:**
 
-- No WebP or AVIF output.
+- No WebP output. `sips` does write AVIF on current macOS — `sips --formats`
+  lists `public.avif` as Writable — but `org.webmproject.webp` is read-only.
 - `--out` will overwrite without asking. Write to a separate directory.
 - No progress, no summary, and a failure is a line of stderr somewhere in the
   scrollback.
@@ -136,19 +138,21 @@ handles everything ImageIO handles — including camera RAW.
 
 Three situations, and they are the reason a dedicated tool exists at all.
 
-**Modern web formats.** None of the built-ins output WebP or AVIF. If you are
-optimising a site, that is the whole job — see
+**WebP output.** No built-in writes WebP. `sips` does write AVIF on current
+macOS, so that half of the modern-format gap has closed — see
 [JPG to WebP](/convert/jpg-to-webp) and [JPG to AVIF](/convert/jpg-to-avif).
 
-**Mixed input in one pass.** A folder containing HEIC from phones, CR3 from a
-camera, PSD from a designer and a PDF of the brief. Every built-in makes you
-sort by type first and run several passes with different settings.
+**Mixed input with per-type rules.** A folder containing HEIC from phones, CR3
+from a camera, PSD from a designer and a PDF of the brief. Finder and `sips`
+will both take that selection in one pass — but every file gets the same
+treatment, and PDF needs a different route entirely.
 
-**Knowing what failed.** On a batch of eight hundred, a handful of files will be
-truncated or corrupt. The built-ins give you a smaller number of output files
-than input files and no indication of which ones are missing.
+**Knowing what failed.** When a large batch contains a file that is truncated,
+corrupt or in a format the decoder rejects, the built-ins give you fewer output
+files than input files, and finding which ones are missing is on you.
 
 PixelFerry is built for exactly that third case: one queue, mixed formats, one
 set of output rules, and a per-file result you can actually read. Everything
-runs on your Mac — the same local ImageIO decoding the built-in tools use — and
-originals are never modified.
+runs on your Mac. HEIC and the macOS-only formats decode through the same local
+ImageIO the built-in tools use; the rest go through a bundled image pipeline.
+Originals are never modified.

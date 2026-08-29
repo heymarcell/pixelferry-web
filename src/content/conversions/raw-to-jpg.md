@@ -99,8 +99,9 @@ Preview and Finder use. That has real consequences worth stating plainly:
 - The result is **consistent** — the same interpretation every time, and the
   same one Finder and Preview show you. It is Apple's rendering, which is a
   choice like any other, not an absence of one.
-- It matches what you already see in Finder and Preview, so there are no
-  surprises between the thumbnail and the output.
+- It is close to what Finder and Preview show you, because those come from the
+  same ImageIO rendering — though not identical to the camera's own embedded
+  preview, which has the picture style baked in.
 - It is **not** what your editing software would produce. If you have a
   developed look you care about, export from that software and convert the
   export.
@@ -120,7 +121,8 @@ down to something a JPEG can represent.
 Point PixelFerry at the card or the import folder. It walks subfolders, so a
 `DCIM` tree with several dated directories comes in as one queue.
 
-Set JPG as the output, pick a quality — 85 is a reasonable proof default — and
+Set JPG as the output, pick a quality — the app's default of 80 is the place to
+start — and
 set a width if these are going somewhere with a size limit. Four files convert
 at a time.
 

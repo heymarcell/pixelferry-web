@@ -63,7 +63,8 @@ macOSAlternative:
   breaksDownWhen:
     You need the same pass to also resize, cap quality, or handle a folder that
     has RAW and PSD files mixed in with the HEICs — the Quick Action offers
-    three formats and one size setting, and gives you no per-file result.
+    three formats and four named size presets, and gives you no per-file
+    result.
 related:
   - heic-to-png
   - jpg-to-webp
@@ -109,9 +110,9 @@ main picture simply has nowhere to go.
 ## How PixelFerry handles it
 
 PixelFerry decodes HEIC through the macOS system codec rather than a bundled
-JavaScript decoder. PixelFerry measures that path at roughly seven times the
-speed of its own pure-JS fallback — which is the difference between a coffee
-break and a progress bar when you point it at a few hundred photos.
+JavaScript decoder. The hardware path is several times faster — which is the
+difference between a coffee break and a progress bar when you point it at a few
+hundred photos.
 
 From there the batch runs four files at a time:
 
@@ -124,8 +125,9 @@ From there the batch runs four files at a time:
    encoding available.
 
 Transparency is flattened onto **white**, not the black that most image
-libraries default to. That only matters if you feed it a PNG in the same batch,
-but it is the behaviour you want when you do.
+libraries default to. That applies to every alpha-bearing source in the batch —
+PNG, WebP, PSD, TIFF, GIF, and HEIC itself, which can carry alpha — and it is
+the behaviour you want when it happens.
 
 Originals are never touched, and output never overwrites an existing file — a
 name collision gets a `_converted` suffix rather than silently replacing
@@ -133,9 +135,9 @@ something.
 
 ## Keep or strip the metadata
 
-Turning on metadata removal drops EXIF, XMP and IPTC. That is the camera model,
-the capture settings, the editing history and — the one people actually care
-about — the GPS coordinates.
+Metadata removal is **on by default**, and it drops EXIF, XMP and IPTC. That is
+the camera model, the capture settings, the editing history and — the one people
+actually care about — the GPS coordinates. Turn it off if you want them kept.
 
 It deliberately **keeps the ICC colour profile**. Those two are stored in the
 same metadata block, so the naive implementation throws away colour management
