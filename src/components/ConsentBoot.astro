@@ -1,0 +1,22 @@
+---
+/**
+ * The two client modules the consent system needs, in a component of their own.
+ *
+ * They live here rather than inside a `{trackingConfigured && …}` expression in
+ * BaseLayout/CookieConsent for two reasons: Astro's hoisting of `<script>` is
+ * clearer when the tag is unconditional in the file that owns it, and Prettier
+ * collapses a `<script>` inside a JSX expression onto one line, which joins the
+ * statements without a semicolon and stops the file compiling.
+ *
+ * Rendering this component is what pulls the consent code into the build, so a
+ * site with no tag ID configured ships none of it.
+ */
+---
+
+<script>
+  // Consent Mode v2 defaults — must run before any Google tag could.
+  import '../lib/consent-defaults'
+  import { initCookieBanner } from '../lib/cookie-banner'
+
+  initCookieBanner()
+</script>

@@ -1,0 +1,64 @@
+# PixelFerry
+
+> Batch image converter for macOS. Converts mixed HEIC, camera RAW, PSD, TIFF,
+> WebP and PDF files in one pass, entirely on the user's Mac — nothing is
+> uploaded. Currently a private beta with a waitlist; there is no public
+> download and no price.
+
+This file is published for interoperability, not for ranking. Google's Search
+team has stated that Search does not use llms.txt, and no major model provider
+has committed to reading it. It exists because it is a cheap, accurate map of a
+small site. Every page below is plain server-rendered HTML with no JavaScript
+required to read it, so crawling the HTML directly works just as well.
+
+## Facts
+
+- Platform: macOS 14 (Sonoma) or later, on Apple silicon and Intel.
+- Reads: JPEG, PNG, WebP, AVIF, HEIC/HEIF, TIFF, GIF, SVG, PSD/PSB, PDF, and —
+  via macOS ImageIO, so macOS only — camera RAW (CR2, CR3, NEF, ARW, RAF, ORF,
+  RW2, DNG), EXR, HDR, BMP, TGA, ICO, ICNS, JPEG XL, JPEG 2000.
+- Writes: PNG, JPG, WebP, AVIF, TIFF, GIF, ICO.
+- Input-only (read but never written): HEIC, PSD, PDF, SVG, camera RAW.
+- PDFs export one image per page into a folder named after the document,
+  capped at the first 100 pages.
+- PSD/PSB are flattened to their stored composite.
+- JPEG output flattens transparency onto white.
+- Originals are never modified; output never overwrites an existing file.
+- Built with Electron, React and Sharp. It is native-*feeling* and uses macOS
+  system codecs, but it is not a Cocoa application.
+
+## Product
+
+- [Home](https://pixelferry.app/): what it does, how it works, and the waitlist.
+- [Supported formats](https://pixelferry.app/formats): the complete read/write
+  matrix, which formats are macOS-only, and the exact limitations.
+
+## Conversions
+
+- [Conversion index](https://pixelferry.app/convert)
+- [HEIC to JPG](https://pixelferry.app/convert/heic-to-jpg)
+- [HEIC to PNG](https://pixelferry.app/convert/heic-to-png)
+- [Camera RAW to JPG](https://pixelferry.app/convert/raw-to-jpg)
+- [PSD to PNG](https://pixelferry.app/convert/psd-to-png)
+- [PSD to JPG](https://pixelferry.app/convert/psd-to-jpg)
+- [PDF to PNG](https://pixelferry.app/convert/pdf-to-png)
+- [TIFF to JPG](https://pixelferry.app/convert/tiff-to-jpg)
+- [JPG to WebP](https://pixelferry.app/convert/jpg-to-webp)
+- [PNG to WebP](https://pixelferry.app/convert/png-to-webp)
+- [WebP to JPG](https://pixelferry.app/convert/webp-to-jpg)
+- [JPG to AVIF](https://pixelferry.app/convert/jpg-to-avif)
+
+## Guides
+
+- [Guide index](https://pixelferry.app/guides)
+- [How to batch convert images on a Mac](https://pixelferry.app/guides/batch-convert-images-on-mac):
+  every built-in macOS method — Finder Quick Actions, Preview, Automator, sips —
+  and where each one stops.
+- [Choosing an image format](https://pixelferry.app/guides/choosing-an-image-format):
+  JPEG, PNG, WebP and AVIF compared, plus the capture formats.
+- [How to batch resize images on a Mac](https://pixelferry.app/guides/batch-resize-images-on-mac)
+
+## Legal
+
+- [Privacy Policy](https://pixelferry.app/privacy) — draft, pending legal review
+- [Cookie Policy](https://pixelferry.app/cookies) — draft, pending legal review

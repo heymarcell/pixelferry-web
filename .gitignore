@@ -7,6 +7,16 @@ dist
 .vercel
 .netlify
 
+# Astro's generated types and content cache
+.astro
+
+# Test and audit output
+test-results
+playwright-report
+blob-report
+.lighthouse
+playwright/.cache
+
 # Logs
 *.log
 npm-debug.log*
@@ -15,6 +25,7 @@ npm-debug.log*
 .vscode/*
 !.vscode/extensions.json
 .idea
+.DS_Store
 **/.DS_Store
 
 # Env
@@ -24,4 +35,4 @@ npm-debug.log*
 !.env.example
 
 # wrangler local dev state
-.wrangler/
+.wrangler

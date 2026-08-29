@@ -1,0 +1,319 @@
+@import 'tailwindcss';
+
+/*
+ * Self-hosted variable fonts, latin subset only, vendored in `src/assets/fonts`
+ * from the Fontsource packages (OFL — licences sit beside the files).
+ *
+ * Declared by hand rather than through Astro's Fonts API for one reason: that
+ * API emits its @font-face block as an inline <style>, which would force
+ * `style-src 'unsafe-inline'` back into the CSP. Everything here ships in an
+ * external stylesheet, so the CSP needs neither 'unsafe-inline' nor hashes.
+ *
+ * `size-adjust` + the metric overrides make the system fallback occupy almost
+ * exactly the same space as the real face, so a swap costs no layout shift.
+ */
+@font-face {
+  font-family: 'Funnel Sans';
+  font-style: normal;
+  font-weight: 300 800;
+  font-display: swap;
+  src: url('../assets/fonts/funnel-sans-latin-variable.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Inter';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/inter-latin-variable.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url('../assets/fonts/geist-mono-latin-variable.woff2') format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Metric-matched fallbacks: the swap from system text to the real face keeps
+   the same line box, so a slow font cannot shift the hero. */
+@font-face {
+  font-family: 'Inter Fallback';
+  src: local('Helvetica Neue'), local('Arial');
+  size-adjust: 107%;
+  ascent-override: 90%;
+  descent-override: 22.4%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Funnel Sans Fallback';
+  src: local('Helvetica Neue'), local('Arial');
+  size-adjust: 103%;
+  ascent-override: 96%;
+  descent-override: 24%;
+  line-gap-override: 0%;
+}
+
+/*
+ * Tokens are the resolved values read out of the Pencil design
+ * ("Landing — Coming Soon 2026", node FKjy8). The `ap-*` scale is the
+ * product design system's *light* theme, which is what the embedded app
+ * preview renders in.
+ */
+@theme {
+  --font-display: 'Funnel Sans', 'Funnel Sans Fallback', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', 'Inter Fallback', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Page surface */
+  --color-void: #090b12;
+  --color-void-veil: #090b12cc;
+  --color-strip: #0c0f18;
+  --color-glow: #173b8f;
+
+  /* Accents */
+  --color-blue: #0062ff;
+  --color-blue-soft: #7fa4ff;
+  --color-indigo: #4f46e5;
+  --color-emerald: #10b981;
+  --color-brand: #315cf4;
+
+  /* App preview — light theme of the product design system */
+  --color-ap-window: #f5f6fa;
+  --color-ap-queue: #eef0f4;
+  --color-ap-ink: #15171cdd;
+  --color-ap-label: #15171caa;
+  /* Raised from the design's #15171C99 (60%): at 60% this token rendered the
+     error row's metadata at 4.43:1 against that row's tinted background — an
+     axe failure. #A8 (66%) takes the worst case to 5.3:1 and only improves
+     every other use. */
+  --color-ap-dim: #15171ca8;
+  --color-ap-chrome: #55565e;
+  --color-ap-mark: #606169;
+  --color-ap-hairline: #00000014;
+  --color-ap-divider: #00000012;
+  --color-ap-border: #00000022;
+  --color-ap-border-bright: #0000002e;
+  --color-ap-control: #00000024;
+  --color-ap-glass: #00000008;
+  --color-ap-glass-subtle: #00000006;
+  --color-ap-success: #167a35;
+  --color-ap-success-text: #146b30;
+  --color-ap-success-fill: #30d15815;
+  --color-ap-success-stroke: #30d15830;
+  --color-ap-accent: #005fcc;
+  --color-ap-accent-text: #0055b8;
+  --color-ap-accent-fill: #005fcc12;
+  --color-ap-accent-stroke: #005fcc28;
+  --color-ap-accent-strong: #005fcc30;
+  --color-ap-error: #b42318;
+  --color-ap-error-fill: #b4231808;
+  --color-ap-error-stroke: #b4231824;
+
+  /* Content pages — the light document surface shared by legal + article pages */
+  --color-doc-bg: #f7f8fa;
+  --color-doc-panel: #ffffff;
+  --color-doc-line: #e5e7eb;
+  --color-doc-ink: #111827;
+  --color-doc-body: #4b5563;
+  --color-doc-muted: #6b7280;
+  --color-doc-link: #0055b8;
+
+  /* The design's easing — a soft decelerate used for every reveal. */
+  --ease-out-soft: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Keep anchored sections clear of the sticky 74px nav. */
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-void);
+    color: #fff;
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: color-mix(in oklab, var(--color-blue) 40%, transparent);
+    color: #fff;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-blue-soft);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* The app preview is a light island inside a dark page. */
+  .app-preview ::selection {
+    background-color: color-mix(in oklab, var(--color-ap-accent) 25%, transparent);
+    color: #15171c;
+  }
+}
+
+@layer utilities {
+  /*
+   * Optical alignment for the display face: Funnel Sans is set very tight in
+   * the design (-2.8px at 86px), which is a ratio, not a fixed offset.
+   */
+  .tracking-display {
+    letter-spacing: -0.0326em;
+  }
+
+  /* The page-wide glow: Pencil authors the radial fill with gradient
+     *diameters* of 120%/80%; CSS takes radii, so those halve. */
+  .page-glow {
+    background-color: var(--color-void);
+    background-image: radial-gradient(ellipse 60% 40% at 50% 16%, #173b8f 0%, #090b12 100%);
+  }
+}
+
+/*
+ * The three blurred colour streaks behind the hero (Pencil: `Atmospheric Light
+ * Streak`), authored on a 1440×660 canvas so every offset is a percentage of
+ * that frame. Pencil rotates counter-clockwise around the top-left corner and
+ * CSS rotates clockwise, hence the negated angles + `transform-origin`.
+ *
+ * These live in CSS rather than in a `style` attribute so that `style-src`
+ * needs no 'unsafe-inline'.
+ */
+.streak {
+  position: absolute;
+  height: 5px;
+  border-radius: 9999px;
+  opacity: 0.35;
+  filter: blur(42px);
+  transform-origin: top left;
+  transform: rotate(var(--streak-rotate));
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .streak {
+    animation: drift var(--streak-duration) ease-in-out infinite;
+  }
+}
+
+.streak-1 {
+  --streak-rotate: -7deg;
+  --streak-sway: 1.5deg;
+  --streak-shift: 26px;
+  --streak-duration: 21s;
+  background-color: #0062ff;
+  left: 5.5556%;
+  top: 18.1818%;
+  width: 56.9444%;
+}
+
+.streak-2 {
+  --streak-rotate: 6deg;
+  --streak-sway: -1.5deg;
+  --streak-shift: -22px;
+  --streak-duration: 26s;
+  background-color: #4f46e5;
+  left: 47.9167%;
+  top: 37.1212%;
+  width: 43.0556%;
+}
+
+.streak-3 {
+  --streak-rotate: -5deg;
+  --streak-sway: 1.2deg;
+  --streak-shift: 18px;
+  --streak-duration: 24s;
+  background-color: #10b981;
+  left: 6.9444%;
+  top: 63.6364%;
+  width: 40.2778%;
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--streak-rotate));
+  }
+  50% {
+    transform: translate3d(var(--streak-shift), calc(var(--streak-shift) * -0.35), 0)
+      rotate(calc(var(--streak-rotate) + var(--streak-sway)));
+  }
+}
+
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* An indeterminate sweep for the "Converting" row's progress bar. */
+@keyframes sweep {
+  0% {
+    transform: translate3d(-100%, 0, 0);
+  }
+  100% {
+    transform: translate3d(320%, 0, 0);
+  }
+}
+
+/*
+ * Scroll reveals. The design's entrance animation, done so that the content is
+ * VISIBLE FIRST and the animation is the enhancement — the inverse of the React
+ * build, whose `initial={{opacity:0}}` left the entire hero permanently
+ * invisible in production when Motion failed to start (see
+ * docs/audits/astro-seo-rebuild-2026-08-29.md).
+ *
+ * `.js-reveal` is only added to <html> by an inline-free module script once it
+ * runs, so without JS — or before it runs — nothing is ever hidden.
+ */
+.js-reveal [data-reveal] {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.7s var(--ease-out-soft),
+    transform 0.7s var(--ease-out-soft);
+  transition-delay: var(--reveal-delay, 0ms);
+}
+
+.js-reveal [data-reveal].is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  /* Reveals collapse to "just be visible" rather than animating. */
+  .js-reveal [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

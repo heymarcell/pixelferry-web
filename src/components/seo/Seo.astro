@@ -1,0 +1,77 @@
+---
+import { site, absoluteUrl } from '../../data/site'
+
+/**
+ * Every `<head>` tag that Search, social and AI crawlers read, in one typed
+ * place. No page writes its own metadata by hand, which is what makes
+ * "unique title / unique description / self-referencing absolute canonical on
+ * every indexable page" a property the build can check rather than a habit.
+ */
+export interface Props {
+  title: string
+  description: string
+  /** Site-relative path. The canonical is derived from it, never passed in. */
+  path: string
+  /** 'website' for hubs and the homepage, 'article' for guides. */
+  type?: 'website' | 'article'
+  /** Set for pages that must not be indexed. Defaults to indexable. */
+  noindex?: boolean
+  /** Overrides the shared OG image when a page has a better one. */
+  image?: { url: string; width: number; height: number; alt: string; type: string }
+  article?: { published?: string; modified?: string; section?: string }
+}
+
+const {
+  title,
+  description,
+  path,
+  type = 'website',
+  noindex = false,
+  image = {
+    url: absoluteUrl(site.ogImage.path),
+    width: site.ogImage.width,
+    height: site.ogImage.height,
+    alt: site.ogImage.alt,
+    type: site.ogImage.type,
+  },
+  article,
+} = Astro.props
+
+const canonical = absoluteUrl(path)
+
+/*
+ * Preview deployments must never compete with production in Search. The flag
+ * defaults to OFF so a production build can never accidentally ship a global
+ * noindex; `scripts/deploy-preview.mjs` is the only thing that turns it on.
+ * `test/seo-output.test.ts` asserts both directions.
+ */
+const previewNoindex = import.meta.env.PF_NOINDEX === '1'
+const robots = noindex || previewNoindex ? 'noindex, nofollow' : 'index, follow'
+---
+
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+<meta name="robots" content={robots} />
+
+<meta property="og:type" content={type} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.ogLocale} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:image" content={image.url} />
+<meta property="og:image:type" content={image.type} />
+<meta property="og:image:width" content={String(image.width)} />
+<meta property="og:image:height" content={String(image.height)} />
+<meta property="og:image:alt" content={image.alt} />
+
+{article?.published && <meta property="article:published_time" content={article.published} />}
+{article?.modified && <meta property="article:modified_time" content={article.modified} />}
+{article?.section && <meta property="article:section" content={article.section} />}
+
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={image.url} />
+<meta name="twitter:image:alt" content={image.alt} />

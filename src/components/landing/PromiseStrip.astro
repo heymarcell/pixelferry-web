@@ -1,0 +1,55 @@
+---
+import Icon from '../Icon.astro'
+import type { IconName } from '../icons'
+
+const promises: { icon: IconName; title: string; body: string }[] = [
+  {
+    icon: 'layers',
+    title: 'Mixed files together',
+    body: 'HEIC, camera RAW, PSD, TIFF, WebP, PDF and more, in one queue.',
+  },
+  {
+    icon: 'sliders-horizontal',
+    title: 'One set of rules',
+    body: 'Choose format, size, quality, and destination once.',
+  },
+  {
+    icon: 'shield-check',
+    title: 'Private by default',
+    body: 'Conversion stays on your Mac and originals remain untouched.',
+  },
+]
+---
+
+<section class="bg-strip border-y border-white/[0.07] px-5 py-11 sm:px-8 lg:px-[84px]">
+  <ul
+    class="mx-auto flex max-w-[1272px] list-none flex-col gap-8 lg:flex-row lg:justify-between lg:gap-6"
+  >
+    {
+      promises.map((promise) => (
+        <li data-reveal class="flex w-full items-center gap-3.5 lg:w-[360px]">
+          <span class="text-blue-soft grid size-[42px] shrink-0 place-items-center rounded-lg bg-white/[0.05] shadow-[inset_0_0_0_1px_#FFFFFF17]">
+            <Icon name={promise.icon} size={19} />
+          </span>
+          <div class="flex min-w-0 flex-col gap-1">
+            <h3 class="font-display text-[18px] leading-tight font-bold text-white">
+              {promise.title}
+            </h3>
+            <p class="text-[14px] leading-[1.45] text-pretty text-white/70">{promise.body}</p>
+          </div>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  /* Staggered reveal without a `style` attribute — `style-src` carries no
+     'unsafe-inline', so per-item delays have to live in a stylesheet. */
+  li:nth-child(2) {
+    --reveal-delay: 80ms;
+  }
+  li:nth-child(3) {
+    --reveal-delay: 160ms;
+  }
+</style>

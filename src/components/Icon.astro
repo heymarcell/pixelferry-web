@@ -1,0 +1,37 @@
+---
+import { iconPaths, type IconName } from './icons'
+
+/**
+ * A Lucide icon, drawn inline at build time.
+ *
+ * Decorative by default (`aria-hidden`) because every icon on this site sits
+ * beside a real text label — an icon that repeats its neighbour's words is
+ * noise in a screen reader. Pass `title` only for an icon that carries meaning
+ * on its own.
+ */
+export interface Props {
+  name: IconName
+  size?: number
+  stroke?: number
+  class?: string
+  title?: string
+}
+
+const { name, size = 16, stroke = 2, class: className, title } = Astro.props
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width={size}
+  height={size}
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="currentColor"
+  stroke-width={stroke}
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  class={className}
+  aria-hidden={title ? undefined : 'true'}
+  role={title ? 'img' : undefined}
+  set:html={title ? `<title>${title}</title>${iconPaths[name]}` : iconPaths[name]}
+/>

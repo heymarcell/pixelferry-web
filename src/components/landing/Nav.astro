@@ -1,0 +1,62 @@
+---
+import BrandMark from './BrandMark.astro'
+import { navigation } from '../../data/site'
+
+/**
+ * Deliberately minimal. Once there are pages worth finding they have to be
+ * reachable, but the design's restraint is the point — this stays a wordmark
+ * plus three destinations, never a SaaS mega-nav.
+ */
+const { current } = Astro.props as { current?: string }
+---
+
+<header class="bg-void-veil sticky top-0 z-50 border-b border-white/[0.08] backdrop-blur-xl">
+  {
+    /*
+    Wraps to a second row below ~430px rather than pushing the page wider.
+    Three links plus the wordmark do not fit on one line at 320px, and a
+    horizontally scrolling page is worse than a two-row header. No hamburger:
+    three destinations do not need a disclosure widget, and a JS-driven menu
+    would be one more thing that can fail to open.
+  */
+  }
+  <div
+    class="mx-auto flex min-h-[74px] max-w-[1440px] flex-wrap items-center justify-between gap-x-4 gap-y-1 px-5 py-3 sm:h-[74px] sm:flex-nowrap sm:px-8 sm:py-0 lg:px-16"
+  >
+    <a
+      href="/"
+      class="flex shrink-0 items-center gap-2.5 rounded-lg"
+      aria-label="PixelFerry — home"
+    >
+      <BrandMark size={30} />
+      <span class="font-display text-[21px] font-bold tracking-[-0.4px] text-white">PixelFerry</span
+      >
+    </a>
+
+    <nav
+      aria-label="Primary"
+      class="-mx-1.5 flex flex-1 items-center gap-0.5 sm:flex-none sm:gap-2"
+    >
+      {
+        navigation.primary.map((item) => (
+          <a
+            href={item.href}
+            aria-current={current === item.href ? 'page' : undefined}
+            class:list={[
+              'rounded-md px-1.5 py-2 text-[13px] font-semibold transition-colors sm:px-3 sm:text-[14px]',
+              current === item.href ? 'text-white' : 'text-white/64 hover:text-white',
+            ]}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a
+        href="/#waitlist"
+        class="ml-1 hidden h-[38px] items-center rounded-md bg-white/[0.08] px-3.5 text-[14px] font-semibold text-white shadow-[inset_0_0_0_1px_#FFFFFF24] transition-colors hover:bg-white/[0.14] sm:inline-flex"
+      >
+        Join waitlist
+      </a>
+    </nav>
+  </div>
+</header>

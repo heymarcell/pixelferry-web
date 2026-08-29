@@ -1,0 +1,14 @@
+---
+/**
+ * The three blurred colour streaks behind the hero (Pencil: `Atmospheric Light
+ * Streak`). All geometry lives in `.streak-1/2/3` in global.css — see the note
+ * there about the Pencil→CSS rotation flip and about keeping `style`
+ * attributes out of the markup for the CSP.
+ */
+---
+
+<div aria-hidden="true" class="pointer-events-none absolute inset-0 overflow-hidden">
+  <span class="streak streak-1"></span>
+  <span class="streak streak-2"></span>
+  <span class="streak streak-3"></span>
+</div>

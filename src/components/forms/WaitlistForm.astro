@@ -1,0 +1,130 @@
+---
+import Icon from '../Icon.astro'
+import { CONSENT_TEXT } from '../../lib/waitlist-contract'
+
+/**
+ * Real HTML. The email field is `required type="email"` and the consent box is
+ * `required` and unticked, so the browser validates the form and the whole
+ * thing is readable and meaningful before any script runs.
+ *
+ * GDPR consent must be a positive act, so the box is never pre-ticked and
+ * never implied. The label renders `CONSENT_TEXT` — the same constant the
+ * request body sends — which is what makes the stored consent record provably
+ * the wording the visitor actually saw rather than a paraphrase of it.
+ */
+---
+
+<div class="flex w-full max-w-[700px] flex-col items-center gap-4">
+  <form data-waitlist class="flex w-full flex-col gap-4" novalidate>
+    <div
+      class="waitlist-pill flex w-full flex-col gap-2 rounded-lg bg-white/[0.05] p-1.5 shadow-[inset_0_0_0_1px_#FFFFFF24,0_12px_30px_-8px_#00000066] sm:h-[62px] sm:flex-row sm:items-center sm:gap-3 sm:py-0 sm:pr-1.5 sm:pl-5"
+    >
+      <label for="waitlist-email" class="sr-only">Email address</label>
+
+      <div class="flex min-w-0 flex-1 items-center gap-2.5 px-3.5 py-3 sm:px-0 sm:py-0">
+        <Icon name="mail" size={18} class="shrink-0 text-white/45" />
+        <input
+          id="waitlist-email"
+          name="email"
+          type="email"
+          required
+          autocomplete="email"
+          inputmode="email"
+          spellcheck="false"
+          placeholder="you@example.com"
+          aria-describedby="waitlist-status"
+          class="w-full min-w-0 bg-transparent text-[16px] text-white outline-none placeholder:text-white/45 disabled:opacity-60"
+        />
+      </div>
+
+      {/* Pencil dln7v: h50, r6, #0062FF, pad 0/22, gap 9, label Inter 15/700. */}
+      <button
+        type="submit"
+        data-state="idle"
+        class="group bg-blue inline-flex h-[50px] shrink-0 items-center justify-center gap-[9px] rounded-md px-[22px] text-[15px] font-bold text-white shadow-[0_6px_18px_-4px_#0062FF55] transition-[background-color,transform,box-shadow] duration-200 ease-out hover:bg-[#1A73FF] hover:shadow-[0_10px_26px_-6px_#0062FF80] active:translate-y-px disabled:cursor-not-allowed disabled:opacity-80"
+      >
+        <Icon
+          name="loader-circle"
+          size={17}
+          stroke={2.5}
+          class="hidden animate-spin group-data-[state=busy]:block"
+        />
+        <Icon name="check" size={17} stroke={2.5} class="hidden group-data-[state=done]:block" />
+        <span data-waitlist-label>Join Waitlist</span>
+        <Icon
+          name="arrow-right"
+          size={17}
+          stroke={2.5}
+          class="transition-transform duration-200 ease-out group-hover:translate-x-0.5 group-data-[state=busy]:hidden group-data-[state=done]:hidden"
+        />
+      </button>
+    </div>
+
+    {/* Pencil gLKr2: width 668 (16px inset each side of the 700 form), gap 10. */}
+    <div class="mx-auto flex w-full max-w-[668px] items-start gap-2.5 text-left">
+      {
+        /*
+        Pencil fDHnu: 18px, r4, fill #FFFFFF0A, 1px #FFFFFF52. The native
+        control cannot take that fill/border, so it is drawn with
+        appearance-none and the tick supplied as a background image when checked.
+      */
+      }
+      <input
+        id="waitlist-consent"
+        name="consent"
+        type="checkbox"
+        required
+        class="checked:border-blue checked:bg-blue checked:bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22white%22 stroke-width=%223%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><polyline points=%2220 6 9 17 4 12%22/></svg>')] mt-0.5 size-[18px] shrink-0 appearance-none rounded-[4px] border border-[#FFFFFF52] bg-[#FFFFFF0A] bg-[length:12px_12px] bg-center bg-no-repeat transition-colors duration-150 disabled:opacity-60"
+      />
+      {/* Pencil CvV1H / m3K6Q: Inter 14, #FFFFFFB8, link 14/600 #C8D8FF. */}
+      <label for="waitlist-consent" class="text-[14px] leading-[1.4] text-white/72">
+        {CONSENT_TEXT}{' '}
+        <a
+          href="/privacy"
+          class="rounded font-semibold text-[#C8D8FF] underline-offset-4 hover:underline"
+          >Privacy policy</a
+        >
+      </label>
+    </div>
+
+    {
+      /*
+      Turnstile paints here only when Cloudflare actually wants an interaction.
+      `empty:hidden` keeps it out of the layout otherwise, so the hero matches
+      the design, which has no captcha element at all.
+    */
+    }
+    <div data-turnstile-host class="w-full empty:hidden"></div>
+
+    <p
+      id="waitlist-status"
+      data-waitlist-status
+      data-tone="good"
+      role="status"
+      aria-live="polite"
+      class="min-h-[1.25rem] text-center text-[13px] font-medium data-[tone=bad]:text-[#FF8A84] data-[tone=good]:text-[#9DE8B8]"
+    >
+    </p>
+  </form>
+</div>
+
+<style>
+  /*
+   * The input carries `outline-none` so the design's pill is not cut through
+   * by a rectangle — but a control with no focus indicator at all fails WCAG
+   * 2.4.7, which is what the live site shipped. The ring is drawn on the pill
+   * instead, which is both visible and truer to the design.
+   */
+  .waitlist-pill:has(input:focus-visible) {
+    box-shadow:
+      inset 0 0 0 2px var(--color-blue-soft),
+      0 12px 30px -8px #00000066;
+  }
+</style>
+
+<script>
+  import { initWaitlistForm } from '../../lib/waitlist'
+
+  const form = document.querySelector<HTMLFormElement>('form[data-waitlist]')
+  if (form) initWaitlistForm(form)
+</script>
