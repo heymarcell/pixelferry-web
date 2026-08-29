@@ -146,8 +146,14 @@ product are the same things that help a person:
 
 ### `llms.txt`
 
-`public/llms.txt` exists and is accurate. It is documented — in the file itself
-and here — as **interoperability, not ranking**:
+`llms.txt` is **generated** by `src/pages/llms.txt.ts` from the same product
+model the pages render, so its format list cannot disagree with `/formats`. It
+used to be a hand-maintained file in `public/`, and it drifted exactly the way a
+hand-maintained copy does — it called HEIC "read but never written" while the
+app had been writing HEIC all along.
+
+It is accurate. It is documented — in the file itself and here — as
+**interoperability, not ranking**:
 
 - Google's Search team has stated Search does not use it and has no plans to.
 - No major model provider has committed to reading it in production.

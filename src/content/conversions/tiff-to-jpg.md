@@ -16,14 +16,14 @@ whatChanges:
   - label: Bit depth drops to 8
     detail:
       TIFF commonly carries 16 bits per channel from a scanner or a print
-      workflow. JPEG is 8-bit, so 65,536 levels per channel become 256. Smooth
-      gradients are where you would notice, and it is why you edit before
+      workflow. Baseline JPEG is 8-bit, so 65,536 levels per channel become 256.
+      Smooth gradients are where you would notice, and it is why you edit before
       converting, not after.
   - label: Colour space is remapped
     detail:
-      A print-bound TIFF may be CMYK. JPEG in practice is RGB, so a CMYK TIFF is
-      converted for screen. Some saturated print colours have no RGB equivalent
-      and shift.
+      A print-bound TIFF may be CMYK. The JPEG standard can carry CMYK, but
+      PixelFerry writes RGB JPEGs, so a CMYK TIFF is converted for screen. Some
+      saturated print colours have no RGB equivalent and shift.
   - label: Lossless becomes lossy
     detail:
       TIFF with LZW compression is pixel-exact. JPEG discards high-frequency
@@ -31,8 +31,9 @@ whatChanges:
       delivery copy it is the entire point.
   - label: Size collapses
     detail:
-      A 60 MB 16-bit scan typically becomes 2–5 MB at quality 85. Most of the
-      reduction comes from the bit depth and the lossy transform together.
+      A 16-bit scan is typically many times the size of the JPEG it converts to.
+      Most of that comes from the bit depth and the lossy transform together, so
+      the ratio varies with the scan.
 limitations:
   - The conversion is one-way in quality terms. Keep the TIFF as the master — a
     JPEG can never be promoted back to an archive original.
@@ -45,8 +46,8 @@ useCases:
     who just needs to look at them.
   - Producing web-sized derivatives from a print production set without touching
     the masters.
-  - Making a large scanning backlog browsable in Photos or a DAM that struggles
-    with 60 MB files.
+  - Making a large scanning backlog browsable in Photos or a digital asset
+    manager that struggles with very large files.
 macOSAlternative:
   method: Preview, Finder's Quick Action, or sips
   detail:
@@ -108,9 +109,10 @@ compatible lossless choice.
 Scanning archives are the case this is built for: hundreds of large files, in
 nested folders, with inconsistent naming.
 
-Drop the top-level folder in. PixelFerry walks the tree. Set JPG, a quality
-around 85, and a maximum width if there is a delivery spec. Send the output to a
-separate folder so the derivatives never mix with the masters.
+Drop the top-level folder in. PixelFerry walks the tree. Set JPG, keep the
+default quality until a sample tells you otherwise, and set a maximum width if
+there is a delivery spec. Send the output to a separate folder so the
+derivatives never mix with the masters.
 
 Large TIFFs are slow to decode, and four run concurrently. The summary bar shows
 a live count and an estimate based on the files that have already finished, so a

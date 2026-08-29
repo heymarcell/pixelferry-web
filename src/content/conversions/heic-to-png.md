@@ -22,9 +22,10 @@ whatChanges:
       already baked in. You get a perfect copy of an imperfect image.
   - label: File size, upward
     detail:
-      A 1.5 MB HEIC commonly becomes a 10–25 MB PNG. PNG's DEFLATE compression
-      is designed for flat colour and sharp edges, and photographic noise is
-      close to worst case for it.
+      Expect the PNG to be several times the size of the HEIC, often by a large
+      multiple. PNG's DEFLATE compression is built for flat colour and sharp
+      edges, and photographic noise is close to worst case for it — so the exact
+      ratio depends heavily on the photograph.
   - label: Alpha channel
     detail:
       PNG has real per-pixel transparency. A camera HEIC has none to carry over,
@@ -87,9 +88,9 @@ Screenshots, logos and flat illustration compress beautifully. Photographs —
 where adjacent pixels differ by small random amounts because of sensor noise —
 barely compress at all.
 
-So a 12-megapixel photo is roughly 12 million pixels × 3 bytes, and DEFLATE
-takes perhaps a third off. Ten to twenty-five megabytes per image is normal, and
-it is not a sign anything went wrong.
+A 12-megapixel photo is roughly 12 million pixels × 3 bytes before compression,
+and DEFLATE has little repetition to exploit in photographic noise. A result
+many times the size of the HEIC is normal, and not a sign anything went wrong.
 
 If the destination can read them, [WebP](/convert/png-to-webp) in lossless mode
 gives you the same pixel-exact guarantee at a substantially smaller size.
@@ -104,8 +105,8 @@ identical in output.
 
 Resize is where this conversion usually earns its keep. Converting a
 12-megapixel HEIC to a full-resolution PNG and then scaling it down in another
-tool means writing 20 MB to disk for no reason. Setting the target width in the
-same pass skips that entirely.
+tool means writing a very large intermediate to disk for no reason. Setting the
+target width in the same pass skips that entirely.
 
 The queue mixes freely. HEICs from a phone, RAW files from a camera and PSDs
 from a designer can all sit in the same batch and come out as PNGs with one set

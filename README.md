@@ -8,10 +8,11 @@ desktop app + the Cloudflare Workers API) lives in the separate **private**
 monorepo `pixelferry-app`. GitHub repositories are atomically public or private,
 so the public site cannot share a repo with the private app.
 
-**`pixelferry-app` is the source of truth for every product claim on this
-site.** Facts are transcribed into `src/data/product.ts` and read from there;
-`npm test` fails if the site states an obsolete macOS version, calls the app
-"native", or claims a price, rating or download count. See
+**`pixelferry-app` is the source of truth for every product claim on this site —
+its executable source, not its README, which has been stale.** Facts live in
+`src/data/product.ts` and `src/data/formats.ts` and every page derives from
+them; `npm test` fails if the site states an obsolete macOS version, calls the
+app "native", or claims a price, rating or download count. See
 [`CLAUDE.md`](./CLAUDE.md) for the sync procedure.
 
 ## Stack

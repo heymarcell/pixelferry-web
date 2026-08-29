@@ -37,9 +37,9 @@ whatChanges:
       adjustments before converting, not after.
   - label: File size
     detail:
-      A 30 MB CR3 typically becomes a 3–6 MB JPEG at high quality. The reduction
-      comes from throwing away the editing headroom you are no longer going to
-      use.
+      The JPEG is substantially smaller than the RAW. Most of that comes from
+      discarding the editing headroom you are no longer going to use, and the
+      exact ratio depends on the camera, the scene and the quality you pick.
 limitations:
   - RAW decoding here goes through macOS ImageIO, so this conversion is
     macOS-only and its look is ImageIO's, not your raw converter's.
@@ -70,7 +70,7 @@ related:
   - psd-to-png
 ---
 
-## A RAW file is not a finished image
+## A RAW file is not a finished image yet
 
 This is the part that surprises people. `IMG_0421.CR3` is not a compressed
 photograph — it is a largely unprocessed record of what the sensor measured,
@@ -84,8 +84,11 @@ measured value, not a red-green-blue triple. Producing a normal image means
 neighbours. Then something has to decide white balance, contrast, saturation and
 sharpening.
 
-None of those decisions are in the file. They are made by whatever software
-opens it, which is precisely why the same RAW looks different in Lightroom, in
+The file usually records what the camera was set to — white balance as shot,
+picture style, lens corrections — as metadata. What it does not contain is those
+choices baked into finished RGB pixels the way a delivered JPEG does. Software
+opening the RAW may honour that metadata, ignore it, or substitute its own
+defaults, which is precisely why the same RAW looks different in Lightroom, in
 Capture One, and in Preview.
 
 ## What "converted by macOS" means for the look

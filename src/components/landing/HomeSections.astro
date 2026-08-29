@@ -4,7 +4,6 @@ import {
   product,
   limits,
   writableFormats,
-  readOnlyFormatLabels,
   macOSOnlyWriteFormats,
   qualityFormats,
   capabilities,
@@ -56,7 +55,7 @@ const faqs = [
       .map((f) => f.label)
       .join(
         ', ',
-      )} needs macOS, because that encode goes through the system sips tool; the rest work wherever the app runs. ${readOnlyFormatLabels.join(', ')} are read but never written.`,
+      )} needs macOS, because that encode goes through the system sips tool; the rest work wherever the app runs. SVG, PSD, PDF and camera RAW are read but never written, along with the specialist formats listed on the formats page.`,
   },
   {
     q: 'What happens to a multi-page PDF?',
@@ -68,7 +67,7 @@ const faqs = [
   },
   {
     q: 'Is metadata kept?',
-    a: 'By default yes. Turning on metadata removal drops EXIF, XMP and IPTC — camera model, editing history, GPS coordinates — while deliberately keeping the ICC colour profile, so removing your location does not silently reinterpret your colours.',
+    a: 'Metadata removal is ON by default, so EXIF, XMP and IPTC — camera model, editing history, GPS coordinates — are stripped unless you turn it off. The ICC colour profile is deliberately kept either way, so removing your location does not silently reinterpret your colours. HEIC output is transcoded by the system sips tool rather than the bundled encoder, so this option does not govern it.',
   },
   {
     q: 'When can I use it?',
@@ -225,10 +224,11 @@ const faqs = [
         </h2>
       </div>
       <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
-        There is no server in this product. Conversion happens locally: HEIC and camera RAW decode
-        through macOS system codecs, everything else through the bundled image pipeline. Files,
-        clipboard contents and metadata are never uploaded — not for processing, not for analytics,
-        not for crash reports.
+        Conversion runs entirely on your Mac: HEIC and camera RAW decode through macOS system
+        codecs, everything else through the bundled image pipeline. The desktop app does not upload
+        your source files, your clipboard contents or your conversion metadata — not for processing,
+        not for analytics, not for crash reports. Its own test suite fails the build if an outbound
+        request path is added to it.
       </p>
       <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
         Originals are never modified. That matters for the obvious reasons and for one less obvious

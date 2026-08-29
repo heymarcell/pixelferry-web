@@ -2,8 +2,7 @@
 title: Convert PSD to JPG on Mac in a batch, without Photoshop
 description:
   JPG suits a flattened PSD when it is photographic and has to be small. What
-  happens to transparency, why quality 85 is the usual answer, and how to batch
-  a folder.
+  happens to transparency, how to pick a quality, and how to batch a folder.
 heading: Convert PSD to JPG on a Mac
 from: PSD
 to: JPG
@@ -31,9 +30,9 @@ whatChanges:
       flat panels typical of design files show it early.
   - label: Size drops sharply
     detail:
-      A 200 MB layered PSD commonly becomes a 1–3 MB JPEG. Almost all of that
-      comes from discarding the layer data, not from the image compression
-      itself.
+      A layered PSD is usually far larger than the JPEG it flattens to, and most
+      of that difference is the discarded layer data rather than the image
+      compression itself.
 limitations:
   - Transparency is destroyed, not preserved. If the asset has a cut-out
     background, use PNG or WebP instead.
@@ -84,16 +83,14 @@ The quality slider runs 1–100 and PixelFerry encodes with **mozjpeg**, which
 consistently produces smaller files than the standard JPEG encoder at the same
 visual quality.
 
-In practice:
+Start at the app's default of 80, export a couple of representative comps, and
+look at them at the size the client will. Then adjust.
 
-- **90–95** for anything that will be looked at closely or printed small.
-- **80–85** for client review and general web use. This is the range where most
-  people cannot tell the difference in a side-by-side.
-- **Below 70** starts showing blocking in flat gradients and haloes around type.
-
-Design files punish low quality more than photographs do, because they contain
-more hard edges. If a comp is mostly interface or typography, err upward — or
-reconsider whether it should be a PNG.
+What is worth knowing is which direction to adjust in: design files punish low
+quality more than photographs do, because they contain more hard edges. Blocking
+in flat panels and haloes around type are the first things to appear. If a comp
+is mostly interface or typography, err upward — or reconsider whether it should
+be a PNG.
 
 There is also a **target file size** mode, which re-encodes at successive
 quality values until the output fits under a limit you set. That is the honest

@@ -96,8 +96,8 @@ text that design files are full of.
 
 ## Colour, and the CMYK case
 
-Print-bound PSDs are often CMYK. PNG is an RGB format with no CMYK mode, so
-converting one necessarily maps it into RGB for screen.
+Print-bound PSDs are often CMYK. PNG has no CMYK mode, so converting one
+necessarily maps it into RGB for screen.
 
 That conversion is not lossless in the perceptual sense — some saturated CMYK
 colours have no RGB equivalent — and it is the correct behaviour for a screen

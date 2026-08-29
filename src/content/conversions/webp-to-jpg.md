@@ -2,7 +2,8 @@
 title: Convert WebP to JPG on Mac — make downloaded images usable again
 description:
   Images saved from the web are often WebP, and plenty of software still refuses
-  them. What the conversion costs, and why quality 90 is the right default here.
+  them. What the conversion costs, and why this is one to convert at a higher
+  quality than usual.
 heading: Convert WebP to JPG on a Mac
 from: WebP
 to: JPG
@@ -15,9 +16,10 @@ summary:
 whatChanges:
   - label: A third compression generation, often
     detail:
-      The image was probably a JPEG before it was a WebP. Converting back makes
-      it lossy-encoded a third time, which is why the quality setting matters
-      more here than in most conversions.
+      A WebP found on the web has already been through at least one lossy
+      encode, and you cannot tell from the file what came before it. Converting
+      to JPG adds another, so the quality setting matters more here than in a
+      conversion from an original.
   - label: Transparency is filled
     detail:
       WebP can carry an alpha channel and JPEG cannot. Transparent areas are
@@ -33,7 +35,7 @@ whatChanges:
       JPEG opens in everything, including the older desktop software, print
       portals and upload forms that reject WebP outright.
 limitations:
-  - Converting back cannot recover quality lost on the way in. If the WebP was
+  - Converting cannot recover quality lost on the way in. If the WebP was
     aggressively compressed, the JPEG inherits every artefact.
   - Animated WebP is reduced to its first frame; use GIF as the target if the
     motion matters.
@@ -64,9 +66,10 @@ related:
 
 ## Why you keep ending up with these
 
-Sites serve WebP because it is smaller. When you right-click and save an image,
-you get what the server sent — so the file on your disk is `.webp` even though
-the original the site uploaded was almost certainly a JPEG.
+Sites serve WebP because it is smaller. When you right-click and save an image
+you get what the server sent, so the file on your disk is `.webp` — whatever the
+site started from. Many are converted from JPEG uploads; some were authored as
+WebP. The file itself does not record which.
 
 macOS itself is fine with this. Preview, Finder and Quick Look have read WebP
 since Big Sur. The friction is everywhere else: design software with older
@@ -82,9 +85,11 @@ The image was compressed as a JPEG when it was uploaded. It was re-compressed as
 a WebP when it was served. Converting to JPG is a **third** lossy generation,
 and each one is working on the previous one's artefacts.
 
-Set quality to **90 or higher**. The file will be larger than the WebP — that is
-unavoidable, JPEG is the weaker codec — but you avoid stacking a fourth visible
-degradation onto an image you cannot re-source.
+Start **above** the app's default of 80 — the source has already been through a
+lossy encode you did not control, and there is no original to fall back on. The
+JPEG will usually be larger than the WebP, because JPEG is the less efficient
+codec; convert two or three and read the per-row before/after figures rather
+than assuming a number.
 
 If the image is going somewhere size-sensitive, resize it rather than dropping
 the quality. Fewer pixels at high quality looks considerably better than the

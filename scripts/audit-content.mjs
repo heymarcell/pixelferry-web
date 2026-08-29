@@ -2,6 +2,22 @@
 /**
  * Content-quality audit — the anti-scaled-content gate.
  *
+ * ── WHAT A GREEN RUN DOES NOT MEAN ────────────────────────────────────────
+ *
+ * It does NOT mean the technical content is true. This file measures
+ * duplication, substance and the recurrence of SPECIFIC phrases already proven
+ * false. It cannot evaluate a claim it has never seen, and regex is not a
+ * truth engine.
+ *
+ * Factual accuracy is a research gate against primary evidence — the app's
+ * executable source first, then Apple/WebKit, the format specification, MDN,
+ * and the codec vendors' own studies. See `docs/content-sources.md` for the
+ * standard and the evidence table, and CLAUDE.md for the rule. Two separate
+ * reviews found confidently-written, plausible, wrong statements that every
+ * automated check here passed.
+ *
+ * Never describe a green `audit:content` as meaning the content is correct.
+ *
  * Google treats mass-produced pages with little added value as spam
  * ("scaled content abuse"), whether or not a machine wrote them. A
  * template-driven `/convert/*` architecture is exactly the shape that goes
@@ -178,6 +194,45 @@ const FORBIDDEN = [
   {
     pattern: /\bis invisible\b|\bvisually indistinguishable\b/i,
     why: 'absolute perceptual claim — say "hard to see at normal viewing size"',
+  },
+
+  /*
+   * ── Second pass: product-truth claims that were published and were false ──
+   *
+   * Reconciled against the app's EXECUTABLE SOURCE at the commit pinned in
+   * `src/data/product.ts`. See docs/content-sources.md for the evidence table.
+   */
+  {
+    pattern: /\bno browsers? (?:displays?|supports?) HEIC\b|HEIC[^.]{0,30}\bno browser\b/i,
+    why: 'false — WebKit shipped HEIC display in Safari 17.0',
+  },
+  {
+    pattern: /\bbrowsers do not display (?:it|TIFF)\b/i,
+    why: 'false — MDN: "Other than Safari, browsers do not natively support TIFF"',
+  },
+  {
+    /*
+     * `\bHEIC\b`, deliberately: "AVCI / HEICS" is a real read-only family and
+     * must not trip this. Only `.heic` is written.
+     */
+    pattern: /\bHEIC\b[^.]{0,50}\b(?:input[- ]only|never writ|cannot be an output)/i,
+    why: 'false — the app writes HEIC on macOS via encodeHeicViaSips',
+  },
+  {
+    pattern: /\bICO\s*\/\s*ICNS\b/,
+    why: 'ICO is writable and ICNS is not — do not group them as one capability',
+  },
+  {
+    pattern: /\balmost certainly a JPEG\b|\bwas probably a JPEG\b/i,
+    why: 'not knowable from a .webp file — do not infer the source format',
+  },
+  {
+    pattern: /\bthat is\s+unavoidable\b/i,
+    why: 'absolute — depends on both encoders and their settings',
+  },
+  {
+    pattern: /\bno server in this product\b/i,
+    why: 'the project operates an API — scope the claim to the desktop app',
   },
 ]
 

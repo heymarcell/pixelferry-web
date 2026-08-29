@@ -141,6 +141,13 @@ export const formatCounts = {
 /** Hard, quotable product limits. Each one is checked against the app repo. */
 export const limits = {
   pdfPageCap: 100,
+  /**
+   * The app's own starting point — `DEFAULT_RECIPE.codecs` sets quality 80 for
+   * jpg, webp, avif AND heic. Content pages anchor on this rather than on
+   * invented per-format thresholds, because this is a fact about the product
+   * and those were opinions dressed as measurements.
+   */
+  defaultQuality: 80,
   quality: { min: 1, max: 100 },
   dimensions: { min: 1, max: 30720 },
   scalePercent: { min: 1, max: 1000 },
@@ -163,8 +170,13 @@ export const capabilities = {
    * colour profile (`keepIccProfile()`), because bundling the two would mean
    * that asking to remove your location silently reinterpreted your colours.
    */
+  /**
+   * `DEFAULT_RECIPE.removeMetadata` is `true` in the app, so this is ON out of
+   * the box. The site said "by default yes [kept]" for a month; it was wrong.
+   */
+  metadataRemovedByDefault: true,
   metadata:
-    'Removing metadata strips EXIF, XMP and IPTC but keeps the ICC colour profile, so a Display P3 image stays Display P3.',
+    'Metadata removal is on by default: EXIF, XMP and IPTC are stripped, while the ICC colour profile is kept either way, so a Display P3 image stays Display P3.',
   /**
    * HEIC output does NOT go through `applyFormat` — `main.ts` dispatches it to
    * `encodeHeicViaSips` before the encoder switch — so the metadata option

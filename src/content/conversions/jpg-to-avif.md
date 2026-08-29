@@ -56,8 +56,10 @@ macOSAlternative:
   method: avifenc, via Homebrew
   detail:
     The libavif reference encoder gives full control over speed/quality
-    trade-offs — `avifenc -q 60 in.jpg out.avif`. macOS also encodes AVIF
-    through ImageIO in some contexts, though not from a Finder Quick Action.
+    trade-offs — `avifenc -q 60 in.jpg out.avif`. macOS can also write AVIF
+    itself, which is less well known — `sips --formats` on macOS 26 lists
+    `public.avif` as Writable, so `sips -s format avif in.jpg --out out.avif`
+    works with nothing installed. The Finder Quick Action does not offer it.
   breaksDownWhen:
     You need the same batch to produce a WebP and a JPEG tier as well, or want
     to see the actual saving per file rather than tuning encoder flags blind.
@@ -93,22 +95,28 @@ A quality value is an encoder-specific control, not a unit. AVIF's 80 and JPEG's
 conversion between them — so carrying a JPEG habit across is the most common way
 to be disappointed by AVIF.
 
-As a **starting point** in PixelFerry, not an equivalence:
+The practical approach is the same one that works for any encoder you have not
+used before: start at the app's default of 80, convert a representative handful,
+look at them at the size they will be viewed, and read the per-row before/after
+figures. Then move the number and repeat. That takes a couple of minutes and
+beats any table.
 
-- **55–65** is where AVIF usually earns its size advantage on photographs.
-- **50** is often still fine for large background imagery.
-- **Above 80** the encode time climbs steeply while the size advantage narrows.
+What is worth knowing before you start is that carrying a JPEG habit upward is
+the common mistake here — AVIF's useful range generally sits lower, and the
+encode time climbs steeply at the top of the scale.
 
-Setting AVIF to 85 out of JPEG habit is worth avoiding. On a deliberately noisy
-12 MP test source, PixelFerry's encoder produced an AVIF at quality 80 that was
-_larger_ than the WebP at the same nominal quality, and took three times as long
-to make — heavy noise is close to worst case for AVIF's prediction. Drop the
-number and measure your own images; the per-row before/after figures exist for
-exactly this.
+One measured illustration, on one file: against a deliberately noisy 12 MP test
+source, PixelFerry's encoder produced an AVIF at quality 80 that was _larger_
+than the WebP at the same nominal quality, and took about three times as long.
+Heavy noise is close to worst case for AVIF's prediction, so that is not a
+general result — it is a demonstration that the nominal numbers do not transfer
+between encoders.
 
-Lossless AVIF exists and is available, but it is not competitive with
-[WebP lossless](/convert/png-to-webp) for flat content and is enormous for
-photographs. Use it only when you specifically need AVIF's colour handling.
+Lossless AVIF exists and is available. For flat content
+[WebP lossless](/convert/png-to-webp) is the more common choice, and lossless
+anything is very large for photographs — but if you need AVIF specifically, for
+its colour handling or higher bit depth, convert a sample of your own content
+and compare rather than taking that as given.
 
 ## Support, honestly
 

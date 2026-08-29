@@ -16,15 +16,47 @@ ships under 300 bytes. Keep it that way.
 is public and the app repo is not, so the split is not optional. When the two
 disagree, the website is wrong — fix the website, not the app.
 
-Product facts are transcribed into **`src/data/product.ts`** and read from there
-by every page, so a fact can only be wrong in one place. Re-syncing is a manual,
-deliberate step:
+Product facts live in **`src/data/product.ts`** and **`src/data/formats.ts`**,
+and every page derives from them, so a fact can only be wrong in one place.
 
-1. Read `pixelferry-app/CLAUDE.md` and `README.md` §1 (requirements), §2
-   (supported formats) and §7 (the pipeline).
-2. Update `src/data/product.ts` and bump `PRODUCT_FACTS_SYNCED`.
-3. `npm test` — `test/product-claims.test.ts` guards the facts that have already
-   drifted once.
+### Syncing product facts
+
+**Do not trust the app README.** It calls itself authoritative and it has been
+wrong: at the currently pinned commit it still says "SVG, HEIC, PSD, PDF, RAW
+are input-only", while the source has written HEIC on macOS all along. That
+single stale line propagated into this site's data model, its FAQ, its
+structured data, `llms.txt`, and a **test that enforced the false invariant**.
+
+Reconcile in this order, and stop at the first that answers:
+
+1. **executable source** — `apps/desktop/src/main/*.ts`, `pipeline.ts`
+2. **tests exercising it** — `pipeline.test.ts`, `e2e/*.spec.ts`
+3. **typed shared config the UI and pipeline both use** — `shared/settings.ts`,
+   `shared/constants.ts`
+4. only then README and docs
+
+If source and docs conflict, **source and tests win**, and the app-doc defect is
+recorded separately — never let stale app prose push a false claim onto this
+site.
+
+The procedure:
+
+1. `git -C ../pixelferry-app fetch --all && git rev-parse origin/main` — record
+   the exact SHA.
+2. Read the four source files above. For formats specifically:
+   `CROSS_PLATFORM_EXTENSIONS`, `MACOS_ONLY_EXTENSIONS`, `VALID_FORMATS`,
+   `OUTPUT_FORMAT_ORDER`, `QUALITY_FORMATS`, `DEFAULT_RECIPE`, and the encode
+   dispatch in `main.ts` (which formats bypass `applyFormat`, and what is
+   platform-gated).
+3. Update `src/data/formats.ts` and `src/data/product.ts`, and bump BOTH
+   `PRODUCT_FACTS_SYNCED` and `PRODUCT_FACTS_APP_COMMIT`.
+4. Update the snapshot arrays in `test/format-model.test.ts` to match. Bumping
+   the commit without re-copying them defeats the point.
+5. `npm test`.
+
+Public CI must never clone the private repo, so nothing here can detect drift
+automatically. The tests prove the site agrees with the **pinned snapshot**, not
+with app `main` — say that, rather than implying live parity.
 
 CI must never clone the private repo. The guard is a test over this repo's own
 content, not a cross-repo diff.
@@ -36,8 +68,21 @@ content, not a cross-repo diff.
 - **Never call it "native".** It is Electron + React + Sharp. It uses macOS
   system codecs and feels native — the app's own docs say _native-feeling_, and
   so does this site. "A native Mac app" is a false technical claim.
-- **Output formats are PNG, JPG, WebP, AVIF, TIFF, GIF, ICO.** HEIC, PSD, PDF,
-  SVG and camera RAW are **input-only**.
+- **Output formats are JPG, PNG, WebP, HEIC, AVIF, TIFF, GIF, ICO.** **HEIC
+  output is real** and macOS-only — the encode goes through `sips`. PSD, PDF,
+  SVG and camera RAW are read but never written.
+- **Read and write are separate per format, and they differ.** HEIC reads
+  anywhere but writes only on macOS; ICO reads only on macOS but writes
+  anywhere; ICNS is never written. Never collapse these into one "input-only"
+  list — that is exactly the shape that produced the HEIC error.
+- **`/formats` claims to be complete, so it must be.** The app accepts **76**
+  extensions across 23 families; all of them are modelled in `formats.ts` and
+  `test/format-model.test.ts` fails if any are missing or invented.
+- **Metadata removal is ON by default** (`DEFAULT_RECIPE.removeMetadata: true`),
+  and the option does not govern HEIC output, which `sips` transcodes outside
+  the bundled encoder.
+- **The default quality is 80** for every lossy codec. Anchor guidance on that
+  rather than inventing per-format thresholds.
 - **PDF conversion stops at 100 pages** and says so. PSD/PSB are flattened to
   their stored composite. JPEG output flattens transparency onto **white**.
 - **RAW, EXR, BMP, TGA, ICO, JXL, JP2 are macOS-only** — they decode through
@@ -122,6 +167,12 @@ macOS-behaviour claim must be verified against a current primary source or an
 actual PixelFerry benchmark before publication.** If neither exists, the number
 does not go on the page. Record what you used in `docs/content-sources.md`.
 
+**A green `audit:content` does not mean the content is true.** It measures
+duplication, substance, and the recurrence of specific phrases already proven
+false. It cannot judge a claim it has never seen — regex is not a truth engine.
+Factual accuracy is a research gate against primary evidence, and two separate
+reviews found wrong statements that every automated check passed.
+
 This is not hypothetical: the first draft of this content shipped several
 confident, plausible, wrong claims — that Preview resizes one image at a time
 (Apple documents the opposite), that WebP is the only format with lossy
@@ -143,6 +194,13 @@ it cannot judge a NEW claim. Only reading the source can.
   page view makes zero third-party requests. The sitekey carries `no_clearance`,
   so no cookie is set.
 - Fonts are self-hosted. No runtime request to any third party, ever.
+- **Scope the app's privacy claim to the desktop app.** "Conversion runs
+  entirely on your Mac" and "the desktop app does not upload your source files,
+  clipboard contents or conversion metadata" are provable —
+  `desktop-security.spec.ts` fails the app's build if an outbound request path
+  is added. "There is no server in this product" is NOT: the project runs
+  `api.pixelferry.app`, and the app's own privacy policy describes update
+  checks, licence validation, a beta safety check and bug reports.
 - The legal copy in `src/data/legal.ts` is transcribed verbatim from the Pencil
   design and is **pending legal review**. Do not rewrite it, and do not fill in
   the bracketed placeholders by inference — see "Open blockers" below.

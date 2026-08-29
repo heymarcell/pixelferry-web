@@ -55,7 +55,9 @@ macOSAlternative:
   detail:
     Google's `cwebp` encoder is the reference implementation and gives you every
     switch the format has. `cwebp -q 80 in.jpg -o out.webp` is the basic form,
-    and a shell loop covers a directory.
+    and a shell loop covers a directory. It does have to be installed, because
+    macOS reads WebP but does not write it — `sips --formats` on macOS 26 lists
+    `org.webmproject.webp` with no Writable flag.
   breaksDownWhen:
     You would rather not install a toolchain, want to see before-and-after sizes
     per file, or need to resize in the same pass — cwebp's resize flag exists
@@ -95,19 +97,19 @@ with different internal models and there is no fixed conversion between them —
 rule like "WebP q equals JPEG q plus ten" is folklore, not a property of either
 format.
 
-What is dependable is the shape of the tradeoff. As a **starting point** in
-PixelFerry:
+So the useful method is not a table, it is a loop: **start at the app's default
+of 80**, convert a representative handful, look at them at the size they will
+actually be viewed, and read the per-row before/after figures. Move the number
+and repeat if you need to. That takes a minute and is worth more than any
+threshold someone else picked for a corpus that is not yours.
 
-- **85** — conservative, for photographs you cannot re-shoot or re-export.
-- **75–80** — where most web imagery ends up, and where the size advantage is
-  usually obvious.
-- **Lossless mode** — for screenshots, diagrams and flat graphics. Not for
+Two things are worth knowing before you start:
+
+- Raise it, not lower it, when the source is a JPEG you cannot re-export — you
+  are compressing something already compressed.
+- **Lossless mode** is for screenshots, diagrams and flat graphics, not for
   photographs: lossless photographic WebP is typically much larger than the JPEG
   you started with, which Google's own FAQ warns about explicitly.
-
-Then check the per-row before/after figures on a representative handful before
-committing to a number for the whole set. That takes a minute and replaces every
-rule of thumb on this page.
 
 ## Browser support is no longer the question
 

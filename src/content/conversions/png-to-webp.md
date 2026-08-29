@@ -37,8 +37,9 @@ whatChanges:
       same, so this is not unique to WebP — but for a large cut-out photograph
       either one is far smaller than a PNG.
 limitations:
-  - Lossless WebP is smaller than PNG but slower to encode. On a batch of
-    thousands this is measurable, though it only costs you once.
+  - Lossless WebP is usually smaller than PNG — about 26% on average in Google's
+    study — but not on every file, and it is slower to encode. On a batch of
+    thousands the encode time is measurable, though it only costs you once.
   - WebP maxes out at 16383 pixels per side, so very large exports need to stay
     PNG.
   - A few non-browser tools still will not open WebP, so keep PNG masters for
@@ -97,9 +98,9 @@ flat colour.
 Lossy WebP becomes interesting when the PNG contains a **photograph**. People
 save photographic content as PNG surprisingly often — a screenshot of a photo,
 an export that defaulted to PNG, a cut-out product shot — and for that material
-PNG is the wrong container entirely. Lossy WebP at quality 80 is typically a
-small fraction of the PNG's size; convert a couple and read the row figures
-before committing to a setting.
+PNG is the wrong container entirely, and lossy WebP will usually be dramatically
+smaller. Convert a couple at the app's default of 80 and read the per-row
+figures before committing to a setting for the rest.
 
 This is where WebP earns its place over PNG for photographic cut-outs: **lossy
 colour with an alpha channel**. A product shot on a transparent background would
@@ -116,10 +117,11 @@ A documentation library is a good example of where this adds up. Screenshots are
 large in pixel terms, mostly flat interface chrome with sharp text, and there
 are usually hundreds of them.
 
-That content is close to the best case for WebP lossless: the predictors handle
-flat panels almost perfectly, and the palette detection catches interface
-colours. Savings at the upper end of the range are normal, and the text stays
-exactly as crisp as it was.
+That content suits WebP lossless well: the predictors handle flat panels neatly
+and the palette detection catches interface colours. The text stays exactly as
+crisp as it was, because nothing is discarded — but how much smaller the files
+get depends on the screenshots, so convert a handful and read the figures before
+committing to the whole library.
 
 ## Running it
 
@@ -128,6 +130,6 @@ interface and screenshot content; leave it off and set a quality for
 photographic content.
 
 If the assets are being served at a known size, set the width in the same pass.
-Between resizing and the codec change, a typical unoptimised asset folder halves
-or better — and the per-row before/after figures tell you which of the two did
-the work.
+Between resizing and the codec change there is usually a substantial saving —
+and the per-row before/after figures tell you which of the two did the work,
+which is the part worth knowing.

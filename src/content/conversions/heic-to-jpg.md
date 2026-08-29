@@ -97,9 +97,10 @@ The conversion is lossy in two separate ways, and it is worth knowing which is
 which.
 
 The first is **re-encoding**. The HEIC is decoded to pixels and those pixels are
-re-compressed as JPEG. At quality 85 or above this is usually hard to see on
-ordinary photographic content at normal viewing size. Below about 70 it starts
-showing in flat areas and around hard edges.
+re-compressed as JPEG. How visible that is depends on the photograph and on the
+quality you choose — flat areas and hard edges show it first. Convert a few at
+the app's default of 80, look at them at the size they will be viewed, and move
+the number from there.
 
 The second is **structural**. A JPEG has no alpha channel, no depth map, no
 auxiliary image, and no second frame. Anything the HEIC carried alongside the

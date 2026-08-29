@@ -88,8 +88,8 @@ lossless compression keeps glyph edges sharp, and documents of that kind
 compress well because they are largely flat colour.
 
 **JPG** for scanned photographs and image-heavy brochures, where PNG produces
-enormous files for no visible benefit. A scanned magazine page as PNG can easily
-be ten times the size of a visually identical JPEG.
+much larger files for no visible benefit — scanned photographic pages are close
+to worst case for lossless compression.
 
 If the document mixes both — a report with photographic plates — PNG is the
 safer default, because degraded body text is more obviously wrong than a
@@ -107,10 +107,9 @@ anything that reads the directory.
 
 ## Resolution
 
-Set a width if the pages are headed somewhere specific. Rasterising a
-print-resolution A4 page gives you something around 2500 pixels wide, which is
-far more than a wiki thumbnail or a slide needs, and it costs real disk space
-across a hundred pages.
+Set a width if the pages are headed somewhere specific. Rasterising a page at
+print resolution produces something far wider than a wiki thumbnail or a slide
+needs, and it costs real disk space across a hundred pages.
 
 Resizing during the conversion rather than after it means the large intermediate
 never touches your disk.

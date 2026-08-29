@@ -125,17 +125,15 @@ does not. A quality value is a control on one specific encoder, not a unit — s
 there is no conversion table between JPEG's scale, WebP's and AVIF's, and any
 page offering one is guessing.
 
-What is safe to say is that the _useful_ range sits lower as the codec gets
-better. Reasonable **starting points** in PixelFerry, to be checked against your
-own images rather than trusted:
+What is safe to say is directional: the _useful_ range tends to sit lower as the
+codec gets better, so carrying a JPEG habit straight across to AVIF mostly buys
+encode time.
 
-- **JPEG 85** — conservative and widely used.
-- **WebP 75–85** — where most web imagery ends up.
-- **AVIF 55–65** — carrying a JPEG habit up to 85 here mostly buys encode time.
-
-Convert a representative handful, read the per-row before/after sizes, and look
-at the results at the size they will actually be viewed. That beats any rule of
-thumb, including these.
+The method is the same for all of them. PixelFerry starts every lossy codec at
+quality 80. Convert a representative handful at that, read the per-row
+before/after sizes, look at the results at the size they will actually be
+viewed, then move the number. That beats any table, including one this page
+could give you.
 
 ## About capture formats
 
