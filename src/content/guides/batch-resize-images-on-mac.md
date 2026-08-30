@@ -2,12 +2,13 @@
 title: How to batch resize images on a Mac without wrecking them
 description:
   The built-in ways to resize many images at once, what crop, fit and fill
-  actually do, and why resizing beats any codec choice for saving bytes.
+  actually do, and why resizing an oversized set is often the largest easy
+  saving.
 heading: How to batch resize images on a Mac
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  Resizing is usually the biggest single saving available on an image set, and
+  On an oversized image set, resizing is often the largest saving available and
   the option most often skipped. Here is what macOS gives you, what the fit
   modes mean, and the order of operations that matters.
 takeaways:
@@ -17,21 +18,25 @@ takeaways:
     silently ruins compositions.
   - The Finder Quick Action resizes to four named presets only; sips is the
     built-in that takes real pixel values.
-  - Always resize down from the original, never up from a delivery copy.
+  - Resize down from the original where you still have it — scaling a delivery
+    copy back up cannot recover detail it no longer holds.
 relatedConversions:
   - jpg-to-webp
   - tiff-to-jpg
   - raw-to-jpg
 ---
 
-The single most effective thing you can do to an oversized image set is make the
-images smaller. Not "compress harder" — fewer pixels.
+The first thing to try on an oversized image set is making the images smaller.
+Not "compress harder" — fewer pixels.
 
 A 4000×3000 photograph displayed in a 1200-pixel column is carrying about eleven
-times more pixel data than it will ever show. No codec choice recovers that.
-Halving the dimensions quarters the pixel count. Encoded size drops steeply too,
-though not by exactly four — lossy compression scales sub-linearly, and headers
-and the colour profile do not scale at all.
+times more pixel data than it will ever show. Reducing the dimensions removes
+pixels you do not need; changing format changes how the remaining pixels are
+encoded. They are different levers, and when the size gap is that wide the first
+one usually moves more — but measure both when size matters. Halving the
+dimensions quarters the pixel count. Encoded size drops steeply too, though not
+by exactly four — lossy compression scales sub-linearly, and headers and the
+colour profile do not scale at all.
 
 ## The built-in options
 

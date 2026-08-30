@@ -1,19 +1,17 @@
 ---
-title: Convert JPG to AVIF on a Mac — smaller files, slower encode
+title: Convert JPG to AVIF on a Mac — a newer codec, a slower encode
 description:
-  AVIF often produces smaller files than JPEG at comparable quality, at a real
-  cost in encoding time. What it does well, what it costs, and when to prefer
-  WebP instead.
+  AVIF brings AV1's coding machinery to still images, at a real cost in encoding
+  time. What it does well, what it costs, and when to prefer WebP instead.
 heading: Convert JPG to AVIF on a Mac
 from: JPG
 to: AVIF
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  AVIF is built on the AV1 video codec and often produces smaller files than
-  JPEG at comparable quality, particularly on large photographs and smooth
-  gradients. It is also markedly slower to encode on PixelFerry's encoder, which
-  is what shapes when it is worth using.
+  AVIF is built on the AV1 video codec, which gives it more to work with than
+  JPEG on large photographs and smooth gradients. It is also markedly slower to
+  encode on PixelFerry's encoder, which is what shapes when it is worth trying.
 whatChanges:
   - label: A newer, more capable codec
     detail:
@@ -34,8 +32,9 @@ whatChanges:
     detail:
       The AVIF format handles 10- and 12-bit per channel and wide colour gamuts
       natively. PixelFerry does not write them — it encodes 8-bit AVIF, the same
-      depth as the JPEG you started from. Nothing is lost converting an 8-bit
-      JPEG, but this is not a route to a higher-precision master.
+      depth as the JPEG you started from. So no bit-depth precision is discarded
+      on the way through, but the transcode is still another lossy encode unless
+      you turn lossless on. This is not a route to a higher-precision master.
   - label: Where the codec has the most room to help
     detail:
       Smooth tonal transitions — skies, studio backdrops, soft shadows — are
@@ -113,8 +112,9 @@ beats any table.
 What is worth knowing before you start is that a JPEG habit does not transfer.
 The number that looked right there can look wrong here in either direction, so
 read the output rather than assuming a direction of travel. Encode time does
-rise with the quality setting, so reaching for the top of the scale costs time
-as well as bytes — though the only figures measured here are at quality 80.
+change with the quality setting, and the figures measured here are at quality 80
+only — so treat anything about the top of the scale as something to check on
+your own files rather than a rule.
 
 One measured illustration, on one file: against a deliberately noisy 12 MP test
 source, PixelFerry's encoder produced an AVIF at quality 80 that was _larger_

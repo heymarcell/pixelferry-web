@@ -28,7 +28,7 @@
  *
  *   npm run audit:content   (after npm run build)
  */
-import { Report, loadPages, indexable } from './lib/pages.mjs'
+import { Report, loadPages, indexable, claimSurface } from './lib/pages.mjs'
 
 const report = new Report('Content audit')
 const pages = indexable(await loadPages())
@@ -44,6 +44,23 @@ const templated = pages.filter((page) => /^(convert|guides)\//.test(page.rel))
  * becomes "fileCompression" — which both distorts the shingles and buries the
  * genuine run-together words this file also looks for.
  */
+/**
+ * Everything the page publishes as a claim — visible prose AND head metadata.
+ *
+ * The known-false patterns below used to run against `bodyText` only, so a
+ * banned phrase in a `<meta name="description">` escaped the audit entirely.
+ * That is not hypothetical: "why resizing beats any codec choice for saving
+ * bytes" shipped in a meta description, an og:description, a twitter:description
+ * and the JSON-LD, and every content check passed.
+ *
+ * Duplication is still measured on VISIBLE prose only — see `bodyText`. Folding
+ * metadata into the shingles would change what that measurement means, and
+ * every page's metadata legitimately echoes its own opening line.
+ */
+function claimText(page) {
+  return claimSurface(page).all
+}
+
 function bodyText(page) {
   const main = page.dom.querySelector('main') ?? page.dom
   return main.innerHTML
@@ -289,7 +306,7 @@ const FORBIDDEN = [
 const ATTRIBUTION = /Google|study|studies|average|measured|corpus|benchmark|SSIM/i
 
 for (const page of pages) {
-  const text = bodyText(page)
+  const text = claimText(page)
   for (const match of text.matchAll(/\b\d{1,2}\s?[–-]\s?\d{1,2}%\s+smaller\b/gi)) {
     const at = match.index ?? 0
     const window = text.slice(Math.max(0, at - 140), at + match[0].length + 140)
@@ -301,7 +318,10 @@ for (const page of pages) {
 }
 
 for (const page of pages) {
-  const text = bodyText(page)
+  // The FULL claim surface, head included — a false claim in a meta description
+  // is published just as loudly as one in the body, and is often the only thing
+  // a person reads before clicking.
+  const text = claimText(page)
   for (const { pattern, why } of FORBIDDEN) {
     const match = text.match(pattern)
     report.check(!match, `${page.rel}: ${why} — "${match?.[0]}"`)

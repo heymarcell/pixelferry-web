@@ -394,6 +394,49 @@ neither policy, where the processor rows are still `[PROVIDER]` placeholders.
 Disclosing a processor carries DPA and transfer obligations, so it stays a legal
 blocker rather than an agent's edit.
 
+### Third wave — the sweep was blind to the head
+
+The previous pass reported "rendered sweep: 23 hits, zero actionable". That
+conclusion was **not established**. The sweep stripped tags from the built HTML
+and searched the remaining text, and a `<meta>` element carries its claim in an
+attribute with no text node — so removing the element removed the claim. The
+sweep could not have seen head metadata at any point.
+
+Live at that HEAD, in four places on one page:
+
+> "why resizing beats any codec choice for saving bytes"
+
+— meta description, `og:description`, `twitter:description` and the JSON-LD
+description. The same absolute the choosing-format guide had already been
+corrected for, published in the fields most likely to be read first.
+
+| #     | Claim                                                                                                                                           | Field                              | Verdict                 | Action                                                                                                                                                                                                                                                                                                                                |
+| ----- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 11.37 | "why resizing **beats any codec choice** for saving bytes"                                                                                      | description, og, twitter, JSON-LD  | OVERSTATED              | A codec change can beat a resize depending on source, target codec, how much resizing, content and encoder settings. Rewritten across all four, plus "No codec choice recovers that" and "the single most effective thing" in the body                                                                                                |
+| 11.38 | "**Nothing is lost** converting an 8-bit JPEG"                                                                                                  | `/convert/jpg-to-avif` body        | TRUE-HALF / FALSE-WHOLE | True of bit depth, false of the operation: default AVIF output is `pipeline.avif({ quality })`, a second lossy encode, and the same page says so. Now states what is preserved and what is not                                                                                                                                        |
+| 11.39 | "at the top of AVIF's scale it **mostly buys encode time**"; "encode time does **rise with the quality setting**"                               | two pages                          | UNMEASURED              | Every recorded AVIF timing is at quality 80. Both removed rather than dressed with a caveat                                                                                                                                                                                                                                           |
+| 11.40 | "AVIF often produces smaller files than JPEG at comparable quality"; "Often the smallest of these four"; "Generally smaller than JPEG and WebP" | title, description, summary, body  | UNSOURCED ranking       | No primary benchmark is recorded, and this site's own measurement contains a case where AVIF q80 came out larger than WebP q80. Replaced with the codec mechanism — AV1 intra coding, variable block sizes, more prediction modes — which is a verifiable format fact, and an explicit statement that no general ranking is published |
+| 11.41 | "Lossless WebP keeps **every pixel and every alpha value**"                                                                                     | `/convert/png-to-webp` description | SCOPE                   | The body carries the 8-bit scope; the description did not. Now "every 8-bit pixel"                                                                                                                                                                                                                                                    |
+| 11.42 | "PNG and **TIFF are lossless**"                                                                                                                 | `llms.txt`                         | UNSCOPED                | Removed from the format model and pinned by a test scoped to `formats.ts`, while `llms.txt` kept publishing it. A guard bound to one surface is not a guard on the claim                                                                                                                                                              |
+| 11.43 | "Always resize down from the original, **never** up"                                                                                            | takeaway                           | ABSOLUTE                | Recast as the reason it holds                                                                                                                                                                                                                                                                                                         |
+
+### The methodology fix
+
+`claimSurface(page)` in `scripts/lib/pages.mjs` returns visible `<main>` text
+**and** title, meta description, OG/Twitter metadata and JSON-LD strings, read
+through the parsed DOM rather than a regex over stripped text. The known-false
+patterns in `audit:content` now run against that whole surface (683 → 686
+checks), and `test/claim-surface.test.ts` proves by mutation — one field at a
+time — that meta description, og:description, twitter:description, JSON-LD,
+title and visible body are each genuinely inspected. Duplication measurement
+stays on visible prose, so its meaning is unchanged.
+
+One of the new guards was itself defective and the mutation test caught it: the
+no-loss check ran to 80 characters and swept in the following clause, so
+"Nothing is lost converting an 8-bit JPEG, **but this is not a route to a
+higher-precision master**" redeemed itself on the word "precision" that belonged
+to the disclaimer. Bounded at clause boundaries and re-mutated.
+
 ### Current-state documents
 
 `docs/content-sources.md` and `src/data/product.ts` still described the app

@@ -98,14 +98,15 @@ The one that quietly replaced both of the above for web use.
 
 ### AVIF
 
-Often the smallest of these four on photographic content, though it depends on
-the image and on both encoders' settings. Slow to encode at the effort level
-PixelFerry uses, and AVIF encode time depends heavily on the encoder's speed
-setting.
+The newest codec of these four, and the one with the most modern machinery: AV1
+intra coding, with larger and variable block sizes and more prediction modes
+than JPEG's fixed 8x8 DCT. Slow to encode at the effort level PixelFerry uses,
+and AVIF encode time depends heavily on the encoder's speed setting.
 
-- Generally smaller than JPEG and WebP at comparable quality, most clearly on
-  large photographs. How much depends on the image and on both encoders'
-  settings, so measure rather than assume a percentage.
+- That machinery is why AVIF is worth trying on large photographs. Whether it
+  actually wins on a given file, and by how much, depends on the image and on
+  both encoders' settings — this site publishes no general ranking, and its own
+  measurement includes a noisy source where AVIF came out larger than WebP.
 - Designed to handle smooth gradients better than JPEG's 8x8 DCT, which is where
   banding shows first. Whether it is visible depends on the image and the
   setting — compare a sample.
@@ -144,8 +145,8 @@ there is no conversion table between JPEG's scale, WebP's and AVIF's, and any
 page offering one is guessing.
 
 That cuts both ways: a number carried over from JPEG can land too high or too
-low on another encoder, and at the top of AVIF's scale it mostly buys encode
-time. There is no direction of travel to assume — read the output instead.
+low on another encoder. There is no direction of travel to assume — read the
+output instead.
 
 The method is the same for all of them. PixelFerry starts every lossy codec at
 quality 80. Convert a representative handful at that, read the per-row

@@ -175,6 +175,40 @@ re-measuring.
 
 ---
 
+## What counts as a published claim
+
+**The head is part of the public surface.** A `<title>`, a meta description, an
+`og:description`, a `twitter:description` and a JSON-LD string are published
+factual claims — indexable, shown in search results, and frequently the only
+thing a person reads before deciding whether to click. They are held to exactly
+the same standard as body prose.
+
+This is written down because a truth sweep once missed it structurally. That
+sweep stripped tags from the built HTML and searched the remaining text; a
+`<meta>` element has no text node, so removing the element removed the claim
+with it. It reported "zero actionable findings" while this was live in four
+places on one page — meta description, `og:description`, `twitter:description`
+and the JSON-LD:
+
+> "why resizing beats any codec choice for saving bytes"
+
+`scripts/lib/pages.mjs` now exposes `claimSurface(page)`, which returns the
+visible `<main>` text **and** the title, descriptions, social metadata and
+JSON-LD strings, read through the parsed DOM. The known-false patterns in
+`audit:content` run against that whole surface, and `test/claim-surface.test.ts`
+proves — by mutation, one surface at a time — that each of those fields is
+genuinely inspected.
+
+Duplication is still measured on visible prose alone. Folding metadata into the
+shingles would change what that measurement means, since every page's metadata
+legitimately echoes its own opening line.
+
+`llms.txt` is a published factual surface too, and had been outside every guard:
+the unscoped "lossless" claim for TIFF was removed from the format model and
+pinned by a test scoped to that file, while `llms.txt` went on publishing it.
+
+---
+
 ## What is deliberately _not_ claimed
 
 Removed during the correction passes, and not to come back:

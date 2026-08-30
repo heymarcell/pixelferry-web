@@ -62,7 +62,8 @@ JavaScript to read, so crawling the HTML directly works just as well.
 - Quality slider (1–100) on: ${formats
     .filter((f) => f.write !== false && f.quality)
     .map((f) => f.label)
-    .join(', ')}. PNG and TIFF are lossless; GIF is a 256-colour palette.
+    .join(', ')}. PNG has no quality control, and PixelFerry writes TIFF with lossless
+  LZW compression; GIF is a 256-colour palette. All output is 8-bit per channel.
 - Read but never written: ${readOnlyFormats.map((f) => f.label).join(', ')}.
 - Reading these needs macOS (they decode via ImageIO): ${exts([
     'raw',
