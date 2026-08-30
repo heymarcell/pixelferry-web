@@ -9,6 +9,7 @@ import {
   macOSOnlyWriteFormats,
   qualityFormats,
   capabilities,
+  formatCounts,
 } from '../../data/product'
 
 const resizeException = formatExceptions.find((e) => e.control === 'resize')
@@ -41,6 +42,37 @@ const steps = [
   {
     title: 'Convert, four at a time',
     body: 'Each row shows that it is working, its own result, and its own error if something failed. The summary bar estimates the time left for the batch from files that have already finished.',
+  },
+]
+
+/**
+ * The two folders in the "one mixed folder" section. Extensions are real
+ * members of the format model; the delivery side is what a single rule set
+ * produces from them.
+ */
+const sourceFiles = [
+  { name: 'DSC_4417.CR3', kind: 'Camera RAW' },
+  { name: 'IMG_8846.HEIC', kind: 'iPhone photo' },
+  { name: 'campaign.psd', kind: 'Photoshop' },
+  { name: 'scan-014.tiff', kind: 'Flatbed scan' },
+  { name: 'hero-web.webp', kind: 'Web export' },
+]
+
+const promises = [
+  {
+    n: '01',
+    title: 'Conversion runs locally',
+    body: 'PixelFerry processes image data on your Mac instead of sending it to a service.',
+  },
+  {
+    n: '02',
+    title: 'Originals are never modified',
+    body: 'Converted files are written separately, into the folder you choose.',
+  },
+  {
+    n: '03',
+    title: 'Works while offline',
+    body: 'Turn Wi-Fi off and PixelFerry still converts the whole batch.',
   },
 ]
 
@@ -80,290 +112,410 @@ const faqs = [
 ]
 ---
 
-<section class="border-t border-white/[0.07] px-5 py-20 sm:px-8 lg:px-16 lg:py-[104px]">
-  <div class="mx-auto flex max-w-[1120px] flex-col gap-16">
-    {/* ── What it is ── */}
-    <div class="flex flex-col gap-5">
-      <h2
-        data-reveal
-        class="font-display tracking-display max-w-[820px] text-[clamp(1.75rem,3.2vw,2.5rem)] leading-[1.12] font-bold text-white"
-      >
-        Batch image conversion built for the way Mac work actually arrives
-      </h2>
-      <div
-        data-reveal
-        class="grid max-w-[900px] gap-6 text-[16px] leading-[1.65] text-white/72 sm:grid-cols-2"
-      >
-        <p>
-          Real folders are messy. A shoot comes back as camera RAW, the client sends HEIC from a
-          phone, the designer supplies a PSD, and the brief is a PDF. The built-ins will take that
-          pile, but every file gets identical treatment, the PDF needs a different route, and
-          nothing tells you which ones did not make it.
-        </p>
-        <p>
-          PixelFerry takes the pile. One queue, whatever went into it, and shared output settings
-          across it — format, quality, dimensions, destination — allowing for format-specific
-          behaviour like {resizeException?.format} sizing itself, with {product.concurrency}{
-            ' '
-          }files converting at a time and a readable result on every row.
-        </p>
-      </div>
-    </div>
-
-    {/* ── Mixed queue ── */}
-    <div class="flex flex-col gap-6">
-      <h2
-        data-reveal
-        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
-      >
-        Drop mixed formats into one queue
-      </h2>
-      <p data-reveal class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
-        Drag files or whole folders onto the window, paste from the clipboard, or use Open with.
-        PixelFerry walks subfolders and quietly ignores what it cannot read. The walk stops at 5,000
-        files and 10 levels deep, and skips hidden files and symlinks.
+{/* ── One mixed folder ─────────────────────────────────────────────────── */}
+<section class="bg-doc-bg px-5 py-20 sm:px-8 lg:px-[88px] lg:py-[104px]">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-[42px]">
+    <div class="flex flex-col items-center gap-3.5 text-center">
+      <p data-reveal class="text-blue font-mono text-[12px] font-bold tracking-[1.2px]">
+        ONE MIXED FOLDER
       </p>
-      <ul data-reveal class="grid list-none gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
-          <h3 class="font-display text-[16px] font-bold text-white">From a phone</h3>
-          <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
-            HEIC and HEIF, decoded through the macOS system codec rather than the bundled JavaScript
-            fallback. That path is several times faster on a large photo.
-          </p>
-        </li>
-        <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
-          <h3 class="font-display text-[16px] font-bold text-white">From a camera</h3>
-          <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
-            Canon CR2 and CR3, Nikon NEF, Sony ARW, Fujifilm RAF, Olympus ORF, Panasonic RW2 and
-            DNG, demosaiced by macOS ImageIO.
-          </p>
-        </li>
-        <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
-          <h3 class="font-display text-[16px] font-bold text-white">From a designer</h3>
-          <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
-            PSD and PSB flattened to their stored composite, TIFF, SVG rasterised, and PDF rendered
-            one image per page.
-          </p>
-        </li>
-      </ul>
-      <p data-reveal class="text-[15px] text-white/60">
-        <a href="/formats" class="text-blue-soft font-semibold underline-offset-4 hover:underline"
-          >See every supported format, including the macOS-only ones →</a
-        >
+      <h2
+        data-reveal
+        class="font-display tracking-display text-doc-ink max-w-[880px] text-[clamp(1.9rem,4vw,3.25rem)] leading-[1.08] font-bold text-balance"
+      >
+        Five file types shouldn’t require five different tools.
+      </h2>
+      <p data-reveal class="text-doc-body max-w-[720px] text-[17px] leading-[1.6] text-pretty">
+        Put camera files, design files, phone photos and web images in the same queue. Export one
+        consistent delivery set.
       </p>
     </div>
 
-    {/* ── Output rules ── */}
-    <div class="flex flex-col gap-6">
-      <h2
-        data-reveal
-        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
-      >
-        One set of output rules for the whole batch
-      </h2>
-      <dl data-reveal class="grid max-w-[900px] gap-x-10 gap-y-5 sm:grid-cols-2">
-        <div>
-          <dt class="font-display text-[15px] font-bold text-white">Format</dt>
-          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            {outputFormats.map((f) => f.label).join(', ')} — writing HEIC needs macOS. Quality{' '}
-            {limits.quality.min}–{limits.quality.max} for{' '}
-            {qualityFormats.map((f) => f.label).join(', ')}. PNG uses lossless compression and
-            PixelFerry writes TIFF with lossless LZW; GIF is a 256-colour palette. All output is
-            8-bit per channel.
-          </dd>
-        </div>
-        <div>
-          <dt class="font-display text-[15px] font-bold text-white">Size</dt>
-          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            By {capabilities.resizeModes.join(', ')} — with {capabilities.fitModes.join(', ')} when you
-            give exact dimensions. {resizeException?.note}
-          </dd>
-        </div>
-        <div>
-          <dt class="font-display text-[15px] font-bold text-white">Target file size</dt>
-          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            For {targetSizeSearch.formats.join(', ')}, set a size and the encoder searches quality
-            values to fit it — up to {targetSizeSearch.maxAttempts} attempts, down to a floor of quality{
-              ' '
-            }
-            {targetSizeSearch.qualityFloor}. If even that overshoots it saves the smallest result
-            and says so, rather than failing or missing the target silently.
-          </dd>
-        </div>
-        <div>
-          <dt class="font-display text-[15px] font-bold text-white">Whitespace trim</dt>
-          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            Finds the content bounding box from a uniform border and crops tight to it — useful on
-            scans and exported artboards.
-          </dd>
-        </div>
-        <div>
-          <dt class="font-display text-[15px] font-bold text-white">Destination</dt>
-          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            Beside the source, or a folder you choose. Output never replaces the source or an
-            existing file — a collision gets a <code class="font-mono text-[13px]">_converted</code>
-            suffix.
-          </dd>
-        </div>
-        <div>
-          <dt class="font-display text-[15px] font-bold text-white">Metadata</dt>
-          <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            {capabilities.metadata} You can turn removal off.
-          </dd>
-        </div>
-      </dl>
-    </div>
-
-    {/* ── Privacy ── */}
     <div
       data-reveal
-      class="flex flex-col gap-4 rounded-2xl bg-white/[0.04] p-7 shadow-[inset_0_0_0_1px_#FFFFFF14] sm:p-9"
+      class="flex flex-col items-stretch gap-6 lg:flex-row lg:items-center lg:gap-[26px]"
     >
-      <div class="flex items-center gap-3">
-        <span
-          class="bg-blue/12 text-blue-soft grid size-[42px] shrink-0 place-items-center rounded-lg shadow-[inset_0_0_0_1px_#0062FF33]"
-        >
-          <Icon name="shield-check" size={20} />
-        </span>
-        <h2
-          class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
-        >
-          Your images stay on your Mac
-        </h2>
+      <div class="border-doc-line flex-1 rounded-xl border bg-white p-6">
+        <p class="text-doc-muted mb-3.5 font-mono text-[11px] font-bold tracking-[1px]">
+          CLIENT SOURCE FOLDER
+        </p>
+        <ul class="flex list-none flex-col gap-2">
+          {
+            sourceFiles.map((f) => (
+              <li class="bg-doc-bg flex items-center justify-between rounded-md px-3 py-2.5">
+                <span class="text-doc-ink font-mono text-[13px] font-semibold">{f.name}</span>
+                <span class="text-doc-muted text-[12px]">{f.kind}</span>
+              </li>
+            ))
+          }
+        </ul>
       </div>
-      <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
-        Conversion runs entirely on your Mac. HEIC and the macOS-only formats decode through macOS
-        system codecs, PSD and PDF through bundled decoders, everything else through the bundled
-        image pipeline. The desktop app does not upload your source files, your clipboard contents
-        or your conversion metadata — not for processing, not for analytics, not for crash reports.
-        There is no update check, no licence call and no telemetry in the shipping app, and its test
-        suite scans the source for the common outbound call patterns and fails the build if one
-        appears.
-      </p>
-      <p class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
-        Originals are never modified, and output never replaces an existing file. By default it is
-        written beside each source, so an interrupted batch leaves your originals intact with
-        finished conversions alongside them — pick a separate destination folder if you would rather
-        keep the two apart.
-      </p>
-    </div>
 
-    {/* ── How it works ── */}
-    <div class="flex flex-col gap-6">
-      <h2
-        data-reveal
-        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
-      >
-        How PixelFerry works
-      </h2>
-      <ol data-reveal class="grid list-none gap-5 sm:grid-cols-3">
-        {
-          steps.map((step, i) => (
-            <li class="flex flex-col gap-2.5">
-              <span class="text-blue-soft font-mono text-[11px] font-bold tracking-[1.2px]">
-                STEP {i + 1}
-              </span>
-              <h3 class="font-display text-[17px] font-bold text-white">{step.title}</h3>
-              <p class="text-[15px] leading-[1.55] text-white/70">{step.body}</p>
-            </li>
-          ))
-        }
-      </ol>
-    </div>
+      <div class="flex shrink-0 flex-row items-center gap-2.5 lg:flex-col">
+        <span class="text-blue font-mono text-[10px] font-bold tracking-[1px]">ONE ROUTE</span>
+        <span class="text-blue rotate-90 lg:rotate-0"><Icon name="arrow-right" size={22} /></span>
+        <span class="text-doc-muted font-mono text-[12px]">JPEG · 2000px</span>
+      </div>
 
-    {/* ── Conversion index ── */}
-    <div class="flex flex-col gap-6">
-      <h2
-        data-reveal
-        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
-      >
-        Conversions, explained properly
-      </h2>
-      <p data-reveal class="max-w-[760px] text-[16px] leading-[1.65] text-white/72">
-        One page per conversion, covering what actually changes in the file, what macOS already does
-        for free, and the limitations worth knowing before you start.
-      </p>
-      <ul data-reveal class="grid list-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          conversions.map((entry) => (
-            <li>
-              <a
-                href={`/convert/${entry.id}`}
-                class="flex items-center justify-between gap-3 rounded-lg bg-white/[0.04] px-4 py-3.5 text-[15px] font-semibold text-white/80 shadow-[inset_0_0_0_1px_#FFFFFF14] transition-colors hover:bg-white/[0.08] hover:text-white"
-              >
-                <span>
-                  {entry.data.from} <span class="text-white/40">→</span> {entry.data.to}
+      <div class="flex-1 rounded-xl bg-[#0E0E15] p-6">
+        <p class="mb-3.5 font-mono text-[11px] font-bold tracking-[1px] text-white/55">
+          CLIENT DELIVERY / JPEG
+        </p>
+        <ul class="flex list-none flex-col gap-2">
+          {
+            sourceFiles.map((f) => (
+              <li class="flex items-center justify-between rounded-md bg-white/[0.05] px-3 py-2.5">
+                <span class="font-mono text-[13px] font-semibold text-white/90">
+                  {f.name.replace(/\.[^.]+$/, '.jpg')}
                 </span>
-                <Icon name="arrow-right" size={15} class="text-blue-soft shrink-0" />
-              </a>
+                <Icon name="check" size={14} class="text-[#4ADE80]" />
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* ── Three-step workflow ──────────────────────────────────────────────── */}
+<section class="bg-doc-panel px-5 py-20 sm:px-8 lg:px-[88px] lg:py-[112px]">
+  <div
+    class="mx-auto flex max-w-[1120px] flex-col gap-12 lg:flex-row lg:items-center lg:gap-[72px]"
+  >
+    <div class="flex flex-1 flex-col gap-5">
+      <p data-reveal class="text-blue font-mono text-[12px] font-bold tracking-[1.2px]">
+        THREE-STEP WORKFLOW
+      </p>
+      <h2
+        data-reveal
+        class="font-display tracking-display text-doc-ink text-[clamp(1.9rem,4vw,3.375rem)] leading-[1.06] font-bold text-balance"
+      >
+        Choose once. Apply to everything.
+      </h2>
+      <p data-reveal class="text-doc-body max-w-[520px] text-[18px] leading-[1.6] text-pretty">
+        Add files or folders, choose the output settings, then convert. PixelFerry applies the same
+        rules across the whole queue.
+      </p>
+      <ul data-reveal class="mt-2 flex list-none flex-col gap-3.5">
+        {
+          steps.map((s) => (
+            <li class="flex items-start gap-2.5">
+              <span class="text-blue mt-0.5 shrink-0">
+                <Icon name="check" size={18} />
+              </span>
+              <span class="text-doc-ink text-[15px] leading-[1.5] font-semibold">{s.title}</span>
             </li>
           ))
         }
       </ul>
-      <p data-reveal class="flex flex-wrap gap-x-6 gap-y-2 text-[15px] text-white/60">
-        {
-          guides.map((guide) => (
-            <a
-              href={`/guides/${guide.id}`}
-              class="text-blue-soft font-semibold underline-offset-4 hover:underline"
-            >
-              {guide.data.heading} →
-            </a>
-          ))
-        }
-      </p>
     </div>
 
-    {/* ── FAQ ── */}
-    <div class="flex flex-col gap-6">
-      <h2
-        data-reveal
-        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
-      >
-        Questions people actually ask
-      </h2>
-      {
-        /*
-        Deliberately NOT marked up as FAQPage. Google restricted that rich
-        result to well-known authoritative government and health sites, so
-        emitting it here would be schema aimed at a result this site is not
-        eligible for. The content is useful on its own merits.
-      */
-      }
-      <dl data-reveal class="flex max-w-[820px] list-none flex-col gap-6">
+    <div data-reveal class="border-doc-line flex-1 overflow-hidden rounded-xl border">
+      <div class="bg-doc-bg flex items-center justify-between px-5 py-4">
+        <span class="text-doc-ink text-[14px] font-semibold">Summer campaign · 184 images</span>
+        <span
+          class="text-ap-success-text rounded-full bg-[#DFF7E7] px-2.5 py-1 text-[11px] font-bold"
+          >ALL SUPPORTED</span
+        >
+      </div>
+      <dl class="flex list-none flex-col bg-white px-5">
         {
-          faqs.map((faq) => (
-            <div class="flex flex-col gap-1.5 border-b border-white/[0.08] pb-6 last:border-b-0">
-              <dt class="font-display text-[17px] font-bold text-white">{faq.q}</dt>
-              <dd class="text-[15px] leading-[1.6] text-white/72">{faq.a}</dd>
+          [
+            ['Output', 'JPEG'],
+            ['Resize', '2000 px wide'],
+            ['Save to', 'Client delivery'],
+          ].map(([k, v]) => (
+            <div class="border-doc-line flex items-center justify-between border-b py-4 last:border-b-0">
+              <dt class="text-doc-muted text-[13px]">{k}</dt>
+              <dd class="text-doc-ink text-[13px] font-semibold">{v}</dd>
             </div>
           ))
         }
       </dl>
+      <div class="bg-blue flex items-center justify-between px-6 py-5">
+        <div class="flex flex-col gap-1">
+          <span class="text-[15px] font-bold text-white">184 files ready in one batch</span>
+          <span class="text-[12px] text-white">Same format, same width, one destination</span>
+        </div>
+        <Icon name="arrow-right" size={20} class="text-white" />
+      </div>
+    </div>
+  </div>
+</section>
+
+{/* ── Built for real batches ───────────────────────────────────────────── */}
+<section class="bg-doc-bg px-5 py-20 sm:px-8 lg:px-[88px] lg:py-[104px]">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-[42px]">
+    <div class="flex flex-col items-center gap-3.5 text-center">
+      <p data-reveal class="text-blue font-mono text-[12px] font-bold tracking-[1.2px]">
+        BUILT FOR REAL BATCHES
+      </p>
+      <h2
+        data-reveal
+        class="font-display tracking-display text-doc-ink max-w-[880px] text-[clamp(1.9rem,4vw,3.25rem)] leading-[1.08] font-bold text-balance"
+      >
+        Every file accounted for. Every result predictable.
+      </h2>
+      <p data-reveal class="text-doc-body max-w-[760px] text-[17px] leading-[1.6] text-pretty">
+        Keep the batch consistent, see every file’s own result, and retry only what needs attention.
+      </p>
     </div>
 
-    {/* ── Final CTA ── */}
-    <div
-      data-reveal
-      class="flex flex-col items-start gap-4 rounded-2xl bg-[image:linear-gradient(135deg,#0F1B3D,#0B0F1C)] p-8 shadow-[inset_0_0_0_1px_#FFFFFF1A] sm:p-10"
-    >
-      <h2
-        class="font-display tracking-display text-[clamp(1.5rem,2.6vw,2rem)] leading-tight font-bold text-white"
+    <div data-reveal class="grid gap-5 lg:grid-cols-3">
+      <article class="border-doc-line flex flex-col gap-3 rounded-xl border bg-white p-6">
+        <Icon name="layers" size={20} class="text-blue" />
+        <h3 class="font-display text-doc-ink text-[20px] leading-tight font-bold">
+          One queue, even when the folder is messy.
+        </h3>
+        <p class="text-doc-body text-[15px] leading-[1.55]">
+          Mix camera, design, phone and web formats without sorting them first.
+        </p>
+        <ul class="mt-1 flex list-none flex-wrap gap-1.5">
+          {
+            ['HEIC', 'CR3 RAW', 'PSD', 'TIFF', 'WebP'].map((f) => (
+              <li class="bg-doc-bg text-doc-muted rounded px-2 py-1 font-mono text-[11px] font-semibold">
+                {f}
+              </li>
+            ))
+          }
+        </ul>
+      </article>
+
+      <article class="border-doc-line flex flex-col gap-3 rounded-xl border bg-white p-6">
+        <Icon name="sliders-horizontal" size={20} class="text-blue" />
+        <h3 class="font-display text-doc-ink text-[20px] leading-tight font-bold">
+          One rule set, applied consistently.
+        </h3>
+        <p class="text-doc-body text-[15px] leading-[1.55]">
+          Format, dimensions, quality and destination stay the same across the export.{' '}
+          {resizeException?.note}
+        </p>
+        <p class="text-doc-body text-[15px] leading-[1.55]">
+          Targeting a file size searches quality values to fit it — {
+            targetSizeSearch.formats.join(', ')
+          } only, up to {targetSizeSearch.maxAttempts} attempts, down to a floor of quality {
+            targetSizeSearch.qualityFloor
+          }. If even that overshoots it saves the smallest result and says so.
+        </p>
+      </article>
+
+      <article class="flex flex-col gap-3 rounded-xl bg-[#0E0E15] p-6">
+        <Icon name="check" size={20} class="text-[#4ADE80]" />
+        <h3 class="font-display text-[20px] leading-tight font-bold text-white">
+          Every file accounted for.
+        </h3>
+        <p class="text-[15px] leading-[1.55] text-white/65">
+          See completed and failed files, then retry only what needs attention.
+        </p>
+        <ul class="mt-1 flex list-none flex-col gap-1.5">
+          <li
+            class="flex items-center justify-between rounded bg-white/[0.05] px-2.5 py-1.5 font-mono text-[12px] text-white/80"
+          >
+            client-01.jpg <span class="text-[10px] font-bold text-[#4ADE80]">DONE</span>
+          </li>
+          <li
+            class="flex items-center justify-between rounded bg-white/[0.05] px-2.5 py-1.5 font-mono text-[12px] text-white/80"
+          >
+            client-02.jpg <span class="text-[10px] font-bold text-[#4ADE80]">DONE</span>
+          </li>
+          <li
+            class="flex items-center justify-between rounded bg-[#B4231824] px-2.5 py-1.5 font-mono text-[12px] text-white/80"
+          >
+            corrupt-source.psd <span class="text-[10px] font-bold text-[#FF8A84]">RETRY</span>
+          </li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+{/* ── Privacy ──────────────────────────────────────────────────────────── */}
+<section class="bg-void px-5 py-20 sm:px-8 lg:px-[88px] lg:py-[104px]">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-12 lg:flex-row lg:gap-[72px]">
+    <div class="flex flex-1 flex-col gap-5">
+      <p
+        data-reveal
+        class="inline-flex w-fit items-center gap-2 rounded-full bg-[#30D15815] px-3 py-1.5 font-mono text-[11px] font-bold tracking-[1px] text-[#4ADE80]"
       >
-        Get an invite when the next round opens
+        WORKS WITH WI-FI OFF
+      </p>
+      <h2
+        data-reveal
+        class="font-display tracking-display text-[clamp(1.9rem,4.2vw,3.625rem)] leading-[1.04] font-bold text-balance text-white"
+      >
+        Your images never leave your Mac.
       </h2>
-      <p class="max-w-[620px] text-[16px] leading-[1.6] text-white/72">
-        PixelFerry is in {product.releaseState.stage}. There is no public download yet — the
-        waitlist is how invites go out, and it is a double opt-in, so you will get one confirmation
-        email and nothing else until there is something to tell you.
+      <p data-reveal class="max-w-[520px] text-[18px] leading-[1.6] text-pretty text-white/70">
+        Conversion happens locally. Originals are not modified, and image content is not uploaded.
+      </p>
+    </div>
+
+    <ol data-reveal class="flex flex-1 list-none flex-col gap-6">
+      {
+        promises.map((p) => (
+          <li class="flex gap-4">
+            <span class="mt-0.5 shrink-0 font-mono text-[11px] font-bold text-[#4ADE80]">
+              {p.n}
+            </span>
+            <div class="flex flex-col gap-1.5">
+              <h3 class="font-display text-[20px] leading-tight font-bold text-white">{p.title}</h3>
+              <p class="text-[15px] leading-[1.55] text-white/65">{p.body}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+{/* ── Format coverage ──────────────────────────────────────────────────── */}
+<section class="bg-doc-panel px-5 py-20 sm:px-8 lg:px-[88px] lg:py-[104px]">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-9">
+    <div class="flex flex-col items-center gap-3.5 text-center">
+      <p data-reveal class="text-blue font-mono text-[12px] font-bold tracking-[1.2px]">
+        FORMAT CHECK
+      </p>
+      <h2
+        data-reveal
+        class="font-display tracking-display text-doc-ink max-w-[880px] text-[clamp(1.9rem,4vw,3.375rem)] leading-[1.06] font-bold text-balance"
+      >
+        Will PixelFerry open my file?
+      </h2>
+      <p data-reveal class="text-doc-body max-w-[720px] text-[17px] leading-[1.6] text-pretty">
+        PixelFerry reads {formatCounts.readable} format families covering {formatCounts.extensions} file
+        extensions, and writes {formatCounts.writable}. The full matrix says which are macOS-only
+        and which are read but never written.
+      </p>
+    </div>
+
+    <div data-reveal class="border-doc-line mx-auto w-full max-w-[860px] rounded-xl border p-6">
+      <p class="text-doc-muted mb-4 font-mono text-[11px] font-bold tracking-[1px]">
+        READS {formatCounts.readable} FAMILIES · {formatCounts.extensions} EXTENSIONS
+      </p>
+      <ul class="flex list-none flex-wrap gap-2">
+        {
+          outputFormats.map((f) => (
+            <li class="border-doc-line text-doc-ink rounded-md border px-2.5 py-1.5 font-mono text-[12px] font-semibold">
+              {f.label}
+            </li>
+          ))
+        }
+      </ul>
+      <p class="text-doc-body mt-4 text-[14px] leading-[1.55]">
+        Those are the formats PixelFerry writes. Writing {
+          macOSOnlyWriteFormats.map((f) => f.label).join(', ')
+        } needs macOS. Everything else it reads — including SVG, PSD, PDF and camera RAW — converts one
+        way only.
+      </p>
+      <p class="text-doc-body mt-2 text-[14px] leading-[1.55]">
+        Quality {limits.quality.min}–{limits.quality.max} for {
+          qualityFormats.map((f) => f.label).join(', ')
+        }. PNG uses lossless compression and PixelFerry writes TIFF with lossless LZW; GIF is a
+        256-colour palette. All output is 8-bit per channel.
       </p>
       <a
-        href="#waitlist"
-        class="bg-blue mt-1 inline-flex h-[50px] items-center gap-2 rounded-md px-6 text-[15px] font-bold text-white shadow-[0_6px_18px_-4px_#0062FF55] transition-colors hover:bg-[#1A73FF]"
+        href="/formats"
+        class="text-doc-link mt-4 inline-flex items-center gap-1.5 text-[14px] font-bold hover:underline"
       >
-        Join the waitlist
-        <Icon name="arrow-right" size={17} stroke={2.5} />
+        Browse all supported formats <Icon name="arrow-right" size={15} />
       </a>
     </div>
+  </div>
+</section>
+
+{/* ── FAQ ──────────────────────────────────────────────────────────────── */}
+<section class="bg-doc-bg px-5 py-20 sm:px-8 lg:px-[88px] lg:py-[104px]">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-12 lg:flex-row lg:gap-[72px]">
+    <div class="flex flex-col gap-5 lg:w-[340px] lg:shrink-0">
+      <p data-reveal class="text-blue font-mono text-[12px] font-bold tracking-[1.2px]">FAQ</p>
+      <h2
+        data-reveal
+        class="font-display tracking-display text-doc-ink text-[clamp(1.75rem,3.6vw,3.125rem)] leading-[1.06] font-bold text-balance"
+      >
+        Before you join.
+      </h2>
+      <p data-reveal class="text-doc-body text-[17px] leading-[1.6] text-pretty">
+        Compatibility, privacy, limits, and what the beta actually is.
+      </p>
+      <div data-reveal class="border-doc-line mt-2 rounded-xl border bg-white p-5">
+        <p class="text-doc-ink text-[15px] font-bold">Made for modern Macs</p>
+        <p class="text-doc-body mt-1 text-[15px] leading-[1.5]">
+          Requires {product.minimumOS.label}, on {product.architectures}.
+        </p>
+      </div>
+    </div>
+
+    <dl data-reveal class="flex flex-1 list-none flex-col">
+      {
+        faqs.map((f) => (
+          <div class="border-doc-line border-b py-6 first:pt-0 last:border-b-0 last:pb-0">
+            <dt class="font-display text-doc-ink text-[19px] leading-snug font-bold">{f.q}</dt>
+            <dd class="text-doc-body mt-2 text-[15px] leading-[1.6]">{f.a}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+{/* ── Read more ────────────────────────────────────────────────────────── */}
+<section class="bg-doc-panel border-doc-line border-t px-5 py-16 sm:px-8 lg:px-[88px]">
+  <div class="mx-auto flex max-w-[1120px] flex-col gap-6">
+    <h2 class="font-display text-doc-ink text-[22px] font-bold tracking-[-0.4px]">
+      What each conversion actually costs
+    </h2>
+    <div class="grid gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        conversions.map((c) => (
+          <a
+            href={`/convert/${c.id}`}
+            class="text-doc-link border-doc-line border-b py-2.5 text-[14px] font-semibold hover:underline"
+          >
+            {c.data.from} → {c.data.to}
+          </a>
+        ))
+      }
+      {
+        guides.map((g) => (
+          <a
+            href={`/guides/${g.id}`}
+            class="text-doc-link border-doc-line border-b py-2.5 text-[14px] font-semibold hover:underline"
+          >
+            {g.data.heading}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+{/* ── Closing CTA ──────────────────────────────────────────────────────── */}
+<section class="bg-strip px-5 py-20 sm:px-8 lg:px-[88px] lg:py-[96px]">
+  <div
+    class="mx-auto flex max-w-[1120px] flex-col items-start gap-8 lg:flex-row lg:items-center lg:justify-between"
+  >
+    <div class="flex flex-col gap-3">
+      <p data-reveal class="text-blue-soft font-mono text-[12px] font-bold tracking-[1.2px]">
+        JOIN THE PRIVATE BETA
+      </p>
+      <h2
+        data-reveal
+        class="font-display tracking-display text-[clamp(1.75rem,3.4vw,2.75rem)] leading-[1.08] font-bold text-balance text-white"
+      >
+        Your image backlog, cleared.
+      </h2>
+      <p data-reveal class="max-w-[560px] text-[17px] leading-[1.55] text-pretty text-white/70">
+        {product.releaseState.label}. Join the waitlist and we will send an invite when the next
+        round opens.
+      </p>
+    </div>
+    <a
+      href="/#waitlist"
+      data-reveal
+      class="bg-blue inline-flex h-[52px] shrink-0 items-center gap-2 rounded-lg px-7 text-[15px] font-bold text-white transition-colors hover:bg-[#1A73FF]"
+    >
+      Join the waitlist <Icon name="arrow-right" size={18} />
+    </a>
   </div>
 </section>

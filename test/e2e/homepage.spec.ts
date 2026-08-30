@@ -39,7 +39,7 @@ test.describe('homepage', () => {
     await page.goto('/')
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
-    await expect(page.getByText('Your images stay on your Mac')).toBeVisible()
+    await expect(page.getByText('Your images never leave your Mac.')).toBeVisible()
 
     /*
      * Every reveal target must be RENDERED, not merely present in the DOM.

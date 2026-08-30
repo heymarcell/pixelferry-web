@@ -99,12 +99,14 @@ test.describe('responsive layout', () => {
     // Hiding text on small screens hides it from the mobile-first index too.
     await page.setViewportSize({ width: 375, height: 800 })
     await page.goto('/')
+    // The Pencil design's section headings — the indexable content surface.
     for (const heading of [
-      'Drop mixed formats into one queue',
-      'One set of output rules for the whole batch',
-      'Your images stay on your Mac',
-      'How PixelFerry works',
-      'Questions people actually ask',
+      'Five file types shouldn’t require five different tools.',
+      'Choose once. Apply to everything.',
+      'Every file accounted for. Every result predictable.',
+      'Your images never leave your Mac.',
+      'Will PixelFerry open my file?',
+      'Before you join.',
     ]) {
       await expect(page.getByRole('heading', { name: heading })).toBeVisible()
     }
