@@ -101,10 +101,11 @@ const faqs = [
           nothing tells you which ones did not make it.
         </p>
         <p>
-          PixelFerry takes the pile. One queue, whatever went into it, and one set of output rules
-          applied to all of it — format, quality, dimensions, destination — with {
-            product.concurrency
-          }{' '}files converting at a time and a readable result on every row.
+          PixelFerry takes the pile. One queue, whatever went into it, and shared output settings
+          across it — format, quality, dimensions, destination — allowing for format-specific
+          behaviour like {resizeException?.format} sizing itself, with {product.concurrency}{
+            ' '
+          }files converting at a time and a readable result on every row.
         </p>
       </div>
     </div>
@@ -166,8 +167,9 @@ const faqs = [
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
             {outputFormats.map((f) => f.label).join(', ')} — writing HEIC needs macOS. Quality{' '}
             {limits.quality.min}–{limits.quality.max} for{' '}
-            {qualityFormats.map((f) => f.label).join(', ')}; PNG and TIFF are lossless, GIF is a
-            256-colour palette.
+            {qualityFormats.map((f) => f.label).join(', ')}. PNG uses lossless compression and
+            PixelFerry writes TIFF with lossless LZW; GIF is a 256-colour palette. All output is
+            8-bit per channel.
           </dd>
         </div>
         <div>

@@ -299,6 +299,27 @@ describe('structured product facts hold together', () => {
       ) as unknown as Surface
     ).all
     expect(home).toContain(ico.note)
+
+    /*
+     * AND no page may universally claim the size rules reach every file. This
+     * test used to check only that the exception appeared SOMEWHERE, which let
+     * a correct exception and a false universal coexist: the hero said "one set
+     * of output rules applied to all of it — format, quality, dimensions,
+     * destination" while the Size row below it named the ICO exception. The
+     * reused WaitlistCta repeated the claim on every content page.
+     */
+    const UNIVERSAL =
+      /(?:one set of )?output rules[^.]{0,60}(?:applied to all|to all of (?:it|them)|to every)|applies one set of output rules/i
+    const offenders = pages
+      .map((page: { rel: string }) => ({
+        rel: page.rel,
+        all: (claimSurface(page) as unknown as Surface).all,
+      }))
+      .filter(({ all }) => UNIVERSAL.test(all))
+      .map(({ rel, all }) => `${rel}: "${all.match(UNIVERSAL)![0]}"`)
+    expect(offenders, 'output rules stated as universal, contradicting the ICO exception').toEqual(
+      [],
+    )
   })
 
   it('states the PSD compatibility-composite requirement, not layer rendering', async () => {
@@ -332,6 +353,37 @@ describe('structured product facts hold together', () => {
     // GIF must not be swept into that group — its loss is palette, not bit depth.
     expect(llms).toMatch(/GIF is not in that group/i)
     expect(llms).toMatch(/8-bit per channel/)
+  })
+
+  /*
+   * The same distinction, on the RENDERED pages. Checking only llms.txt let the
+   * homepage go on saying "PNG and TIFF are lossless" — ambiguous between a
+   * lossless codec and a lossless conversion, and false of the conversion,
+   * since the pipeline is 8-bit whatever the destination codec does.
+   */
+  it('never calls PNG and TIFF flatly lossless on a rendered page', async () => {
+    const pages = await loadPages()
+    const offenders = pages
+      .map((page: { rel: string }) => ({
+        rel: page.rel,
+        all: (claimSurface(page) as unknown as Surface).all,
+      }))
+      .filter(({ all }) => /PNG and TIFF are lossless/i.test(all))
+      .map(({ rel }) => rel)
+    expect(offenders).toEqual([])
+  })
+
+  it('the homepage separates lossless compression from the 8-bit pipeline', async () => {
+    const pages = await loadPages()
+    const home = (
+      claimSurface(
+        pages.find((p: { rel: string }) => p.rel === 'index.html')!,
+      ) as unknown as Surface
+    ).all
+    expect(home).toMatch(/lossless compression/i)
+    expect(home).toMatch(/lossless LZW/i)
+    // The half that makes the first half honest.
+    expect(home).toMatch(/8-bit per channel/i)
   })
 
   it('calls a 3-5x measured range a range, not an order of magnitude', async () => {
