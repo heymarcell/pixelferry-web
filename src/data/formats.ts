@@ -102,7 +102,8 @@ export const formats: Format[] = [
     write: 'macos',
     quality: true,
     group: 'Photos and web',
-    summary: "Apple's HEIF profile — what an iPhone saves in High Efficiency mode.",
+    summary:
+      "Apple's HEIF profile — what an iPhone saves in High Efficiency mode. PixelFerry writes 8-bit HEIC.",
     caveat:
       'Reading works anywhere; writing is macOS-only, because the encode goes through the system `sips` tool.',
   },

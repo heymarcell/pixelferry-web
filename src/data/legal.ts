@@ -30,7 +30,7 @@ export const EFFECTIVE_DATE = '2026-07-25'
 export const privacyPolicy: LegalDoc = {
   title: 'Privacy Policy',
   intro:
-    'This Privacy Policy explains how [LEGAL COMPANY NAME], operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the website at [DOMAIN] and the associated email waitlist, not to the desktop application.',
+    'This Privacy Policy explains how [LEGAL COMPANY NAME], operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the website at pixelferry.app and the associated email waitlist, not to the desktop application.',
   effectiveDate: EFFECTIVE_DATE,
   summaryTitle: 'Current scope',
   summaryBody:
@@ -97,9 +97,9 @@ Information may be retained longer where required by law or needed to establish,
       nav: '5. Service providers',
       heading: '5. Service providers and recipients',
       body: `We may disclose personal data to providers acting on our instructions:
-• Website hosting: [PROVIDER NAME AND COUNTRY]
-• Email and waitlist service: [PROVIDER NAME AND COUNTRY]
-• Technical infrastructure or security: [PROVIDER NAME AND COUNTRY]
+• Website hosting and content delivery: Cloudflare, Inc. (United States), which serves this site and the waitlist API
+• Bot protection on the signup form: Cloudflare Turnstile, operated by the same provider
+• Email and waitlist list management, including the confirmation email: Brevo (Sendinblue SAS, France)
 
 Providers may process data only for the services they provide and must protect it under appropriate contractual and security obligations. We may disclose information where required by law or needed for legal claims. We do not sell personal data.`,
     },
@@ -107,7 +107,7 @@ Providers may process data only for the services they provide and must protect i
       id: 'transfers',
       nav: '6. Transfers',
       heading: '6. International transfers',
-      body: `Some providers may process personal data outside the European Economic Area. Where data is transferred outside the EEA, we use an applicable safeguard, which may include:
+      body: `Cloudflare, Inc. is established in the United States, so personal data processed by it is transferred outside the European Economic Area. Brevo (Sendinblue SAS) is established in France. Where data is transferred outside the EEA, we use an applicable safeguard, which may include:
 • A European Commission adequacy decision
 • EU Standard Contractual Clauses
 • The EU-US Data Privacy Framework, where applicable
@@ -185,7 +185,7 @@ Replace all bracketed information and obtain legal review before publication.`,
 export const cookiePolicy: LegalDoc = {
   title: 'Cookie Policy',
   intro:
-    'This Cookie Policy explains how [LEGAL COMPANY NAME], operating PixelFerry, uses cookies and similar technologies on [DOMAIN].',
+    'This Cookie Policy explains how [LEGAL COMPANY NAME], operating PixelFerry, uses cookies and similar technologies on pixelferry.app.',
   effectiveDate: EFFECTIVE_DATE,
   summaryTitle: 'Plain-language summary',
   summaryBody:
@@ -232,9 +232,9 @@ If a consent tool is introduced, it will allow visitors to accept, reject, selec
       heading: '5. Third-party services',
       body: `Providers involved in hosting, security, or waitlist processing may use strictly necessary technologies.
 
-Website hosting: [PROVIDER]
-Waitlist or form processing: [PROVIDER]
-Security or content delivery: [PROVIDER]
+Website hosting and content delivery: Cloudflare, Inc. (United States)
+Waitlist and confirmation email: Brevo (Sendinblue SAS, France)
+Bot protection on the signup form: Cloudflare Turnstile
 
 Add links to provider privacy documentation after production services are selected.`,
     },

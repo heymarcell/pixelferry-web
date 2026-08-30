@@ -77,8 +77,8 @@ related:
 This is the part that surprises people. `IMG_0421.CR3` is not a compressed
 photograph — it is a largely unprocessed record of what the sensor measured,
 plus metadata about the camera's settings at the time. (Most RAW files do carry
-an embedded JPEG preview, which is what your camera's screen and Finder's
-thumbnail are showing you.)
+an embedded JPEG preview, and it is what your camera's own screen shows you
+after the shot.)
 
 Each photosite sits behind one colour of a filter array and contributes a single
 measured value, not a red-green-blue triple. Producing a normal image means

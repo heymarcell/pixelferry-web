@@ -241,8 +241,8 @@ describe('pages derive product facts from the model', () => {
       const s = claimSurface(page) as unknown as Surface
       // "kept either way" is only true where a profile survives the decoder.
       if (/kept either way/i.test(s.all)) {
-        expect(s.all, `${page.rel} states the ICC rule without its exception`).toMatch(
-          /PSD and PDF are the exception/,
+        expect(s.all, `${page.rel} states the ICC rule without its exceptions`).toMatch(
+          /exceptions at both ends/,
         )
       }
     }
@@ -328,7 +328,9 @@ describe('structured product facts hold together', () => {
       path.join(path.dirname(import.meta.dirname), 'dist', 'llms.txt'),
       'utf8',
     )
-    expect(llms).toMatch(/lossless CODECS, not lossless/i)
+    expect(llms).toMatch(/lossless CODECS, which is not the same as a lossless/i)
+    // GIF must not be swept into that group — its loss is palette, not bit depth.
+    expect(llms).toMatch(/GIF is not in that group/i)
     expect(llms).toMatch(/8-bit per channel/)
   })
 

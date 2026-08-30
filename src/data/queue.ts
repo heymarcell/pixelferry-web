@@ -80,6 +80,17 @@ export const queue: QueueRow[] = [
  *
  * `total` is DERIVED, so the parts can never disagree with the whole again.
  */
+/**
+ * The output format the mock is set to.
+ *
+ * It matters, and it was wrong: the pill said PNG while two rows showed files
+ * shrinking by 75% and 93%. /convert/heic-to-png exists to explain that PNG
+ * makes photographic files MUCH LARGER, so the homepage inverted the direction
+ * of its own dedicated page. JPG is both the realistic batch target and the one
+ * that makes those savings true.
+ */
+export const outputFormat = 'JPG'
+
 export const counts = {
   done: 17,
   converting: 2,
@@ -103,5 +114,5 @@ export const summary = {
  */
 export const previewLabel =
   `The PixelFerry window: a queue of ${totalFiles} mixed image files — HEIC, CR3 RAW, PSD, TIFF ` +
-  `and WebP — converting to PNG, with ${counts.done} done, ${counts.converting} converting, ` +
+  `and WebP — converting to ${outputFormat}, with ${counts.done} done, ${counts.converting} converting, ` +
   `${counts.ready} ready and ${counts.failed} failed file offering a retry.`
