@@ -272,7 +272,7 @@ export const capabilities = {
     'Animated GIF and WebP keep every frame when the target also supports animation; otherwise the first frame is written and the row says so.',
   jpegTransparency: 'JPEG has no alpha channel, so transparency is flattened onto white.',
   neverOverwrites:
-    'Output never replaces the source or an existing file — a colliding name gets a `_converted` suffix.',
+    'Output never replaces the source or an existing file. A colliding name gets a `_converted` suffix.',
   /**
    * The "remove metadata" option drops EXIF, XMP and IPTC — camera model,
    * authoring history and GPS coordinates — but deliberately KEEPS the ICC
@@ -302,7 +302,7 @@ export const capabilities = {
   metadataHeicCaveat:
     'HEIC output follows the same metadata policy as every other format, but the system sips tool writes a small EXIF block of its own, so a HEIC is never completely EXIF-free.',
   targetSize:
-    'A target file size re-encodes at successive quality values to fit it — up to eight attempts, down to the search floor of quality 10. If even that overshoots, the smallest result is saved and reported rather than silently missing the target.',
+    'A target file size re-encodes at successive quality values to fit it, up to eight attempts, down to the search floor of quality 10. If even that overshoots, the smallest result is saved and reported rather than silently missing the target.',
 } as const
 
 /**

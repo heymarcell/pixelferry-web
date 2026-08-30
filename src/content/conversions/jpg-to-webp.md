@@ -1,5 +1,5 @@
 ---
-title: Convert JPG to WebP on Mac — smaller files, same page
+title: 'Convert JPG to WebP on Mac: smaller files, same page'
 description:
   Google measures WebP 25–34% smaller than JPEG at matched SSIM, against a
   libjpeg baseline. Why re-encoding an existing JPEG is not free, and how to
@@ -16,7 +16,7 @@ summary:
 whatChanges:
   - label: A second lossy generation
     detail:
-      The JPEG is decoded to pixels — artefacts and all — and re-encoded with a
+      The JPEG is decoded to pixels, artefacts and all, then re-encoded with a
       different lossy codec. WebP now has to spend bits describing JPEG's block
       artefacts as if they were image detail, which is why converting at low
       quality compounds badly.
@@ -24,7 +24,7 @@ whatChanges:
     detail:
       WebP's VP8-derived intra coding uses better prediction and a smarter
       transform than JPEG's. Google's own WebP study measured files 25–34%
-      smaller than JPEG at the same SSIM across four image sets — an average per
+      smaller than JPEG at the same SSIM across four image sets, an average per
       corpus, not a promise for any one photograph. That study's baseline was
       libjpeg 6b; PixelFerry writes JPEG with mozjpeg, which is a stronger
       encoder, so the gap against a JPEG it produced is narrower.
@@ -36,8 +36,8 @@ whatChanges:
   - label: Chroma handling
     detail:
       Lossy WebP subsamples chroma at 4:2:0, like most JPEGs. Strongly saturated
-      red or blue edges — a red logo on white — can soften slightly. Lossless
-      mode avoids it entirely.
+      red or blue edges (a red logo on white) can soften slightly. Lossless mode
+      avoids it entirely.
 limitations:
   - This is generation two of lossy compression. Where the original source is
     still available, converting from that avoids the second generation entirely.
@@ -58,11 +58,11 @@ macOSAlternative:
     Google's `cwebp` encoder is the reference implementation and gives you every
     switch the format has. `cwebp -q 80 in.jpg -o out.webp` is the basic form,
     and a shell loop covers a directory. It does have to be installed, because
-    macOS reads WebP but does not write it — `sips --formats` on macOS 26 lists
-    `org.webmproject.webp` with no Writable flag.
+    macOS reads WebP but does not write it, and `sips --formats` on macOS 26
+    lists `org.webmproject.webp` with no Writable flag.
   breaksDownWhen:
     You would rather not install a toolchain, want to see before-and-after sizes
-    per file, or need to resize in the same pass — cwebp's resize flag exists
+    per file, or need to resize in the same pass. cwebp's resize flag exists,
     but composing it with a folder walk is a script you have to write and
     maintain.
 related:
@@ -76,16 +76,16 @@ related:
 Most pages about this conversion imply you get the size saving for free. You do
 not, and the reason is worth understanding.
 
-Your JPEG has already been through a lossy encoder. Its artefacts — the faint
-blocking in flat areas, the ringing around edges — are now, as far as any other
-codec is concerned, _part of the picture_. When WebP encodes it, it spends bits
-faithfully reproducing those artefacts.
+Your JPEG has already been through a lossy encoder. Its artefacts, the faint
+blocking in flat areas and the ringing around edges, are now _part of the
+picture_ as far as any other codec is concerned. When WebP encodes it, it spends
+bits faithfully reproducing those artefacts.
 
 The practical consequences:
 
-- Convert at a **reasonably high quality** — the app's default of 80 is the
-  place to start — and the result is usually hard to tell apart from the source
-  at normal viewing size, while still being meaningfully smaller. This is the
+- Convert at a **reasonably high quality**, the app's default of 80 is the place
+  to start, and the result is usually hard to tell apart from the source at
+  normal viewing size, while still being meaningfully smaller. This is the
   normal case and it works well.
 - Push the quality **low** and the two generations compound. You get a file that
   is small and visibly worse than a single-pass encode at the same size would
@@ -96,7 +96,7 @@ The practical consequences:
 ## Picking a quality
 
 WebP's quality number is not JPEG's quality number. They are different encoders
-with different internal models and there is no fixed conversion between them — a
+with different internal models and there is no fixed conversion between them, a
 rule like "WebP q equals JPEG q plus ten" is folklore, not a property of either
 format.
 
@@ -108,7 +108,7 @@ threshold someone else picked for a corpus that is not yours.
 
 Two things are worth knowing before you start:
 
-- Raise it, not lower it, when the source is a JPEG you cannot re-export — you
+- Raise it, not lower it, when the source is a JPEG you cannot re-export. You
   are compressing something already compressed.
 - **Lossless mode** is for screenshots, diagrams and flat graphics, not for
   photographs: lossless photographic WebP is typically much larger than the JPEG
@@ -122,17 +122,16 @@ picked it up in 14, which is the release everyone was waiting on.
 The remaining gaps are outside browsers: some desktop software, some older email
 clients, a few CMS upload validators. That makes WebP a **delivery** format.
 Keep your originals in a widely-readable format, and treat the WebP set as
-generated output — which is exactly how a batch converter fits into the
-workflow.
+generated output, which is exactly how a batch converter fits into the workflow.
 
 ## Converting a directory
 
 Point PixelFerry at your images folder. It walks subfolders, so a
 `content/uploads/2024/…` tree comes in as one queue.
 
-Set WebP, pick a quality, and — usually the bigger win — set a maximum width. A
+Set WebP, pick a quality, and (usually the bigger win) set a maximum width. A
 great many sites serve 4000-pixel photographs into a 1200-pixel column. When the
-gap is that wide, capping the width is usually the larger of the two savings —
+gap is that wide, capping the width is usually the larger of the two savings,
 and doing both in the same pass means you only decode each file once.
 
 Each finished row shows the before and after size with the percentage saved, so

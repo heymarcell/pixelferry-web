@@ -63,7 +63,7 @@ export const formats: Format[] = [
     quality: true,
     group: 'Photos and web',
     summary: 'Widely supported lossy still-image format.',
-    caveat: 'No alpha channel — transparency is flattened onto white on output.',
+    caveat: 'No alpha channel. Transparency is flattened onto white on output.',
   },
   {
     id: 'png',
@@ -103,7 +103,7 @@ export const formats: Format[] = [
     quality: true,
     group: 'Photos and web',
     summary:
-      "Apple's HEIF profile — what an iPhone saves in High Efficiency mode. PixelFerry writes 8-bit HEIC.",
+      "Apple's HEIF profile, what an iPhone saves in High Efficiency mode. PixelFerry writes 8-bit HEIC.",
     caveat:
       'Reading works anywhere; writing is macOS-only, because the encode goes through the system `sips` tool.',
   },
@@ -137,7 +137,7 @@ export const formats: Format[] = [
     write: false,
     group: 'Design and documents',
     summary: 'Vector artwork, rasterised on conversion.',
-    caveat: 'Read only — output is always a raster image.',
+    caveat: 'Read only. Output is always a raster image.',
   },
   {
     id: 'psd',
@@ -231,7 +231,7 @@ export const formats: Format[] = [
     read: 'macos',
     write: 'anywhere',
     group: 'Specialist and legacy',
-    summary: 'Windows icon bundles — one file holding several square sizes.',
+    summary: 'Windows icon bundles: one file holding several square sizes.',
     caveat:
       'The one format whose read and write differ in the opposite direction: reading needs macOS, writing works anywhere.',
   },

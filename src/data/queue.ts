@@ -113,6 +113,6 @@ export const summary = {
  * same counts the visible summary bar renders, so the two cannot contradict.
  */
 export const previewLabel =
-  `The PixelFerry window: a queue of ${totalFiles} mixed image files — HEIC, CR3 RAW, PSD, TIFF ` +
-  `and WebP — converting to ${outputFormat}, with ${counts.done} done, ${counts.converting} converting, ` +
+  `The PixelFerry window: a queue of ${totalFiles} mixed image files (HEIC, CR3 RAW, PSD, TIFF ` +
+  `and WebP) converting to ${outputFormat}, with ${counts.done} done, ${counts.converting} converting, ` +
   `${counts.ready} ready and ${counts.failed} failed file offering a retry.`

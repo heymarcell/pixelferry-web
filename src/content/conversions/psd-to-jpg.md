@@ -32,20 +32,20 @@ whatChanges:
   - label: Size drops sharply
     detail:
       A layered PSD is usually far larger than the JPEG it flattens to. Two
-      things account for that — the layer data is discarded, and the composite a
+      things account for that, the layer data is discarded, and the composite a
       PSD stores was never lossily compressed in the first place.
 limitations:
   - Transparency is destroyed, not preserved. If the asset has a cut-out
     background, use PNG or WebP instead.
-  - PixelFerry writes 8-bit RGB JPEG. A 16-bit PSD fails outright — the bundled
+  - PixelFerry writes 8-bit RGB JPEG. A 16-bit PSD fails outright, the bundled
     decoder reads 8-bit composites only. A CMYK PSD is worse, because it does
-    not fail at all — it is misread, since the decoder never consults the
+    not fail at all. It is misread, since the decoder never consults the
     document's colour mode. Convert both in Photoshop.
   - The conversion reads the composite Photoshop stores with "Maximize
     Compatibility" on. It does not render the layer stack, so a PSD saved
     without that composite has nothing useful to read.
-  - PSD is input-only, so this is one-way — the JPEG cannot be turned back into
-    a layered file.
+  - PSD is input-only, so this is one-way, the JPEG cannot be turned back into a
+    layered file.
 useCases:
   - Emailing a client a set of design comps that need to be small enough to
     actually arrive.
@@ -74,7 +74,7 @@ Before anything else: does the artwork have a transparent background?
 
 If it does, **JPG is the wrong target**. There is no alpha channel in a JPEG, so
 the transparency has to become some colour. PixelFerry uses white, which is the
-least-bad default and the one that matches what people expect — but a white
+least-bad default and the one that matches what people expect, but a white
 rectangle behind your cut-out logo is still a white rectangle.
 
 For those files, [PSD to PNG](/convert/psd-to-png) is the conversion you want.
@@ -95,14 +95,14 @@ look at them at the size the client will. Then adjust.
 What is worth knowing is which direction to adjust in: design files punish low
 quality more than photographs do, because they contain more hard edges. Blocking
 in flat panels and haloes around type are the first things to appear. If a comp
-is mostly interface or typography, err upward — or reconsider whether it should
+is mostly interface or typography, err upward, or reconsider whether it should
 be a PNG.
 
 There is also a **target file size** mode, which re-encodes at successive
-quality values to fit a limit you set — up to eight attempts, down to
-quality 10. If even that overshoots, it saves the smallest result and tells you
-it could not reach the target, rather than guessing at a quality number and
-checking the folder afterwards.
+quality values to fit a limit you set, up to eight attempts, down to quality 10.
+If even that overshoots, it saves the smallest result and tells you it could not
+reach the target, rather than guessing at a quality number and checking the
+folder afterwards.
 
 ## Progressive encoding
 
@@ -120,7 +120,7 @@ This is where the difference shows. Point PixelFerry at the directory, set JPG,
 set a quality and a delivery width, and pick a destination folder outside the
 originals.
 
-Output never overwrites the source and never replaces an existing file — a
+Output never overwrites the source and never replaces an existing file, a
 collision gets a `_converted` suffix. On an archive where filenames repeat
 across subfolders, that behaviour is the difference between a delivery set and a
 lost afternoon.

@@ -1,5 +1,5 @@
 ---
-title: Convert PDF pages to PNG on Mac — one image per page
+title: 'Convert PDF pages to PNG on Mac: one image per page'
 description:
   Each page of a multi-page PDF becomes its own PNG, in a folder named after the
   document, capped at the first 100 pages. What the cap is for, and when Preview
@@ -11,13 +11,13 @@ published: 2026-08-29
 updated: 2026-08-29
 summary:
   A PDF is a page description, not an image. Converting it rasterises each page
-  into a separate PNG — useful for thumbnails, previews and embedding, and lossy
-  in the sense that selectable text becomes pixels.
+  into a separate PNG, which is useful for thumbnails, previews and embedding,
+  and lossy in the sense that selectable text becomes pixels.
 whatChanges:
   - label: Pages become separate files
     detail:
       A multi-page PDF exports as `name-1.png`, `name-2.png`, `name-3.png` and
-      so on, into a folder named after the document — every page is numbered,
+      so on, into a folder named after the document, every page is numbered,
       including the first. A single-page PDF is written as one plain file, with
       no folder. The conversion reports how many pages it produced rather than
       leaving you to count.
@@ -36,7 +36,7 @@ whatChanges:
       representation in a PNG and do not survive.
 limitations:
   - Long documents are capped at the first 100 pages. Rendering is held in
-    memory, and an uncapped 500-page scan would take the app down — so the
+    memory, and an uncapped 500-page scan would take the app down, so the
     conversion says it stopped rather than silently truncating.
   - PDF is input-only. PixelFerry does not assemble images back into a PDF.
   - Password-protected and damaged PDFs will not render, and are reported as
@@ -69,7 +69,7 @@ This is a real limit and it is stated on purpose rather than discovered at run
 time.
 
 PDF rendering happens in memory: every requested page is rasterised before the
-writing starts. At the 2x viewport scale PixelFerry uses — roughly 144 dpi — a
+writing starts. At the 2x viewport scale PixelFerry uses (roughly 144 dpi) a
 500-page scanned document is gigabytes of bitmap, and the honest outcome of
 attempting it is that the application dies partway through and you get an
 incomplete folder with no explanation.
@@ -78,7 +78,7 @@ So the conversion stops at **the first 100 pages** and tells you it did. A
 truncated result you know about is recoverable; one you do not know about is a
 bug you find weeks later.
 
-If you need more, split the PDF first — Preview's sidebar will do it by dragging
+If you need more, split the PDF first. Preview's sidebar will do it by dragging
 page ranges out into new documents.
 
 ## PNG or JPG for pages?
@@ -90,29 +90,29 @@ lossless compression keeps glyph edges sharp, and documents of that kind
 compress well because they are largely flat colour.
 
 **JPG** for scanned photographs and image-heavy brochures, where PNG produces
-much larger files for no visible benefit — scanned photographic pages are close
+much larger files for no visible benefit. Scanned photographic pages are close
 to worst case for lossless compression.
 
-If the document mixes both — a report with photographic plates — PNG is the
-safer default, because degraded body text is more obviously wrong than a
-slightly softer photograph.
+If the document mixes both (a report with photographic plates) PNG is the safer
+default, because degraded body text is more obviously wrong than a slightly
+softer photograph.
 
 ## Where the output goes
 
 A multi-page PDF gets its own folder, named after the document; a single-page
-PDF is written as one plain file. The folder is deliberate — a batch of twenty
+PDF is written as one plain file. The folder is deliberate, a batch of twenty
 PDFs at twenty pages each would otherwise put four hundred loose PNGs into one
 directory with names that collide the moment two documents both have a page 3.
 
 Inside, pages are numbered in order. The numbers are not zero-padded, so Finder
-sorts them naturally but a plain lexicographic listing — `ls`, a glob, most
-`readdir` sorts — will put `name-10.png` before `name-2.png`. Worth knowing if
+sorts them naturally but a plain lexicographic listing (`ls`, a glob, most
+`readdir` sorts) will put `name-10.png` before `name-2.png`. Worth knowing if
 you are feeding them to a script.
 
 ## Resolution
 
 Set a width if the pages are headed somewhere specific. PixelFerry rasterises at
-a fixed 2x viewport scale — roughly 144 dpi, not user-configurable — which is
+a fixed 2x viewport scale, roughly 144 dpi, not user-configurable, which is
 still far wider than a wiki thumbnail or a slide needs, and it costs real disk
 space across a hundred pages.
 
