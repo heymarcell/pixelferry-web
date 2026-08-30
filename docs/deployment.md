@@ -121,19 +121,59 @@ name the current `main`** — an earlier revision did, and went stale the moment
 the PR carrying it merged. Always fetch and verify the exact current `main`, and
 its CI, immediately before a cutover.
 
-The site is built, verified and deployed to the non-production preview.
-Production has **not** been cut over.
+**The site is live on `pixelferry.app`.** It is served by the Pages project
+`pixelferry-web`, which already owned both hostnames, so going live needed no
+DNS change and no domain switch — only a Direct Upload deploy. Rollback is
+therefore a Pages rollback, not a DNS edit; see "Rollback" below.
 
-**Two of the four original prerequisites are now resolved** — the controller
-identity and the mailboxes. Two remain, plus one item that surfaced with them:
+Verified against the live origin after deploying, from scratch rather than from
+the build: real 404 on an unknown path, `/x/` and `/x.html` both 308 to `/x`,
+CSP with no `'unsafe-inline'` and no tracker origin, zero third-party requests
+on page load, one `<h1>`, no horizontal overflow at 1440px or 390px, and no
+`securitypolicyviolation` in Chromium.
+
+**Do not treat a green deploy as a verified one.** Cloudflare rewrites HTML at
+the edge, so `dist/` and the served bytes are not the same artefact — the email
+obfuscation defect below existed only in production and was invisible to every
+check that reads the build output.
+
+**Three of the four original prerequisites are now resolved** — the controller
+identity, the mailboxes, and production itself. What remains:
 
 - choose the waitlist retention period, which then unlocks a small `apps/api`
   change to implement the `waitlist_signups` deletion sweep;
 - appoint the Article 27 EU representative;
-- obtain Cloudflare zone-edit capability, or cut over via the existing Pages
-  project, which needs no DNS change.
+- redirect `www.pixelferry.app` to the apex. It currently answers **200** with
+  the same content rather than 301. Every page carries a self-referencing
+  absolute canonical to `https://pixelferry.app`, so indexing consolidates and
+  this is not urgent — but two hostnames serving one site is still wrong, and
+  the fix is a Cloudflare Redirect Rule, which is an edge-config change and so
+  needs explicit authorisation.
 
 Nothing here is blocked on site code.
+
+### Email obfuscation — a production-only failure mode
+
+Cloudflare Scrape Shield's "Email Address Obfuscation" is **on**, and it is on
+by default. It rewrites every `mailto:` it finds into
+`/cdn-cgi/l/email-protection#<hex>` plus an injected decoder script, and renders
+visible addresses as `[email protected]`.
+
+That breaks two things this site depends on: the legal pages must name a
+reachable controller contact, and an address that needs JavaScript to resolve is
+not reachable for a visitor with JavaScript off — and the waitlist's
+`<noscript>` fallback exists _only_ for those visitors.
+
+The first fix wrapped two call sites by hand and shipped no guard, so two more
+stayed obfuscated in production on every page and nothing failed.
+`test/email-obfuscation.test.ts` now enumerates the surface instead: every
+rendered `mailto:` and every visible `@pixelferry.app` must sit inside an
+`<!--email_off-->` region, the markers must balance, and every footer must still
+carry a contact link — so the rule cannot be satisfied by deleting the address.
+
+The guard checks the _precondition_, not the served result, because the rewrite
+happens at the edge. **After any deploy that touches a contact address, curl the
+live page and grep for `cdn-cgi/l/email-protection`.**
 
 ### 1. Legal controller identity — RESOLVED 2026-08-30
 
