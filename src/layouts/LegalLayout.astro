@@ -119,9 +119,18 @@ const crumbs = [
                     {section.heading}
                   </h2>
                   {/* `pre-line` keeps the design's bullets and paragraph breaks byte-for-byte. */}
+                  {/*
+                   * Cloudflare Scrape Shield rewrites bare email addresses into
+                   * `[email protected]` plus a JS decoder. On a site that works
+                   * without JavaScript, that hides a legally required contact
+                   * address from anyone with JS off. These are Cloudflare's
+                   * documented opt-out markers; the body stays escaped text.
+                   */}
+                  <Fragment set:html="<!--email_off-->" />
                   <p class="text-doc-body text-[16px] leading-[1.65] whitespace-pre-line">
                     {section.body}
                   </p>
+                  <Fragment set:html="<!--/email_off-->" />
 
                   {section.id === 'cookie-schedule' && (
                     <>
