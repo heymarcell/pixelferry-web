@@ -115,9 +115,13 @@ page, so a stuck flag fails CI.
 
 ## Launch state — verified 2026-08-30, after PR #2 merged
 
-`main` is `cad8b464` and its CI is green. The site is built, verified and
+`main` is `d80f8d6` and its CI is green. The site is built, verified and
 deployed to the non-production preview. Production has **not** been cut over.
-Four things block it, and none of them is code.
+
+Four human decisions or account prerequisites remain. Only one of them carries
+engineering after the decision: choosing the retention period unlocks a small
+`apps/api` change to implement the `waitlist_signups` deletion sweep. Nothing
+else here is blocked on code.
 
 ### 1. Legal controller identity — a decision, not a lookup
 
@@ -132,7 +136,12 @@ would be inventing a legal fact. The pages carry a DRAFT badge.
 Nothing in either repository selects one, and nothing deletes
 `waitlist_signups`: the API's scheduled sweep covers `bug_reports` and
 `activations` only. The policy now says no schedule exists rather than promising
-one that does not run. Implementing the sweep is an `apps/api` change.
+one that does not run.
+
+**The decision comes first, then a small implementation.** Once a period is
+chosen, `waitlist_signups` needs a deletion sweep in `apps/api` — the scheduled
+handler already runs `sweepBugReports` and `pruneStaleActivations`, so this is a
+third job of the same shape, not new infrastructure.
 
 ### 3. The mailboxes do not exist
 
