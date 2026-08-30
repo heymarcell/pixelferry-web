@@ -146,9 +146,24 @@ identity, the mailboxes, and production itself. What remains:
 - redirect `www.pixelferry.app` to the apex. It currently answers **200** with
   the same content rather than 301. Every page carries a self-referencing
   absolute canonical to `https://pixelferry.app`, so indexing consolidates and
-  this is not urgent — but two hostnames serving one site is still wrong, and
-  the fix is a Cloudflare Redirect Rule, which is an edge-config change and so
-  needs explicit authorisation.
+  this is not urgent, but two hostnames serving one site is still wrong.
+
+  **A Pages `_redirects` file cannot do this, and fails silently.** That was
+  tried and reverted. Pages accepts a host-prefixed source such as
+  `https://www.pixelferry.app/* https://pixelferry.app/:splat 301`, logs
+  `Uploading _redirects`, reports a successful deploy, and then never applies
+  the line. Proven on a throwaway preview deployment carrying two rules at once:
+  the path rule `/__probe-path /formats 301` returned 301, and the host-prefixed
+  rule did not fire. **Pages matches `_redirects` sources on the PATH only.**
+  Absolute-URL sources are a Netlify feature, not a Pages one.
+
+  So this needs a zone-level Redirect Rule, and the OAuth token wrangler holds
+  has `zone (read)` only. In the dashboard: Rules → Redirect Rules → Create,
+  match `Hostname equals www.pixelferry.app`, dynamic redirect to
+  `concat("https://pixelferry.app", http.request.uri.path)`, status 301,
+  preserve query string.
+
+  Do not re-attempt this with `_redirects`. It looks like it worked.
 
 Nothing here is blocked on site code.
 
