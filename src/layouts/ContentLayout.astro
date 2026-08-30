@@ -163,6 +163,8 @@ const iso = (date: Date) => date.toISOString().slice(0, 10)
           <BrandMark size={26} />
           <span class="font-display text-[17px] font-bold text-white/80">PixelFerry</span>
         </a>
+        {/* `navigation.footer` ends in a `mailto:` — see the note below. */}
+        <Fragment set:html="<!--email_off-->" />
         <nav aria-label="Footer" class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
           {
             navigation.footer.map((link) => (
@@ -175,6 +177,7 @@ const iso = (date: Date) => date.toISOString().slice(0, 10)
             ))
           }
         </nav>
+        <Fragment set:html="<!--/email_off-->" />
       </div>
       <p
         class="mx-auto mt-8 max-w-[1080px] text-center text-[12px] font-medium text-white/56 sm:text-left"
