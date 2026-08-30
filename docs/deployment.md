@@ -113,6 +113,62 @@ Always rebuild without `PF_NOINDEX` before any production deploy.
 `test/seo-output.test.ts` asserts that a default build has no `noindex` on any
 page, so a stuck flag fails CI.
 
+## Launch state — verified 2026-08-30, after PR #2 merged
+
+`main` is `cad8b464` and its CI is green. The site is built, verified and
+deployed to the non-production preview. Production has **not** been cut over.
+Four things block it, and none of them is code.
+
+### 1. Legal controller identity — a decision, not a lookup
+
+`src/data/legal.ts` still carries `[LEGAL COMPANY NAME]`,
+`[FULL REGISTERED ADDRESS]`, `[COMPANY NUMBER]` and the three EU-representative
+fields. **No authoritative record of these exists in either repository.** They
+must not be inferred from the GitHub owner or the Cloudflare account — that
+would be inventing a legal fact. The pages carry a DRAFT badge.
+
+### 2. Waitlist retention period — never chosen
+
+Nothing in either repository selects one, and nothing deletes
+`waitlist_signups`: the API's scheduled sweep covers `bug_reports` and
+`activations` only. The policy now says no schedule exists rather than promising
+one that does not run. Implementing the sweep is an `apps/api` change.
+
+### 3. The mailboxes do not exist
+
+Measured on 2026-08-30:
+
+- `pixelferry.app` has **no MX records**
+- Cloudflare Email Routing for the zone is **`Enabled: false`, `unconfigured`**
+
+So `hello@pixelferry.app` (footer, contact), `beta@pixelferry.app` (the no-JS
+waitlist fallback) and any privacy mailbox **receive nothing today**. A privacy
+policy that names a contact route which silently discards mail is worse than one
+that names none, so this has to be configured before the policy goes live.
+
+### 4. Cloudflare token cannot complete the target architecture
+
+The current OAuth token holds `workers (write)`, `workers_routes (write)`,
+`pages (write)` — and **`zone (read)`**. Attaching a Workers Custom Domain
+creates a DNS record in the zone, and the `www` → apex redirect needs a redirect
+rule; both require zone **edit**. Neither can be done with this token.
+
+Note the shape of the current production: the `pixelferry-web` **Pages** project
+(Direct Upload, `Git Provider: No`) already owns both `pixelferry.app` and
+`www.pixelferry.app`, which is why both answer 200 today and why `/nope` answers
+200 as well — a soft 404 across the whole URL space. Deploying the new build to
+that Pages project would need no DNS change, but it is not the documented target
+architecture and it would publish the placeholder legal pages, so it waits on
+item 1 regardless.
+
+### Rollback, currently available
+
+Production is untouched and still served by Pages deployment
+`e19b072e-5064-42aa-b669-59faea14088b` (source `a365f7e`). Cloudflare retains
+it, so rolling back after a future cutover is a Pages rollback to that
+deployment. **Do not delete the Pages project during the cutover** — it is the
+rollback.
+
 ## Production cutover
 
 **Requires explicit authorisation. Do not perform it as part of a routine
