@@ -223,9 +223,10 @@ const toneClass: Record<string, string> = {
               PDFs stop at {limits.pdfPageCap} pages
             </p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
-              Each page becomes its own image in a folder named after the document. Rendering is
-              held in memory, so long documents are capped at the first {limits.pdfPageCap} pages — and
-              the conversion says so rather than truncating silently.
+              Each page of a multi-page document becomes its own image in a folder named after it; a
+              single-page PDF is written as one plain file. Rendering is held in memory, so long
+              documents are capped at the first {limits.pdfPageCap} pages — and the conversion says so
+              rather than truncating silently.
               <a href="/convert/pdf-to-png" class="text-doc-link font-semibold hover:underline">
                 More on PDF conversion</a
               >.

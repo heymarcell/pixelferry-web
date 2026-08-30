@@ -82,7 +82,8 @@ JavaScript to read, so crawling the HTML directly works just as well.
   ])}.
 - ICO is the one format whose read and write differ in opposite directions:
   reading it needs macOS, writing it works anywhere.
-- PDFs export one image per page into a folder named after the document, capped
+- Multi-page PDFs export one image per page into a folder named after the
+  document; a single-page PDF is written as one plain file. Capped
   at the first ${limits.pdfPageCap} pages.
 - PSD/PSB are flattened to their stored composite.
 - JPEG output flattens transparency onto white.

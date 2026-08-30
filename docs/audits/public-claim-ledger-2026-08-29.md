@@ -445,6 +445,22 @@ Not every reviewer finding was accepted as written: its objection to the AVIF
 timing range is recorded in the benchmark row of `docs/content-sources.md`
 rather than by deleting a measurement that was genuinely taken.
 
+### Three the preview check caught after that
+
+Verifying the corrections on the deployed preview — rather than trusting the
+source edits — found three more:
+
+| #     | Claim                                                                                    | Verdict          | Cause                                                                                                                                                                                                                    |
+| ----- | ---------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 11.57 | `llms.txt` and `/formats` still said **"Each PDF gets its own folder"**                  | CAPABILITY DRIFT | An edit batch validates every marker before writing anything, and this one aborted on an earlier file — so its two trailing edits never ran. The abort is the design working; not re-checking afterwards was the mistake |
+| 11.58 | The homepage FAQ still said the ICC profile is **"kept either way"** with no exception   | TRUE-HALF        | The FAQ restated `capabilities.metadata` as an inline literal instead of interpolating it, so the corrected constant reached `llms.txt` and left the page publishing the old version                                     |
+| 11.59 | Same duplication had already caused the **HEIC metadata caveat** defect one pass earlier | RECURRENCE       | Two occurrences of one root cause                                                                                                                                                                                        |
+
+`test/claim-surface.test.ts` now asserts the rendered homepage contains
+`capabilities.metadata` and `capabilities.metadataHeicCaveat` **verbatim**, so
+forking a product fact into a literal fails the build instead of drifting.
+Mutation-tested by re-forking it.
+
 ### The methodology fix
 
 `claimSurface(page)` in `scripts/lib/pages.mjs` returns visible `<main>` text

@@ -185,3 +185,48 @@ describe('llms.txt states the same facts as the pages', () => {
     expect(llms).toMatch(/ICO[^\n]*read on macOS; write anywhere/)
   })
 })
+
+/**
+ * PRODUCT FACTS MUST BE DERIVED, NOT RESTATED.
+ *
+ * Twice now, a page has restated a `capabilities.*` string as an inline literal
+ * instead of interpolating it — and both times a later correction to the
+ * constant reached `llms.txt` and left the page publishing the old, false
+ * version:
+ *
+ *   - the HEIC metadata caveat, which went on saying the metadata option "does
+ *     not govern" HEIC output after the app started applying it;
+ *   - the ICC rule, which went on saying the profile is "kept either way" after
+ *     the constant was scoped to exclude PSD and PDF.
+ *
+ * Checking that the rendered page contains the constant verbatim makes the fork
+ * fail loudly instead of drifting silently.
+ */
+describe('pages derive product facts from the model', () => {
+  it('renders the metadata rule and its HEIC caveat from the constants', async () => {
+    const { capabilities } = await import('../src/data/product')
+    const pages = await loadPages()
+    const home = pages.find((p: { rel: string }) => p.rel === 'index.html')!
+    const text = (claimSurface(home) as unknown as Surface).visibleText
+
+    expect(text, 'the homepage FAQ must interpolate capabilities.metadata').toContain(
+      capabilities.metadata,
+    )
+    expect(text, 'the homepage FAQ must interpolate metadataHeicCaveat').toContain(
+      capabilities.metadataHeicCaveat,
+    )
+  })
+
+  it('never publishes the superseded unscoped ICC claim', async () => {
+    const pages = await loadPages()
+    for (const page of pages) {
+      const s = claimSurface(page) as unknown as Surface
+      // "kept either way" is only true where a profile survives the decoder.
+      if (/kept either way/i.test(s.all)) {
+        expect(s.all, `${page.rel} states the ICC rule without its exception`).toMatch(
+          /PSD and PDF are the exception/,
+        )
+      }
+    }
+  })
+})
