@@ -54,11 +54,11 @@ const toneClass: Record<string, string> = {
 ---
 
 <ContentLayout
-  title="Supported image formats — PixelFerry for macOS"
-  description={`Every image format PixelFerry reads and writes — ${formatCounts.extensions} extensions in ${formatCounts.readable} families — which are macOS-only, and the exact limitations.`}
+  title="Supported image formats · PixelFerry for macOS"
+  description={`Every image format PixelFerry reads and writes: ${formatCounts.extensions} extensions in ${formatCounts.readable} families, which are macOS-only, and the exact limitations.`}
   path="/formats"
   heading="Supported formats"
-  summary={`PixelFerry reads ${formatCounts.readable} format families covering ${formatCounts.extensions} file extensions, and writes ${formatCounts.writable}. This is the complete list — including the ones that only work on macOS, and the ones you can read but not write.`}
+  summary={`PixelFerry reads ${formatCounts.readable} format families covering ${formatCounts.extensions} file extensions, and writes ${formatCounts.writable}. This is the complete list, including the ones that only work on macOS, and the ones you can read but not write.`}
   eyebrow="REFERENCE"
   crumbs={[{ name: 'PixelFerry', path: '/' }]}
 >
@@ -69,7 +69,7 @@ const toneClass: Record<string, string> = {
           Formats PixelFerry can write
         </h2>
         <p class="text-doc-body max-w-[720px] text-[16px] leading-[1.6]">
-          Any input can be converted to any of these, with one platform exception — writing HEIC
+          Any input can be converted to any of these, with one platform exception: writing HEIC
           needs macOS. Everything else on this page can be read but not written.
         </p>
         <ul class="grid list-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -203,7 +203,8 @@ const toneClass: Record<string, string> = {
           <li class="border-doc-line bg-doc-panel rounded-lg border p-5">
             <p class="font-display text-doc-ink text-[16px] font-bold">Writing HEIC needs macOS</p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
-              {macOSOnlyWriteFormats.map((f) => f.label).join(', ')} — the encode goes through the system
+              {macOSOnlyWriteFormats.map((f) => f.label).join(', ')}: the encode goes through the
+              system
               <code class="font-mono text-[13px]">sips</code> tool, so it is available on macOS only.
               Reading HEIC works anywhere.
             </p>
@@ -226,7 +227,7 @@ const toneClass: Record<string, string> = {
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
               Each page of a multi-page document becomes its own image in a folder named after it; a
               single-page PDF is written as one plain file. Rendering is held in memory, so long
-              documents are capped at the first {limits.pdfPageCap} pages — and the conversion says so
+              documents are capped at the first {limits.pdfPageCap} pages, and the conversion says so
               rather than truncating silently.
               <a href="/convert/pdf-to-png" class="text-doc-link font-semibold hover:underline">
                 More on PDF conversion</a
@@ -250,14 +251,14 @@ const toneClass: Record<string, string> = {
             </p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
               JPEG has no alpha channel. White is used rather than the black the underlying encoder
-              default to, which is what you want for a photo and not what you want for a logo —
-              target PNG, WebP or AVIF for those.
+              defaults to, which is what you want for a photo and not what you want for a logo. For
+              those, target PNG, WebP or AVIF.
             </p>
           </li>
           <li class="border-doc-line bg-doc-panel rounded-lg border p-5">
             <p class="font-display text-doc-ink text-[16px] font-bold">Animation is conditional</p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
-              Animated GIF and WebP keep every frame when the output is GIF or WebP — the only two
+              Animated GIF and WebP keep every frame when the output is GIF or WebP, the only two
               animated formats PixelFerry writes. Anything else, including AVIF, gets the first
               frame, and so does any conversion with whitespace trim enabled. The row says so rather
               than dropping frames silently.
@@ -271,10 +272,10 @@ const toneClass: Record<string, string> = {
           Requirements
         </h2>
         <p class="text-doc-body max-w-[720px] text-[16px] leading-[1.6]">
-          {product.minimumOS.label}, on {product.architectures}. macOS only — the project declares a
-          macOS build target alone. Cross-platform code paths exist and are unit-tested, but no
-          Windows or Linux build is produced or signed by this project, so neither is offered rather
-          than promised untested.
+          {product.minimumOS.label}, on {product.architectures}. macOS only, because the project
+          declares a macOS build target alone. Cross-platform code paths exist and are unit-tested,
+          but no Windows or Linux build is produced or signed by this project, so neither is offered
+          rather than promised untested.
         </p>
         <p class="text-doc-muted max-w-[720px] text-[14px] leading-[1.6]">
           The read/write columns above distinguish what the conversion engine can do from what needs

@@ -12,7 +12,7 @@ updated: 2026-08-29
 summary:
   A RAW file holds largely unprocessed sensor readings that have to be
   interpreted before they become a viewable image. macOS does that
-  interpretation with ImageIO — consistently, and entirely on your machine.
+  interpretation with ImageIO, consistently and entirely on your machine.
 whatChanges:
   - label: Demosaicing
     detail:
@@ -24,7 +24,7 @@ whatChanges:
   - label: The rendering decisions
     detail:
       White balance, tone curve, colour rendering and sharpening are not stored
-      as pixels in a RAW file — they are choices. macOS ImageIO applies Apple's
+      as pixels in a RAW file. They are choices. macOS ImageIO applies Apple's
       own interpretation, which is why the result looks different from
       Lightroom's or Capture One's default. Different, not more correct.
   - label: Editing latitude
@@ -32,12 +32,12 @@ whatChanges:
       RAW files typically store 12 or 14 bits per photosite reading, against
       JPEG's 8 bits per channel. That extra precision is what lets you lift
       shadows or pull back highlights that are dim or bright but still measured,
-      without banding. It cannot recover anything that actually clipped — a
+      without banding. It cannot recover anything that actually clipped, a
       genuinely blown highlight holds no data at any bit depth. Make those
       adjustments before converting, not after.
   - label: File size
     detail:
-      The JPEG will generally be smaller than the RAW — it stores an 8-bit
+      The JPEG will generally be smaller than the RAW. It stores an 8-bit
       rendered result rather than the full-precision sensor readings plus the
       editing headroom you are no longer going to use. The ratio depends on the
       camera, the scene and the quality you pick, so read the per-row figures
@@ -46,8 +46,8 @@ limitations:
   - RAW decoding here goes through macOS ImageIO, so this conversion is
     macOS-only and its look is ImageIO's, not your raw converter's.
   - PixelFerry applies no exposure, white balance or tone adjustments. It is a
-    converter, not a raw developer — if the shot needs work, develop it first
-    and convert the export.
+    converter, not a raw developer. If the shot needs work, develop it first and
+    convert the export.
   - RAW is input-only. There is no route back from the JPEG to an editable RAW.
 useCases:
   - Turning a full card of shots into shareable proofs immediately after a job,
@@ -75,10 +75,10 @@ related:
 ## A RAW file is not a finished image yet
 
 This is the part that surprises people. `IMG_0421.CR3` is not a compressed
-photograph — it is a largely unprocessed record of what the sensor measured,
-plus metadata about the camera's settings at the time. (Most RAW files do carry
-an embedded JPEG preview, and it is what your camera's own screen shows you
-after the shot.)
+photograph. It is a largely unprocessed record of what the sensor measured, plus
+metadata about the camera's settings at the time. (Most RAW files do carry an
+embedded JPEG preview, and it is what your camera's own screen shows you after
+the shot.)
 
 Each photosite sits behind one colour of a filter array and contributes a single
 measured value, not a red-green-blue triple. Producing a normal image means
@@ -86,8 +86,8 @@ measured value, not a red-green-blue triple. Producing a normal image means
 neighbours. Then something has to decide white balance, contrast, saturation and
 sharpening.
 
-The file usually records what the camera was set to — white balance as shot,
-picture style, lens corrections — as metadata. What it does not contain is those
+The file usually records what the camera was set to (white balance as shot,
+picture style, lens corrections) as metadata. What it does not contain is those
 choices baked into finished RGB pixels the way a delivered JPEG does. Software
 opening the RAW may honour that metadata, ignore it, or substitute its own
 defaults, which is precisely why the same RAW looks different in Lightroom, in
@@ -98,11 +98,11 @@ Capture One, and in Preview.
 PixelFerry hands RAW decoding to **macOS ImageIO**, the same system component
 Preview and Finder use. That has real consequences worth stating plainly:
 
-- The result is **consistent** — the same interpretation every time, and the
-  same one Finder and Preview show you. It is Apple's rendering, which is a
-  choice like any other, not an absence of one.
+- The result is **consistent**, the same interpretation every time, and the same
+  one Finder and Preview show you. It is Apple's rendering, which is a choice
+  like any other, not an absence of one.
 - It is close to what Finder and Preview show you, because those come from the
-  same ImageIO rendering — though not identical to the camera's own embedded
+  same ImageIO rendering, though not identical to the camera's own embedded
   preview, which has the picture style baked in.
 - It is **not** what your editing software would produce. If you have a
   developed look you care about, export from that software and convert the
@@ -123,8 +123,8 @@ tone-maps high dynamic range down to something a JPEG can represent.
 Point PixelFerry at the card or the import folder. It walks subfolders, so a
 `DCIM` tree with several dated directories comes in as one queue.
 
-Set JPG as the output, pick a quality — the app's default of 80 is the place to
-start — and set a width if these are going somewhere with a size limit. Four
+Set JPG as the output, pick a quality, the app's default of 80 is the place to
+start, and set a width if these are going somewhere with a size limit. Four
 files convert at a time.
 
 Where this beats exporting from Preview is failure reporting. A card write that

@@ -14,11 +14,11 @@ summary:
 takeaways:
   - When an image is served far larger than it displays, resizing is usually the
     bigger saving of the two, and they compound.
-  - Crop, fit and fill answer different questions — picking the wrong one
+  - Crop, fit and fill answer different questions, and picking the wrong one
     silently ruins compositions.
   - The Finder Quick Action resizes to four named presets only; sips is the
     built-in that takes real pixel values.
-  - Resize down from the original where you still have it — scaling a delivery
+  - Resize down from the original where you still have it. Scaling a delivery
     copy back up cannot recover detail it no longer holds.
 relatedConversions:
   - jpg-to-webp
@@ -27,16 +27,16 @@ relatedConversions:
 ---
 
 The first thing to try on an oversized image set is making the images smaller.
-Not "compress harder" — fewer pixels.
+Not "compress harder". Fewer pixels.
 
 A 4000×3000 photograph displayed in a 1200-pixel column is carrying about eleven
 times more pixel data than it will ever show. Reducing the dimensions removes
 pixels you do not need; changing format changes how the remaining pixels are
 encoded. They are different levers, and when the size gap is that wide the first
-one usually moves more — but measure both when size matters. Halving the
+one usually moves more, but measure both when size matters. Halving the
 dimensions quarters the pixel count. Encoded size drops steeply too, though not
-by exactly four — lossy compression scales sub-linearly, and headers and the
-colour profile do not scale at all.
+by exactly four, because lossy compression scales sub-linearly and headers and
+the colour profile do not scale at all.
 
 ## The built-in options
 
@@ -49,8 +49,8 @@ for "everything must be 1200px wide".
 
 ### Preview
 
-Tools → Adjust Size takes real numbers — pixels, percent, or a resolution — with
-a "Scale proportionally" checkbox and a resulting-size readout.
+Tools → Adjust Size takes real numbers (pixels, percent, or a resolution) with a
+"Scale proportionally" checkbox and a resulting-size readout.
 
 It also works on a **multi-selection**, which is not obvious and is worth
 knowing: Apple's documentation describes displaying the images in the same
@@ -59,7 +59,7 @@ Adjust Size to resize them together.
 
 The limits are practical rather than absolute. Every image has to be open in one
 window at once, and there is no way to convert format or set quality in the same
-step — so it is comfortable for a handful of images and painful for a large
+step, so it is comfortable for a handful of images and painful for a large
 folder.
 
 ### sips
@@ -78,9 +78,10 @@ mkdir -p resized
 for f in *.jpg; do sips -Z 2000 "$f" --out "resized/$f"; done
 ```
 
-Note the difference between `-Z` (resampleHeightWidthMax — caps the long edge,
-preserves aspect) and `-z` (resampleHeightWidth — forces exact dimensions and
-**distorts** the image). The capital letter is almost always the one you want.
+Note the difference between `-Z` (resampleHeightWidthMax, which caps the long
+edge and preserves aspect) and `-z` (resampleHeightWidth, which forces exact
+dimensions and **distorts** the image). The capital letter is almost always the
+one you want.
 
 `sips` overwrites in place unless you pass `--out`. Always pass `--out`.
 
@@ -89,21 +90,21 @@ preserves aspect) and `-z` (resampleHeightWidth — forces exact dimensions and
 When a target is an exact width **and** height, the source aspect ratio almost
 never matches, and something has to give. The three answers:
 
-**Fit** — scale until the whole image is inside the box. Nothing is cut off; you
-get empty space on two sides. Right when you must see the entire image, such as
-product shots on a white background.
+**Fit** scales until the whole image is inside the box. Nothing is cut off, and
+you get empty space on two sides. Right when you must see the entire image, such
+as product shots on a white background.
 
-**Crop** — scale until the box is full, then cut the overflow. Nothing is
-distorted; content leaves the frame. Right for thumbnails and hero images where
-filling the space matters more than the edges.
+**Crop** scales until the box is full, then cuts the overflow. Nothing is
+distorted, but content leaves the frame. Right for thumbnails and hero images
+where filling the space matters more than the edges.
 
-**Fill** — stretch to the box regardless of aspect ratio. Distorts. Almost never
-what you want, and it exists mostly for cases where the aspect ratios already
-match.
+**Fill** stretches to the box regardless of aspect ratio. It distorts, and is
+almost never what you want, and it exists mostly for cases where the aspect
+ratios already match.
 
 One caveat that catches people with Crop and Fill: PixelFerry does not enlarge
 by default. A source smaller than the box keeps its own dimensions rather than
-being scaled up — there is nothing to crop or stretch — so you get an image that
+being scaled up. There is nothing to crop or stretch, so you get an image that
 is not the size you asked for. Turn off "don't upscale" if you genuinely want it
 enlarged.
 
@@ -132,12 +133,12 @@ the resize happens between the decode and the encode:
 1. Decode, using the macOS system codec for HEIC and RAW.
 2. Apply EXIF orientation so a portrait shot arrives upright.
 3. Trim whitespace, if you asked for it.
-4. Resize — by width, by height, to exact dimensions with crop/fit/fill, or by
+4. Resize, by width, by height, to exact dimensions with crop/fit/fill, or by
    percentage.
 5. Encode to the target format at your quality.
 
 One decode, one write, four files at a time. Target file size does not change
-that in the default configuration — the resized pixels are held once and each of
+that in the default configuration, the resized pixels are held once and each of
 the up-to-eight quality attempts re-encodes from them. It does re-run the decode
 and resize per attempt in the two cases where a raw round-trip would lose
 something: when you have turned metadata removal off, and for animated sources.
@@ -150,5 +151,5 @@ real image folder.
 Percentage scaling is measured against the **post-trim** content width, not the
 original canvas. If you enable whitespace trimming and then scale to 50%, you
 get half of the trimmed content, not half of the original file. That is the
-useful behaviour — it means a set of scans with inconsistent borders comes out
-at consistent content size — but it will surprise you once if you do not know.
+useful behaviour. It means a set of scans with inconsistent borders comes out at
+consistent content size, but it will surprise you once if you do not know.

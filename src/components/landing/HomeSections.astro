@@ -33,11 +33,11 @@ const guides = (await getCollection('guides')).sort((a, b) =>
 const steps = [
   {
     title: 'Drop in files or folders',
-    body: 'Drag anything onto the window, paste from the clipboard, or open a folder — PixelFerry walks subfolders, up to 5,000 files and 10 levels deep, skipping hidden files and symlinks.',
+    body: 'Drag anything onto the window, paste from the clipboard, or open a folder. PixelFerry walks subfolders, up to 5,000 files and 10 levels deep, skipping hidden files and symlinks.',
   },
   {
     title: 'Set the output rules once',
-    body: `Choose the format, quality, dimensions and destination once, and the queue applies them to every file however many formats went in — with the format-specific exceptions noted below, like ${resizeException?.format} sizing itself.`,
+    body: `Choose the format, quality, dimensions and destination once, and the queue applies them to every file however many formats went in, with the format-specific exceptions noted below, like ${resizeException?.format} sizing itself.`,
   },
   {
     title: 'Convert, four at a time',
@@ -79,7 +79,7 @@ const promises = [
 const faqs = [
   {
     q: 'Does PixelFerry upload my images?',
-    a: 'No. Every conversion runs on your Mac. HEIC and the macOS-only formats — camera RAW, EXR, BMP, TGA, JPEG XL and the rest — decode through the macOS system codecs; PSD and PDF through bundled decoders; everything else through the bundled image pipeline. No file, and no part of one, is sent anywhere.',
+    a: 'No. Every conversion runs on your Mac. HEIC and the macOS-only formats (camera RAW, EXR, BMP, TGA, JPEG XL and the rest) decode through the macOS system codecs, PSD and PDF through bundled decoders; everything else through the bundled image pipeline. No file, and no part of one, is sent anywhere.',
   },
   {
     q: 'Which macOS versions does it run on?',
@@ -95,11 +95,11 @@ const faqs = [
   },
   {
     q: 'What happens to a multi-page PDF?',
-    a: `Each page becomes its own image, in a folder named after the document. Long documents stop at the first ${limits.pdfPageCap} pages — rendering is held in memory — and the conversion tells you it stopped rather than truncating silently.`,
+    a: `Each page becomes its own image, in a folder named after the document. Long documents stop at the first ${limits.pdfPageCap} pages, because rendering is held in memory, and the conversion tells you it stopped rather than truncating silently.`,
   },
   {
     q: 'Are my originals modified?',
-    a: 'Never. Output is written as new files, and it will not overwrite the source or an existing file — a colliding name gets a `_converted` suffix.',
+    a: 'Never. Output is written as new files, and it will not overwrite the source or an existing file. A colliding name gets a `_converted` suffix.',
   },
   {
     q: 'Is metadata kept?',
@@ -292,7 +292,7 @@ const faqs = [
           {resizeException?.note}
         </p>
         <p class="text-doc-body text-[15px] leading-[1.55]">
-          Targeting a file size searches quality values to fit it — {
+          Targeting a file size searches quality values to fit it: {
             targetSizeSearch.formats.join(', ')
           } only, up to {targetSizeSearch.maxAttempts} attempts, down to a floor of quality {
             targetSizeSearch.qualityFloor
@@ -405,7 +405,7 @@ const faqs = [
       <p class="text-doc-body mt-4 text-[14px] leading-[1.55]">
         Those are the formats PixelFerry writes. Writing {
           macOSOnlyWriteFormats.map((f) => f.label).join(', ')
-        } needs macOS. Everything else it reads — including SVG, PSD, PDF and camera RAW — converts one
+        } needs macOS. Everything else it reads, including SVG, PSD, PDF and camera RAW, converts one
         way only.
       </p>
       <p class="text-doc-body mt-2 text-[14px] leading-[1.55]">

@@ -1,5 +1,5 @@
 ---
-title: Convert JPG to AVIF on a Mac — a newer codec, a slower encode
+title: 'Convert JPG to AVIF on a Mac: a newer codec, a slower encode'
 description:
   AVIF brings AV1's coding machinery to still images, at a real cost in encoding
   time. What it does well, what it costs, and when to prefer WebP instead.
@@ -15,7 +15,7 @@ summary:
 whatChanges:
   - label: A newer, more capable codec
     detail:
-      AVIF uses AV1's intra-frame coding — larger and variable block sizes, far
+      AVIF uses AV1's intra-frame coding, with larger and variable block sizes,
       more prediction modes, and a better transform than JPEG's fixed 8×8 DCT.
       How much that is worth depends heavily on the image and on both encoders'
       settings, so convert a representative sample and read the actual
@@ -32,22 +32,22 @@ whatChanges:
   - label: Bit depth, and what PixelFerry actually writes
     detail:
       The AVIF format handles 10- and 12-bit per channel and wide colour gamuts
-      natively. PixelFerry does not write them — it encodes 8-bit AVIF, the same
-      depth as the JPEG you started from. So no bit-depth precision is discarded
-      on the way through, but the transcode is still another lossy encode unless
-      you turn lossless on. This is not a route to a higher-precision master.
+      natively, but PixelFerry writes 8-bit AVIF, the same depth as the JPEG you
+      started from. Nothing is lost to bit depth on the way through, but the
+      transcode is still another lossy encode unless you turn lossless on. This
+      is not a route to a higher-precision master.
   - label: Where the codec has the most room to help
     detail:
-      Smooth tonal transitions — skies, studio backdrops, soft shadows — are
-      where JPEG's fixed 8x8 DCT shows banding first, and where AVIF's larger
-      blocks and richer prediction have the most to work with. Whether that is
-      visible on a given image depends on the content and the quality setting,
-      so compare a sample rather than assuming it.
+      Smooth tonal transitions (skies, studio backdrops, soft shadows) are where
+      JPEG's fixed 8x8 DCT shows banding first, and where AVIF's larger blocks
+      and richer prediction have the most to work with. Whether that is visible
+      on a given image depends on the content and the quality setting, so
+      compare a sample rather than assuming it.
 limitations:
-  - Encoding is slow — roughly 3–5x mozjpeg and 2.5–3.5x WebP on PixelFerry's
+  - Encoding is slow, roughly 3–5x mozjpeg and 2.5–3.5x WebP on PixelFerry's
     encoder, measured on a synthetic 12 MP source, one machine. A large batch is
     a background job, not something to wait on.
-  - Support is broad in browsers and patchier outside them — desktop software,
+  - Support is broad in browsers and patchier outside them. Desktop software,
     email clients and upload validators often will not accept AVIF.
   - Converting from an existing JPEG is a second lossy generation, so the
     source's artefacts are preserved along with the picture.
@@ -62,8 +62,8 @@ macOSAlternative:
   method: avifenc, via Homebrew
   detail:
     The libavif reference encoder gives full control over speed/quality
-    trade-offs — `avifenc -q 60 in.jpg out.avif`. macOS can also write AVIF
-    itself, which is less well known — `sips --formats` on macOS 26 lists
+    trade-offs, as in `avifenc -q 60 in.jpg out.avif`. macOS can also write AVIF
+    itself, which is less well known. `sips --formats` on macOS 26 lists
     `public.avif` as Writable, so `sips -s format avif in.jpg --out out.avif`
     works with nothing installed. The Finder Quick Action does not offer it.
   breaksDownWhen:
@@ -87,10 +87,10 @@ The practical difference shows up most on:
 - **Smooth gradients.** Skies and soft shadows are where JPEG's 8x8 DCT bands
   first. AVIF has more room to avoid that, though how much shows on a given
   image depends on the content and on where each encoder's quality control is
-  set — the two scales are not comparable, so this is a reason to test rather
+  set, the two scales are not comparable, so this is a reason to test rather
   than a conversion factor.
 - **Aggressive compression.** At low bitrates AVIF degrades into softness rather
-  than into JPEG's blocking and ringing — a different kind of degradation, which
+  than into JPEG's blocking and ringing, a different kind of degradation, which
   many people find less objectionable at the same file size.
 
 Where it wins least is small images and flat graphics, where the format overhead
@@ -101,7 +101,7 @@ the better tool.
 
 A quality value is an encoder-specific control, not a unit. AVIF's 80 and JPEG's
 80 are set by different encoders against different models, and there is no
-conversion between them — so carrying a JPEG habit across is the most common way
+conversion between them, so carrying a JPEG habit across is the most common way
 to be disappointed by AVIF.
 
 The practical approach is the same one that works for any encoder you have not
@@ -114,19 +114,19 @@ What is worth knowing before you start is that a JPEG habit does not transfer.
 The number that looked right there can look wrong here in either direction, so
 read the output rather than assuming a direction of travel. Encode time does
 change with the quality setting, and the figures measured here are at quality 80
-only — so treat anything about the top of the scale as something to check on
-your own files rather than a rule.
+only, so treat anything about the top of the scale as something to check on your
+own files rather than a rule.
 
 One measured illustration, on one file: against a deliberately noisy 12 MP test
 source, PixelFerry's encoder produced an AVIF at quality 80 that was _larger_
 than the WebP at the same nominal quality, and took about three times as long.
 Heavy noise is close to worst case for AVIF's prediction, so that is not a
-general result — it is a demonstration that the nominal numbers do not transfer
+general result. It is a demonstration that the nominal numbers do not transfer
 between encoders.
 
 Lossless AVIF exists and is available. For flat content
 [WebP lossless](/convert/png-to-webp) is the more common choice, and lossless
-anything is very large for photographs — but if you need AVIF specifically, for
+anything is very large for photographs, but if you need AVIF specifically, for
 its colour handling, convert a sample of your own content and compare rather
 than taking that as given.
 
@@ -148,8 +148,8 @@ everything that is not a browser.
 ## Batching realistically
 
 Set AVIF, start at the app's default of 80, set your delivery width, and start
-the batch — then go and do something else. Four images encode concurrently, and
-on this encoder each takes several times longer than a JPEG would — see the
+the batch, then go and do something else. Four images encode concurrently, and
+on this encoder each takes several times longer than a JPEG would. See the
 measured ratios above for the conditions that number came from.
 
 The summary bar's estimate becomes useful here in a way it is not for fast

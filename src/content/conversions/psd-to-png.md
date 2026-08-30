@@ -1,5 +1,5 @@
 ---
-title: Convert PSD to PNG on Mac — flattened, batched, no Photoshop
+title: 'Convert PSD to PNG on Mac: flattened, batched, no Photoshop'
 description:
   A PSD is layered; a PNG is one flat image. What flattening does to hidden
   layers, effects and CMYK documents, and how to convert a folder without
@@ -11,8 +11,8 @@ published: 2026-08-29
 updated: 2026-08-29
 summary:
   PixelFerry reads the composite Photoshop stores inside a PSD saved for
-  compatibility — the flattened preview of the document as last saved — and
-  writes it as a PNG. No Photoshop licence, no Creative Cloud, no upload.
+  compatibility, the flattened preview of the document as last saved, and writes
+  it as a PNG. No Photoshop licence, no Creative Cloud, no upload.
 whatChanges:
   - label: Layers collapse
     detail:
@@ -27,8 +27,8 @@ whatChanges:
   - label: Editability ends
     detail:
       Text becomes pixels. Smart objects lose their source. Vector shapes are
-      rasterised at the document's resolution. This is a one-way door — keep the
-      PSD.
+      rasterised at the document's resolution. This is a one-way door, so keep
+      the PSD.
   - label: Transparency survives
     detail:
       Unlike a JPEG conversion, PNG has a real alpha channel, so a PSD with a
@@ -37,8 +37,8 @@ whatChanges:
 limitations:
   - PixelFerry flattens to the stored composite. It does not render layers
     itself, so a PSD saved without a compatibility composite has nothing useful
-    to read — save with "Maximize Compatibility" on.
-  - A 16-bit PSD fails outright — the bundled decoder reads 8-bit composites
+    to read. Save with "Maximize Compatibility" on.
+  - A 16-bit PSD fails outright, the bundled decoder reads 8-bit composites
     only. A CMYK PSD does not fail; it is misread, because the decoder never
     consults the document's colour mode. Convert both in Photoshop.
   - PSD and PSB are input-only. There is no route from a PNG back to a layered
@@ -59,7 +59,7 @@ macOSAlternative:
   breaksDownWhen:
     The folder is large, or the artboards are. Preview keeps every open document
     in memory, and its export cannot cap the output dimensions of a 6000px
-    artboard in the same step — so resizing becomes a second pass over files you
+    artboard in the same step, so resizing becomes a second pass over files you
     have already written.
 related:
   - psd-to-jpg
@@ -69,9 +69,9 @@ related:
 
 ## What is actually inside a PSD
 
-A Photoshop document holds two quite different things: the editable structure —
-layers, masks, adjustments, text, smart objects — and a **flattened composite**,
-which is a plain raster image of how the whole stack renders.
+A Photoshop document holds two quite different things. There is the editable
+structure: layers, masks, adjustments, text, smart objects. And there is a
+**flattened composite**, a plain raster image of how the whole stack renders.
 
 Photoshop writes that composite so other software has something to show without
 implementing the entire rendering model. It is what Finder previews, what
@@ -99,16 +99,16 @@ text that design files are full of.
 ## Colour, and the CMYK case
 
 Print-bound PSDs are often CMYK, and this is the case to avoid. The bundled
-decoder reads the stored composite as 8-bit RGBA positionally — it does not
-consult the document's colour mode — so a CMYK PSD is not remapped for screen,
-it is misread. Convert those in Photoshop.
+decoder reads the stored composite as 8-bit RGBA positionally. It does not
+consult the document's colour mode, so a CMYK PSD is not remapped for screen, it
+is misread. Convert those in Photoshop.
 
 The same decoder handles 8-bit composites only, so a 16-bit PSD fails rather
 than losing precision quietly.
 
 Colour management does not survive this route either. The composite is handed to
 the encoder as a bare pixel buffer, so the document's ICC profile is not carried
-into the PNG — unlike the HEIC and camera paths, where it is preserved. If the
+into the PNG, unlike the HEIC and camera paths, where it is preserved. If the
 profile matters, export from Photoshop.
 
 ## Converting a folder
@@ -116,8 +116,8 @@ profile matters, export from Photoshop.
 Drop the folder in. PixelFerry walks it, picks up the PSDs and PSBs, and ignores
 what it cannot read.
 
-Set PNG as the output. If the artboards are large — and design files usually are
-— set a max width in the same pass rather than writing 6000-pixel PNGs you will
+Set PNG as the output. If the artboards are large, and design files usually are,
+set a max width in the same pass rather than writing 6000-pixel PNGs you will
 immediately resize somewhere else.
 
 A large PSD is slow to decode, because the whole stored composite has to be read

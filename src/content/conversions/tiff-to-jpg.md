@@ -1,5 +1,5 @@
 ---
-title: Convert TIFF to JPG on Mac — archive scans to shareable files
+title: 'Convert TIFF to JPG on Mac: archive scans to shareable files'
 description:
   TIFF is the archive container for scans and print, usually stored losslessly;
   JPG is what you send. What 16-bit depth and CMYK mean for the conversion, and
@@ -33,12 +33,12 @@ whatChanges:
       delivery copy it is the entire point.
   - label: Size collapses
     detail:
-      A 16-bit scan will generally be far larger than the JPEG it converts to —
-      it stores two bytes per channel with no lossy transform, against JPEG's
+      A 16-bit scan will generally be far larger than the JPEG it converts to.
+      It stores two bytes per channel with no lossy transform, against JPEG's
       one byte and a discarded high-frequency component. The ratio varies with
       the scan, so read the per-row figures.
 limitations:
-  - The conversion is one-way in quality terms. Keep the TIFF as the master — a
+  - The conversion is one-way in quality terms. Keep the TIFF as the master. A
     JPEG can never be promoted back to an archive original.
   - Multi-page TIFFs convert their first page only; unlike PDF, they are not
     split into a folder of images.
@@ -70,7 +70,7 @@ related:
 ## What TIFF is for
 
 TIFF is the format you keep things in. It is a container rather than a single
-compression scheme — the common archival choices, uncompressed and LZW, are
+compression scheme. The common archival choices, uncompressed and LZW, are
 lossless, though the format also admits JPEG-compressed data. It handles 16 bits
 per channel, carries CMYK and spot colour, and has been stable long enough that
 a file written in 1995 still opens.
@@ -88,12 +88,12 @@ This is the one piece of sequencing advice that matters.
 
 Sixteen bits per channel exists so that you can push exposure and contrast
 around without the histogram tearing into visible bands. Once you convert to
-8-bit JPEG, that headroom is gone — and any correction you apply afterwards is
+8-bit JPEG, that headroom is gone, and any correction you apply afterwards is
 working with 256 levels per channel instead of 65,536.
 
 Straighten, crop, colour-correct and dust-spot the TIFF. Then convert. Doing it
-in the other order produces banding in exactly the smooth areas — skies, studio
-backdrops, scanned paper — that you were trying to clean up.
+in the other order produces banding in exactly the smooth areas you were trying
+to clean up: skies, studio backdrops, scanned paper.
 
 ## LZW, and why size varies so much
 
@@ -102,11 +102,11 @@ width × height × channels × bytes, exactly. LZW and ZIP compress losslessly,
 with LZW doing well on flat content and poorly on noisy scans.
 
 That is why two 40-megapixel scans can differ several-fold in size with nothing
-wrong with either — an uncompressed 16-bit one is fixed at width × height × 3 ×
-2 bytes, while an LZW one depends entirely on the content. It also means the
-size reduction you get from converting to JPEG varies enormously between files
-in the same batch, and the per-row before/after figures are the only reliable
-way to know what actually happened.
+wrong with either. An uncompressed 16-bit one is fixed at width × height × 3 × 2
+bytes, while an LZW one depends entirely on the content. It also means the size
+reduction you get from converting to JPEG varies enormously between files in the
+same batch, and the per-row before/after figures are the only reliable way to
+know what actually happened.
 
 When PixelFerry writes TIFF as an output format it uses LZW, which is the widely
 compatible lossless choice.

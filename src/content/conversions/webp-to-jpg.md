@@ -1,5 +1,5 @@
 ---
-title: Convert WebP to JPG on Mac — make downloaded images usable again
+title: 'Convert WebP to JPG on Mac: make downloaded images usable again'
 description:
   Images saved from the web are often WebP, and plenty of software still refuses
   them. What the conversion costs, and why the quality setting matters more here
@@ -16,10 +16,10 @@ summary:
 whatChanges:
   - label: A third compression generation, often
     detail:
-      A WebP found on the web has usually been through at least one lossy encode
-      — though lossless WebP is common for screenshots and interface assets —
-      and you cannot tell from the file what came before it. Converting to JPG
-      adds another, so the quality setting matters more here than in a
+      A WebP found on the web has usually been through at least one lossy
+      encode, though lossless WebP is common for screenshots and interface
+      assets, and you cannot tell from the file what came before it. Converting
+      to JPG adds another, so the quality setting matters more here than in a
       conversion from an original.
   - label: Transparency is filled
     detail:
@@ -29,7 +29,7 @@ whatChanges:
   - label: Animation is lost
     detail:
       An animated WebP has multiple frames. JPEG is a single image, so only the
-      first frame is written — and the conversion says so on the row rather than
+      first frame is written, and the conversion says so on the row rather than
       leaving you to notice.
   - label: Compatibility improves sharply
     detail:
@@ -68,8 +68,8 @@ related:
 ## Why you keep ending up with these
 
 Sites serve WebP because it is smaller. When you right-click and save an image
-you get what the server sent, so the file on your disk is `.webp` — whatever the
-site started from. Many are converted from JPEG uploads; some were authored as
+you get what the server sent, so the file on your disk is `.webp` whatever the
+site started from. Many are converted from JPEG uploads. Some were authored as
 WebP. The file itself does not record which.
 
 macOS itself is fine with this. Preview, Finder and Quick Look have read WebP
@@ -82,9 +82,9 @@ plenty of internal tools.
 This conversion deserves a higher quality setting than a normal export, and the
 reason is the encoding history.
 
-If the image was uploaded as a JPEG and re-encoded to WebP for serving — the
-common case, though not one the file can confirm — then converting to JPG is a
-third lossy generation, and each one is working on the previous one's artefacts.
+If the image was uploaded as a JPEG and re-encoded to WebP for serving (the
+common case, though not one the file can confirm), then converting to JPG is a
+third lossy generation, and each one works on the previous one's artefacts.
 
 Start at the app's default of 80, look at the result, and move from there. The
 source has already been through a lossy encode you did not control and there is
@@ -107,8 +107,8 @@ white box behind your subject. Convert to PNG instead.
 
 **An animated WebP.** Increasingly common for what used to be GIFs. JPEG holds
 one frame, so you get the first one and a note on the row saying only the first
-frame was converted. If you want the motion, target GIF — PixelFerry preserves
-every frame when the source is animated and the target is GIF or WebP — the only
+frame was converted. If you want the motion, target GIF. PixelFerry preserves
+every frame when the source is animated and the target is GIF or WebP, the only
 two animated outputs PixelFerry writes. Turning whitespace trim on drops the
 extra frames, and the row says so rather than doing it silently.
 

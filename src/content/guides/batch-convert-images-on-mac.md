@@ -1,5 +1,5 @@
 ---
-title: How to batch convert images on a Mac — and where each method stops
+title: How to batch convert images on a Mac, and where each method stops
 description:
   Finder Quick Actions, Preview, Automator and sips all convert images in bulk
   with nothing installed. What each one does, where each one stops, and how to
@@ -46,7 +46,7 @@ never touches the originals.
 
 - Three output formats. No WebP, no AVIF, no TIFF.
 - Size is four named presets, not pixel dimensions.
-- No quality control at all — you get Apple's choice.
+- No quality control at all. You get Apple's choice.
 - The output lands beside the originals, which is awkward for a delivery set.
 - If a file fails, you find out by counting the results.
 
@@ -67,12 +67,12 @@ picker, and an Options panel for the format.
 
 - It degrades on large selections, because every image has to be open in the
   window at once.
-- No resizing during the export itself. Tools → Adjust Size is a separate step —
+- No resizing during the export itself. Tools → Adjust Size is a separate step,
   though it does work on a multi-selection: Apple documents displaying the
   images in one window, selecting them in the sidebar, then choosing Tools →
   Adjust Size.
-- No WebP export. macOS has no WebP encoder — `sips --formats` lists
-  `org.webmproject.webp` without the Writable flag — so no built-in offers it.
+- No WebP export. macOS has no WebP encoder: `sips --formats` lists
+  `org.webmproject.webp` without the Writable flag, so no built-in offers it.
 
 ## 3. Automator (or a Shortcut)
 
@@ -96,8 +96,8 @@ two options can do.
 
 **Where:** Terminal.
 
-`sips` — Scriptable Image Processing System — is the command-line front end to
-the same ImageIO framework everything above uses. It is the only built-in that
+`sips` (Scriptable Image Processing System) is the command-line front end to the
+same ImageIO framework everything above uses. It is the only built-in that
 scales properly.
 
 ```bash
@@ -114,12 +114,13 @@ sips -s format jpeg -Z 2000 input.tiff --out output.jpg
 ```
 
 **What it does well:** it is fast, it is scriptable, it can be scheduled, and it
-handles everything ImageIO handles — including camera RAW.
+handles everything ImageIO handles, including camera RAW.
 
 **Where it stops:**
 
-- No WebP output. `sips` does write AVIF on current macOS — `sips --formats`
-  lists `public.avif` as Writable — but `org.webmproject.webp` is read-only.
+- No WebP output. `sips` does write AVIF on current macOS, where
+  `sips --formats` lists `public.avif` as Writable, but `org.webmproject.webp`
+  is read-only.
 - `--out` will overwrite without asking. Write to a separate directory.
 - No progress, no summary, and a failure is a line of stderr somewhere in the
   scrollback.
@@ -139,12 +140,12 @@ handles everything ImageIO handles — including camera RAW.
 Three situations, and they are the reason a dedicated tool exists at all.
 
 **WebP output.** No built-in writes WebP. `sips` does write AVIF on current
-macOS, so that half of the modern-format gap has closed — see
+macOS, so that half of the modern-format gap has closed. See
 [JPG to WebP](/convert/jpg-to-webp) and [JPG to AVIF](/convert/jpg-to-avif).
 
 **Mixed input with per-type rules.** A folder containing HEIC from phones, CR3
 from a camera, PSD from a designer and a PDF of the brief. Finder and `sips`
-will both take that selection in one pass — but every file gets the same
+will both take that selection in one pass, but every file gets the same
 treatment, and PDF needs a different route entirely.
 
 **Knowing what failed.** When a large batch contains a file that is truncated,

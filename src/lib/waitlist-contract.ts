@@ -104,8 +104,8 @@ export function statusForResponse(status: number): WaitlistStatus {
 }
 
 export const WAITLIST_MESSAGES: Partial<Record<WaitlistStatus, string>> = {
-  confirmed: "You're on the list — we'll email you when your invite is ready.",
-  success: 'Almost there — check your inbox and confirm your address to join the waitlist.',
+  confirmed: "You're on the list. We'll email you when your invite is ready.",
+  success: 'Almost there. Check your inbox and confirm your address to join the waitlist.',
   mailto: 'Opening your email app to finish the request.',
   error: "That didn't go through. Please try again in a moment.",
   verifyFailed: 'We could not verify you are human. Please try again.',
