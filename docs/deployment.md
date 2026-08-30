@@ -115,8 +115,14 @@ page, so a stuck flag fails CI.
 
 ## Launch state — verified 2026-08-30, after PR #2 merged
 
-`main` is `d80f8d6` and its CI is green. The site is built, verified and
-deployed to the non-production preview. Production has **not** been cut over.
+The last site-code correction landed in `d80f8d6`; commits after it are
+documentation and dependency maintenance. **This paragraph deliberately does not
+name the current `main`** — an earlier revision did, and went stale the moment
+the PR carrying it merged. Always fetch and verify the exact current `main`, and
+its CI, immediately before a cutover.
+
+The site is built, verified and deployed to the non-production preview.
+Production has **not** been cut over.
 
 Four human decisions or account prerequisites remain. Only one of them carries
 engineering after the decision: choosing the retention period unlocks a small
