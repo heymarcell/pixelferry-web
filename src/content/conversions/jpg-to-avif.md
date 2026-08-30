@@ -24,10 +24,11 @@ whatChanges:
     detail:
       AV1 encoding is computationally heavy. Measured on PixelFerry's own
       encoder (sharp 0.35 / libvips 8.18, multithreaded, synthetic 12 MP source)
-      AVIF at quality 80 took roughly 3–5x as long as mozjpeg and 2.5–3x as long
-      as WebP across repeat runs. The multiple moves with the source and the
-      libvips build, so treat it as an order of magnitude rather than a
-      constant. That is a one-time cost at export, not a cost to the visitor.
+      AVIF at quality 80 took roughly 3–5x as long as mozjpeg and 2.5–3.5x as
+      long as WebP across repeat runs. The multiple moves with the source and
+      the libvips build, so treat it as an order of magnitude rather than a
+      constant. It is a one-time cost at export rather than a per-request one,
+      though AVIF also costs the visitor more to decode than a JPEG.
   - label: Bit depth, and what PixelFerry actually writes
     detail:
       The AVIF format handles 10- and 12-bit per channel and wide colour gamuts
@@ -43,7 +44,7 @@ whatChanges:
       visible on a given image depends on the content and the quality setting,
       so compare a sample rather than assuming it.
 limitations:
-  - Encoding is slow — roughly 3–5x mozjpeg and 2.5–3x WebP on PixelFerry's
+  - Encoding is slow — roughly 3–5x mozjpeg and 2.5–3.5x WebP on PixelFerry's
     encoder, measured on a synthetic 12 MP source, one machine. A large batch is
     a background job, not something to wait on.
   - Support is broad in browsers and patchier outside them — desktop software,
@@ -132,8 +133,8 @@ than taking that as given.
 ## Support, honestly
 
 In browsers, AVIF is supported across Chrome, Firefox, Safari and Edge, and has
-been for several years, which makes it safe to serve behind a `<picture>`
-element with a fallback.
+been long enough in each that it is safe to serve behind a `<picture>` element
+with a fallback.
 
 Outside browsers, support is patchier than WebP's. Many desktop image tools do
 not open AVIF, email clients generally do not render it, and upload validators

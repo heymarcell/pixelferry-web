@@ -1,9 +1,9 @@
 ---
 title: Convert PDF pages to PNG on Mac — one image per page
 description:
-  Each PDF page becomes its own PNG, in a folder named after the document,
-  capped at the first 100 pages. What the cap is for, and when Preview is
-  enough.
+  Each page of a multi-page PDF becomes its own PNG, in a folder named after the
+  document, capped at the first 100 pages. What the cap is for, and when Preview
+  is enough.
 heading: Convert a PDF to PNG images on a Mac
 from: PDF
 to: PNG
@@ -18,8 +18,9 @@ whatChanges:
     detail:
       A multi-page PDF exports as `name-1.png`, `name-2.png`, `name-3.png` and
       so on, into a folder named after the document — every page is numbered,
-      including the first. The conversion reports how many pages it produced
-      rather than leaving you to count.
+      including the first. A single-page PDF is written as one plain file, with
+      no folder. The conversion reports how many pages it produced rather than
+      leaving you to count.
   - label: Text stops being text
     detail:
       Vector glyphs are rasterised. The output is no longer searchable,
@@ -54,8 +55,8 @@ macOSAlternative:
     pages first. `sips -s format png doc.pdf --out page.png` handles the first
     page from Terminal.
   breaksDownWhen:
-    You have several PDFs to do at once. Preview handles one document at a time,
-    and there is no way to apply the same output width across a set of them.
+    You have several PDFs to do at once. Preview works document by document, so
+    applying the same output width across a set of them is manual.
 related:
   - psd-to-png
   - tiff-to-jpg
@@ -98,10 +99,10 @@ slightly softer photograph.
 
 ## Where the output goes
 
-Each PDF gets its own folder, named after the document. That is deliberate: a
-batch of twenty PDFs at twenty pages each would otherwise put four hundred loose
-PNGs into one directory with names that collide the moment two documents both
-have a page 3.
+A multi-page PDF gets its own folder, named after the document; a single-page
+PDF is written as one plain file. The folder is deliberate — a batch of twenty
+PDFs at twenty pages each would otherwise put four hundred loose PNGs into one
+directory with names that collide the moment two documents both have a page 3.
 
 Inside, pages are numbered in order. The numbers are not zero-padded, so Finder
 sorts them naturally but a plain lexicographic listing — `ls`, a glob, most

@@ -120,6 +120,6 @@ Set PNG as the output. If the artboards are large — and design files usually a
 — set a max width in the same pass rather than writing 6000-pixel PNGs you will
 immediately resize somewhere else.
 
-PSDs are often the slowest thing in a mixed batch, because the composite has to
-be decoded before anything else can happen. The queue runs four at a time and
-each row shows its own progress, so a large file does not look like a hang.
+A large PSD is slow to decode, because the whole stored composite has to be read
+into memory before anything else can happen. The queue runs four at a time and
+each row shows that it is working, so a large file does not look like a hang.

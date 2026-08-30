@@ -88,6 +88,7 @@ JavaScript to read, so crawling the HTML directly works just as well.
 - JPEG output flattens transparency onto white.
 - ${capabilities.neverOverwrites}
 - ${capabilities.metadata}
+- ${capabilities.metadataHeicCaveat}
 - Built with Electron, React and Sharp. It is native-feeling and uses macOS
   system codecs, but it is not a Cocoa application.
 

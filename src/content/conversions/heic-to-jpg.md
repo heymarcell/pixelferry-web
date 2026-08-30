@@ -10,16 +10,17 @@ to: JPG
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  HEIC stores an iPhone photo far more efficiently than JPEG, and support for it
+  HEIC uses HEVC intra coding, a generation ahead of JPEG's, and support for it
   is good on current Apple and Windows systems but patchy everywhere else.
   Converting to JPG trades that efficiency for near-universal compatibility.
 whatChanges:
   - label: The codec underneath
     detail:
       HEIC wraps HEVC-compressed image data in an HEIF container. JPG uses the
-      much older DCT-based JPEG codec, so at visually comparable quality the
-      JPEG is typically substantially larger. How much larger depends on the
-      image and on the quality you choose.
+      much older DCT-based JPEG codec, so a JPEG at visually comparable quality
+      is usually the larger file. How much larger depends on the image and on
+      the quality you choose, so read the per-row figures rather than expecting
+      a fixed ratio.
   - label: Bit depth
     detail:
       HEIC can store more than 8 bits per channel, and iPhone HEIC often does —
@@ -123,10 +124,10 @@ From there the batch runs four files at a time:
 3. **Encode as JPEG** using mozjpeg at your chosen quality, with progressive
    encoding available.
 
-Transparency is flattened onto **white**, not the black that most image
-libraries default to. That applies to every alpha-bearing source in the batch —
-PNG, WebP, PSD, TIFF, GIF, and HEIC itself, which can carry alpha — and it is
-the behaviour you want when it happens.
+Transparency is flattened onto **white**, not the black the underlying encoder
+would default to. That applies to every alpha-bearing source in the batch — PNG,
+WebP, PSD, TIFF, GIF, and HEIC itself, which can carry alpha — and it is the
+behaviour you want when it happens.
 
 Originals are never touched, and output never overwrites an existing file — a
 name collision gets a `_converted` suffix rather than silently replacing

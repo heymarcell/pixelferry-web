@@ -1,8 +1,9 @@
 ---
 title: Convert TIFF to JPG on Mac — archive scans to shareable files
 description:
-  TIFF is the lossless archive format for scans and print; JPG is what you send.
-  What 16-bit depth and CMYK mean for the conversion, and why you edit first.
+  TIFF is the archive container for scans and print, usually stored losslessly;
+  JPG is what you send. What 16-bit depth and CMYK mean for the conversion, and
+  why you edit first.
 heading: Convert TIFF to JPG on a Mac
 from: TIFF
 to: JPG
@@ -68,9 +69,11 @@ related:
 
 ## What TIFF is for
 
-TIFF is the format you keep things in. It is lossless, it handles 16 bits per
-channel, it carries CMYK and spot colour, and it has been stable long enough
-that a file written in 1995 still opens.
+TIFF is the format you keep things in. It is a container rather than a single
+compression scheme — the common archival choices, uncompressed and LZW, are
+lossless, though the format also admits JPEG-compressed data. It handles 16 bits
+per channel, carries CMYK and spot colour, and has been stable long enough that
+a file written in 1995 still opens.
 
 That makes it right for scanning, print production and digital preservation, and
 wrong for almost everything else. Safari displays TIFF; other browsers do not

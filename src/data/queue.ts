@@ -12,6 +12,11 @@
  * plausible pair and put an unattributed compression percentage on the homepage
  * — the exact class docs/content-sources.md bars. Keep them plausible, keep
  * them distinct, and keep the caption.
+ *
+ * A converting row must not show a byte count or an ETA either: the app renders
+ * an INDETERMINATE bar per row, and the only estimate is the batch-level one in
+ * the summary bar. A mock showing "3.2 / 5.1 MB · ~4s left" advertised a
+ * per-file progress feature that does not exist.
  */
 export type RowStatus = 'complete' | 'converting' | 'ready' | 'error'
 
@@ -49,7 +54,7 @@ export const queue: QueueRow[] = [
   {
     id: 'psd',
     name: 'campaign-master.psd',
-    meta: '3.2 / 5.1 MB · ~4s left',
+    meta: '5.1 MB · Converting',
     thumb: psd,
     status: 'converting',
   },

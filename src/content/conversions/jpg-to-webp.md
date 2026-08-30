@@ -1,8 +1,9 @@
 ---
 title: Convert JPG to WebP on Mac — smaller files, same page
 description:
-  Google measures WebP 25–34% smaller than JPEG at matched SSIM. Why re-encoding
-  an existing JPEG is not free, and how to convert a directory in one pass.
+  Google measures WebP 25–34% smaller than JPEG at matched SSIM, against a
+  libjpeg baseline. Why re-encoding an existing JPEG is not free, and how to
+  batch a directory.
 heading: Convert JPG to WebP on a Mac
 from: JPG
 to: WebP

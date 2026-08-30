@@ -36,7 +36,7 @@ const steps = [
   },
   {
     title: 'Convert, four at a time',
-    body: 'Each row shows its own progress, its own result, and its own error if something failed. The summary bar estimates the time left from files that have already finished.',
+    body: 'Each row shows that it is working, its own result, and its own error if something failed. The summary bar estimates the time left for the batch from files that have already finished.',
   },
 ]
 
@@ -122,8 +122,8 @@ const faqs = [
         <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
           <h3 class="font-display text-[16px] font-bold text-white">From a phone</h3>
           <p class="mt-1.5 text-[14px] leading-[1.5] text-white/70">
-            HEIC and HEIF, decoded with the macOS hardware codec rather than the bundled JavaScript
-            fallback, which is several times faster on a large photo.
+            HEIC and HEIF, decoded through the macOS system codec rather than the bundled JavaScript
+            fallback. That path is several times faster on a large photo.
           </p>
         </li>
         <li class="rounded-xl bg-white/[0.04] p-5 shadow-[inset_0_0_0_1px_#FFFFFF14]">
@@ -170,7 +170,7 @@ const faqs = [
           <dt class="font-display text-[15px] font-bold text-white">Size</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
             By {capabilities.resizeModes.join(', ')} — with {capabilities.fitModes.join(', ')} when you
-            give exact dimensions.
+            give exact dimensions. ICO is the exception: its embedded icon sizes drive the resize instead.
           </dd>
         </div>
         <div>

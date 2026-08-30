@@ -31,9 +31,9 @@ whatChanges:
       flat panels typical of design files show it early.
   - label: Size drops sharply
     detail:
-      A layered PSD is usually far larger than the JPEG it flattens to, and most
-      of that difference is the discarded layer data rather than the image
-      compression itself.
+      A layered PSD is usually far larger than the JPEG it flattens to. Two
+      things account for that — the layer data is discarded, and the composite a
+      PSD stores was never lossily compressed in the first place.
 limitations:
   - Transparency is destroyed, not preserved. If the asset has a cut-out
     background, use PNG or WebP instead.

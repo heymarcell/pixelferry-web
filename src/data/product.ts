@@ -285,7 +285,7 @@ export const capabilities = {
    */
   metadataRemovedByDefault: true,
   metadata:
-    'Metadata removal is on by default: EXIF, XMP and IPTC are stripped, while the ICC colour profile is kept either way, so a Display P3 image stays Display P3.',
+    'Metadata removal is on by default: EXIF, XMP and IPTC are stripped, while the ICC colour profile is kept either way on the formats that carry one through the decoder, so a Display P3 photo stays Display P3. PSD and PDF are the exception — those decoders hand over bare pixels, so no source profile survives.',
   /**
    * HEIC output still takes its own route — `main.ts` dispatches it to
    * `encodeHeicViaSips` before the encoder switch, rather than through

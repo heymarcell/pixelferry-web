@@ -2,8 +2,8 @@
 title: Convert WebP to JPG on Mac — make downloaded images usable again
 description:
   Images saved from the web are often WebP, and plenty of software still refuses
-  them. What the conversion costs, and why this is one to convert at a higher
-  quality than usual.
+  them. What the conversion costs, and why the quality setting matters more here
+  than usual.
 heading: Convert WebP to JPG on a Mac
 from: WebP
 to: JPG
@@ -77,7 +77,7 @@ since Big Sur. The friction is everywhere else: design software with older
 importers, CMS upload validators with a fixed allow-list, print services, and
 plenty of internal tools.
 
-## Use a high quality here
+## Quality matters more here
 
 This conversion deserves a higher quality setting than a normal export, and the
 reason is the encoding history.

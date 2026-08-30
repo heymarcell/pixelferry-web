@@ -1,8 +1,8 @@
 ---
 title: Convert camera RAW to JPG on Mac without uploading anything
 description:
-  CR3, NEF, ARW, RAF and DNG hold unprocessed sensor readings, not finished
-  images. What demosaicing does, why macOS looks different from Lightroom, and
+  CR3, NEF, ARW, RAF and DNG hold largely unprocessed sensor readings, not a
+  finished image. What demosaicing does, why macOS differs from Lightroom, and
   how to batch a card.
 heading: Convert camera RAW to JPG on a Mac
 from: RAW
@@ -114,9 +114,9 @@ cross-platform RAW decoder, and rather than pretend otherwise, the app says so.
 ## Formats that go through this path
 
 Canon `CR2` and `CR3`, Nikon `NEF`, Sony `ARW`, Fujifilm `RAF`, Olympus `ORF`,
-Panasonic `RW2` and Adobe `DNG`, plus the others ImageIO knows about. The same
-route also handles `EXR` and `HDR`, where ImageIO tone-maps high dynamic range
-down to something a JPEG can represent.
+Panasonic `RW2` and Adobe `DNG`, and the rest of the 27 RAW extensions on the
+formats page. The same route also handles `EXR` and `HDR`, where ImageIO
+tone-maps high dynamic range down to something a JPEG can represent.
 
 ## The batch, in practice
 
