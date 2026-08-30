@@ -45,7 +45,7 @@ export const privacyPolicy: LegalDoc = {
 neongod LLC
 Principal address: 447 Broadway, 2nd Floor, New York, NY 10013, United States
 State of organisation: Wyoming, United States
-Email: [PRIVACY EMAIL ADDRESS]
+Email: privacy@pixelferry.app
 
 EU or EEA representative under Article 27 GDPR: not yet appointed. One will be designated and named here before the beta opens.`,
     },
@@ -73,7 +73,7 @@ Hosting and infrastructure providers may process limited technical information s
       id: 'email-consent',
       nav: '3. Email consent',
       heading: '3. Email consent and withdrawal',
-      body: `You may withdraw consent at any time by selecting the unsubscribe link in an email or contacting [PRIVACY EMAIL ADDRESS]. Withdrawal does not affect processing carried out before consent was withdrawn. Unsubscribing is free.
+      body: `You may withdraw consent at any time by selecting the unsubscribe link in an email or contacting privacy@pixelferry.app. Withdrawal does not affect processing carried out before consent was withdrawn. Unsubscribing is free.
 
 After you unsubscribe, we stop marketing and product-update emails. We may retain a limited suppression record so we can respect your request and avoid contacting you again.`,
     },
@@ -125,7 +125,7 @@ Contact us for information about the safeguards used.`,
 • Object to direct marketing
 • Lodge a complaint with a data protection authority
 
-To exercise rights, contact [PRIVACY EMAIL ADDRESS]. We normally respond within one month and may request information needed to confirm identity.`,
+To exercise rights, contact privacy@pixelferry.app. We normally respond within one month and may request information needed to confirm identity.`,
     },
     {
       id: 'complaints',
@@ -170,7 +170,7 @@ We encourage you to contact us first so we can attempt to resolve your concern.`
       body: `Questions, requests, and complaints may be sent to:
 
 neongod LLC
-Email: [PRIVACY EMAIL ADDRESS]
+Email: privacy@pixelferry.app
 Address: 447 Broadway, 2nd Floor, New York, NY 10013, United States`,
     },
   ],
@@ -251,7 +251,7 @@ Add links to provider privacy documentation after production services are select
       body: `Questions may be sent to:
 
 neongod LLC
-Email: [PRIVACY EMAIL ADDRESS]
+Email: privacy@pixelferry.app
 Address: 447 Broadway, 2nd Floor, New York, NY 10013, United States`,
     },
   ],
