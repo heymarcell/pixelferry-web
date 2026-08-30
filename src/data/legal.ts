@@ -30,7 +30,7 @@ export const EFFECTIVE_DATE = '2026-07-25'
 export const privacyPolicy: LegalDoc = {
   title: 'Privacy Policy',
   intro:
-    'This Privacy Policy explains how [LEGAL COMPANY NAME], operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the website at pixelferry.app and the associated email waitlist, not to the desktop application.',
+    'This Privacy Policy explains how neongod LLC, operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the website at pixelferry.app and the associated email waitlist, not to the desktop application.',
   effectiveDate: EFFECTIVE_DATE,
   summaryTitle: 'Current scope',
   summaryBody:
@@ -42,16 +42,12 @@ export const privacyPolicy: LegalDoc = {
       heading: '1. Data controller',
       body: `The controller responsible for your personal data is:
 
-[LEGAL COMPANY NAME]
-Registered address: [FULL REGISTERED ADDRESS]
-Registration or company number: [COMPANY NUMBER]
+neongod LLC
+Principal address: 447 Broadway, 2nd Floor, New York, NY 10013, United States
+State of organisation: Wyoming, United States
 Email: [PRIVACY EMAIL ADDRESS]
 
-EU or EEA representative, where applicable:
-
-[EU REPRESENTATIVE NAME]
-Address: [EU REPRESENTATIVE ADDRESS]
-Email: [EU REPRESENTATIVE EMAIL]`,
+EU or EEA representative under Article 27 GDPR: not yet appointed. One will be designated and named here before the beta opens.`,
     },
     {
       id: 'personal-data',
@@ -173,11 +169,9 @@ We encourage you to contact us first so we can attempt to resolve your concern.`
       heading: '13. Contact',
       body: `Questions, requests, and complaints may be sent to:
 
-[LEGAL COMPANY NAME]
+neongod LLC
 Email: [PRIVACY EMAIL ADDRESS]
-Address: [FULL REGISTERED ADDRESS]
-
-Replace all bracketed information and obtain legal review before publication.`,
+Address: 447 Broadway, 2nd Floor, New York, NY 10013, United States`,
     },
   ],
 }
@@ -185,7 +179,7 @@ Replace all bracketed information and obtain legal review before publication.`,
 export const cookiePolicy: LegalDoc = {
   title: 'Cookie Policy',
   intro:
-    'This Cookie Policy explains how [LEGAL COMPANY NAME], operating PixelFerry, uses cookies and similar technologies on pixelferry.app.',
+    'This Cookie Policy explains how neongod LLC, operating PixelFerry, uses cookies and similar technologies on pixelferry.app.',
   effectiveDate: EFFECTIVE_DATE,
   summaryTitle: 'Plain-language summary',
   summaryBody:
@@ -256,11 +250,9 @@ Add links to provider privacy documentation after production services are select
       heading: '8. Contact',
       body: `Questions may be sent to:
 
-[LEGAL COMPANY NAME]
+neongod LLC
 Email: [PRIVACY EMAIL ADDRESS]
-Address: [FULL REGISTERED ADDRESS]
-
-Replace all placeholders, scan the production domain, and obtain legal review before publication.`,
+Address: 447 Broadway, 2nd Floor, New York, NY 10013, United States`,
     },
   ],
 }
