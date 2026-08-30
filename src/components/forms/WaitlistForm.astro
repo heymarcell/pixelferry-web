@@ -131,12 +131,38 @@ import { productLinks } from '../../data/product'
 
     {
       /*
-      Turnstile paints here only when Cloudflare actually wants an interaction.
-      `empty:hidden` keeps it out of the layout otherwise, so the hero matches
-      the design, which has no captcha element at all.
+      Turnstile paints its widget here only when Cloudflare actually wants an
+      interaction; `empty:hidden` keeps it out of the layout otherwise.
+
+      The static attribution note BELOW is a separate thing and is always
+      visible: the design specifies it (`Turnstile Protection Note — Default`,
+      shield-check at #7FA4FF, 12px label, then Cloudflare's own Privacy/Help
+      links). An earlier comment here claimed the design "has no captcha
+      element at all" — that was asserted without opening the design, and it is
+      the reason the note was missing.
     */
     }
     <div data-turnstile-host class="w-full empty:hidden"></div>
+
+    <p class="flex flex-wrap items-center justify-center gap-2 text-[12px] leading-none">
+      <span class="inline-flex items-center gap-1.5 text-white/50">
+        <Icon name="shield-check" size={14} class="text-blue-soft" />
+        Protected by Cloudflare Turnstile
+      </span>
+      <span class="inline-flex items-center gap-1.5 text-white/45">
+        <a
+          href="https://www.cloudflare.com/privacypolicy/"
+          rel="noopener"
+          class="hover:text-white/70">Privacy</a
+        >
+        <span aria-hidden="true">·</span>
+        <a
+          href="https://www.cloudflare.com/website-terms/"
+          rel="noopener"
+          class="hover:text-white/70">Help</a
+        >
+      </span>
+    </p>
 
     <p
       id="waitlist-status"
