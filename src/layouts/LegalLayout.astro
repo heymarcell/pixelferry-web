@@ -209,6 +209,8 @@ const crumbs = [
         class="mx-auto flex max-w-[1312px] flex-col items-center gap-4 sm:flex-row sm:justify-between"
       >
         <p class="text-[13px] font-medium text-white/56">© 2026 PixelFerry</p>
+        {/* Contact is a `mailto:` — see the note above the body markers. */}
+        <Fragment set:html="<!--email_off-->" />
         <nav aria-label="Legal" class="flex flex-wrap items-center justify-center gap-6">
           {
             footerLinks.map((link) => (
@@ -225,6 +227,7 @@ const crumbs = [
             ))
           }
         </nav>
+        <Fragment set:html="<!--/email_off-->" />
       </div>
     </footer>
   </div>

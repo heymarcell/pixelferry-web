@@ -50,11 +50,19 @@ import { productLinks } from '../../data/product'
     >
       The waitlist form needs JavaScript, because each signup is verified with a Cloudflare
       Turnstile challenge. To join without it, email{' '}
+      {
+        /* This link exists only for visitors with JavaScript off. Cloudflare's
+        obfuscator would replace it with a decoder that needs JavaScript, so the
+        opt-out markers matter more here than anywhere else on the site. */
+      }
+      <Fragment set:html="<!--email_off-->" />
       <a
         href={`mailto:${productLinks.betaEmail}?subject=PixelFerry%20beta%20waitlist`}
         class="font-semibold text-[#C8D8FF] underline underline-offset-4"
         >{productLinks.betaEmail}</a
-      > and say you would like a beta invite. Your address is never put into a link or a URL.
+      >
+      <Fragment set:html="<!--/email_off-->" />
+      and say you would like a beta invite. Your address is never put into a link or a URL.
     </p>
   </noscript>
 

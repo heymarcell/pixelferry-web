@@ -15,6 +15,15 @@ const trackingConfigured = Boolean(PUBLIC_GTM_ID || PUBLIC_META_PIXEL_ID)
       <span class="font-display text-[17px] font-bold text-white/80">PixelFerry</span>
     </div>
 
+    {
+      /* One of these destinations is a `mailto:`. Cloudflare Scrape Shield
+        rewrites those into `/cdn-cgi/l/email-protection#…` plus a JS decoder,
+        which on a site that works without JavaScript turns the contact link
+        into a dead end. These are Cloudflare's documented opt-out markers, and
+        `test/email-obfuscation.test.ts` fails if any rendered `mailto:` escapes
+        a region like this one. */
+    }
+    <Fragment set:html="<!--email_off-->" />
     <nav aria-label="Footer" class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
       {
         navigation.footer.map((link) => (
@@ -39,6 +48,7 @@ const trackingConfigured = Boolean(PUBLIC_GTM_ID || PUBLIC_META_PIXEL_ID)
         )
       }
     </nav>
+    <Fragment set:html="<!--/email_off-->" />
   </div>
 
   {
