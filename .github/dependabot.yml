@@ -1,0 +1,54 @@
+# Weekly, grouped, low-noise — the same policy as pixelferry-app, so the two
+# repositories are maintained the same way. Dependabot rather than Renovate
+# because Dependabot is the bot actually installed on this account; a second
+# bot would mean two sources of dependency PRs disagreeing with each other.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: '/'
+    schedule:
+      interval: weekly
+    groups:
+      # Everything here is proven by the same `check` job that proves the site.
+      # One PR a week instead of a dozen.
+      dev-dependencies:
+        dependency-type: development
+        exclude-patterns:
+          - 'astro'
+          - 'typescript'
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+      # Astro alone. A major reshapes the build, the content layer and the
+      # emitted HTML at once; grouped with anything else it cannot be bisected.
+      astro:
+        patterns:
+          - 'astro'
+          - '@astrojs/*'
+      # Tailwind alone, for the same reason: a major changes generated CSS
+      # site-wide, and the visual diff is the review.
+      tailwind:
+        patterns:
+          - 'tailwindcss'
+          - '@tailwindcss/*'
+      typescript:
+        patterns:
+          - 'typescript'
+    # Majors of the three things that define the build are DECISIONS, not
+    # updates. They still arrive as PRs — they are simply never auto-grouped
+    # into a routine bump that gets skim-reviewed.
+    ignore:
+      - dependency-name: 'typescript'
+        update-types: ['version-update:semver-major']
+    open-pull-requests-limit: 5
+    labels:
+      - dependencies
+
+  # ci.yml pins actions to a commit SHA with the version in a trailing comment.
+  # Dependabot understands that convention and rewrites both together, which is
+  # what makes SHA pinning maintainable rather than a slowly rotting hazard.
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+    labels:
+      - dependencies

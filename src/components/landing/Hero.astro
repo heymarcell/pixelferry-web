@@ -1,0 +1,60 @@
+---
+import Icon from '../Icon.astro'
+import LightStreaks from './LightStreaks.astro'
+import WaitlistForm from '../forms/WaitlistForm.astro'
+import { product } from '../../data/product'
+
+/**
+ * Above the fold, unchanged from the Pencil design — but rendered at build
+ * time and visible without JavaScript. `data-reveal` only animates it in when
+ * the enhancement script arms the hidden state.
+ */
+---
+
+<section
+  id="top"
+  class="relative overflow-hidden px-5 pt-14 pb-20 sm:px-8 lg:px-16 lg:pt-[78px] lg:pb-[112px]"
+>
+  <LightStreaks />
+
+  <div class="relative mx-auto flex max-w-[1120px] flex-col items-center gap-6 text-center">
+    <p
+      data-reveal
+      class="inline-flex items-center gap-2 rounded-full bg-white/[0.05] px-3.5 py-2 shadow-[inset_0_0_0_1px_#FFFFFF1F]"
+    >
+      <Icon name="sparkles" size={15} class="text-blue-soft" />
+      <span class="font-mono text-[11px] font-bold tracking-[0.8px] text-white/80">
+        PRIVATE MAC BETA · OPENING SOON
+      </span>
+    </p>
+
+    <h1
+      data-reveal
+      class="font-display tracking-display text-[clamp(2.6rem,5.97vw,5.375rem)] leading-[0.96] font-bold text-balance text-white"
+    >
+      <span class="block">Mixed formats.</span>
+      <span class="block">One clean batch.</span>
+    </h1>
+
+    <p
+      data-reveal
+      class="max-w-[720px] text-[clamp(1rem,1.32vw,1.1875rem)] leading-[1.55] text-pretty text-white/72"
+    >
+      PixelFerry batch-converts mixed image formats on your Mac. Drop HEIC, camera RAW, PSD, TIFF
+      and WebP into one queue, set the output format, size and quality once, and convert the whole
+      batch — without uploading a single file.
+    </p>
+
+    <div id="waitlist" data-reveal class="flex w-full scroll-mt-28 justify-center pt-1">
+      <WaitlistForm />
+    </div>
+
+    {
+      /* Pencil lmfyE: Inter 13/500. Raised from #FFFFFF80 to /60 — the design's
+        opacity fell below 4.5:1 against the page at this size. */
+    }
+    <p data-reveal class="text-[13px] font-medium text-white/60">
+      {product.minimumOS.short} · Apple silicon + Intel · Local processing · Originals untouched
+    </p>
+  </div>
+</section>

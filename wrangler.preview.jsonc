@@ -1,0 +1,29 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+
+  // A SEPARATE Worker from production, deployed by scripts/deploy-preview.mjs.
+  // It exists so a build can be checked on real Cloudflare infrastructure
+  // without going anywhere near the live domain.
+  "name": "pixelferry-web-preview",
+  "compatibility_date": "2026-08-29",
+
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+  },
+
+  // Enabled HERE and only here, because a preview needs a reachable URL.
+  // Production keeps `workers_dev: false`, so no *.workers.dev copy of the
+  // live site exists to compete in Search.
+  //
+  // This one is safe to expose because every page it serves carries
+  // `noindex, nofollow`: deploy-preview.mjs builds with PF_NOINDEX=1 and
+  // refuses to deploy if the built homepage is not noindexed.
+  "workers_dev": true,
+  "preview_urls": false,
+
+  "observability": { "enabled": true },
+
+  // No `routes`. This Worker must never hold a custom domain.
+}

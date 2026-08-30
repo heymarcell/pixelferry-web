@@ -1,0 +1,9 @@
+dist
+node_modules
+.astro
+package-lock.json
+docs/audits/screenshots
+src/assets/fonts
+test-results
+playwright-report
+.lighthouseci

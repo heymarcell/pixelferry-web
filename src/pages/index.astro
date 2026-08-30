@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/landing/Nav.astro'
+import Hero from '../components/landing/Hero.astro'
+import ProductStage from '../components/landing/ProductStage.astro'
+import PromiseStrip from '../components/landing/PromiseStrip.astro'
+import HomeSections from '../components/landing/HomeSections.astro'
+import Footer from '../components/landing/Footer.astro'
+import CookieConsent from '../components/CookieConsent.astro'
+import JsonLd from '../components/seo/JsonLd.astro'
+import { webSiteSchema, softwareApplicationSchema, clean } from '../lib/schema'
+
+const title = 'PixelFerry — Batch image converter for Mac'
+const description =
+  'Batch-convert mixed image formats on your Mac. Drop HEIC, camera RAW, PSD and TIFF into one queue and set format, size and quality once. Nothing is uploaded.'
+---
+
+<BaseLayout title={title} description={description} path="/">
+  <JsonLd slot="head" data={[clean(webSiteSchema()), clean(softwareApplicationSchema())]} />
+
+  <div class="page-glow relative min-h-dvh">
+    <Nav />
+    <main id="main">
+      <Hero />
+      <ProductStage />
+      <PromiseStrip />
+      <HomeSections />
+    </main>
+    <Footer />
+  </div>
+
+  <CookieConsent />
+</BaseLayout>

@@ -1,4 +1,18 @@
 {
-  "files": [],
-  "references": [{ "path": "./tsconfig.app.json" }, { "path": "./tsconfig.node.json" }]
+  "extends": "astro/tsconfigs/strict",
+  // `.astro/types.d.ts` pulls in the generated `astro:env` and `astro:content`
+  // module declarations. It must NOT appear in `exclude` — exclude wins over
+  // include, and the whole typed-env and typed-collection surface silently
+  // becomes `never`.
+  "include": [".astro/types.d.ts", "**/*.ts", "**/*.astro", "**/*.mjs"],
+  "exclude": ["dist", "node_modules", "test-results", "playwright-report"],
+  "compilerOptions": {
+    "strictNullChecks": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noUncheckedIndexedAccess": true,
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "paths": { "~/*": ["src/*"] }
+  }
 }

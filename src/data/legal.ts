@@ -30,7 +30,7 @@ export const EFFECTIVE_DATE = '2026-07-25'
 export const privacyPolicy: LegalDoc = {
   title: 'Privacy Policy',
   intro:
-    'This Privacy Policy explains how [LEGAL COMPANY NAME], operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the coming-soon website at [DOMAIN] and the associated email waitlist.',
+    'This Privacy Policy explains how [LEGAL COMPANY NAME], operating the PixelFerry website and waitlist, collects and processes personal data. It currently applies only to the website at pixelferry.app and the associated email waitlist, not to the desktop application.',
   effectiveDate: EFFECTIVE_DATE,
   summaryTitle: 'Current scope',
   summaryBody:
@@ -62,10 +62,10 @@ Email: [EU REPRESENTATIVE EMAIL]`,
 When you join the PixelFerry waitlist, we process:
 • Your email address
 • The date and time of registration
-• Your consent status and confirmation status
+• The verbatim consent wording you agreed to, and when
 • The version of the consent wording and Privacy Policy presented to you
 • The signup source or webpage
-• Technical information reasonably necessary to document registration, which may include your IP address
+• A salted, one-way pseudonym derived from your IP address, used to document registration and limit abuse. Your IP address itself is never stored
 
 We use this information to register you for the waitlist, confirm your email address, send launch and early-access updates, manage unsubscribe requests, and demonstrate that valid consent was obtained. The legal basis is consent under Article 6(1)(a) GDPR. Providing your email is voluntary.
 
@@ -85,8 +85,7 @@ After you unsubscribe, we stop marketing and product-update emails. We may retai
       id: 'retention',
       nav: '4. Retention',
       heading: '4. Retention periods',
-      body: `• Waitlist email and registration data: until you withdraw consent, or 24 months after our last waitlist or launch-related communication, whichever occurs first
-• Unconfirmed registrations: normally deleted within 30 days
+      body: `• Waitlist email and registration data: kept as the record of your consent, and deleted when you ask us to erase it. NOTE — there is currently no automated deletion schedule for this data; a retention period will be set before this policy leaves draft.
 • Website security and server logs: normally no longer than 30 days, unless needed to investigate an incident
 • Suppression records: minimum information may be retained for up to five years
 • Compliance records: consent and withdrawal records may be retained for the applicable legal limitation period
@@ -98,9 +97,9 @@ Information may be retained longer where required by law or needed to establish,
       nav: '5. Service providers',
       heading: '5. Service providers and recipients',
       body: `We may disclose personal data to providers acting on our instructions:
-• Website hosting: [PROVIDER NAME AND COUNTRY]
-• Email and waitlist service: [PROVIDER NAME AND COUNTRY]
-• Technical infrastructure or security: [PROVIDER NAME AND COUNTRY]
+• Website hosting and content delivery: Cloudflare, Inc. (United States), which serves this site and the waitlist API
+• Bot protection on the signup form: Cloudflare Turnstile, operated by the same provider
+• Email and waitlist list management, including the confirmation email: Brevo (Sendinblue SAS, France)
 
 Providers may process data only for the services they provide and must protect it under appropriate contractual and security obligations. We may disclose information where required by law or needed for legal claims. We do not sell personal data.`,
     },
@@ -108,7 +107,7 @@ Providers may process data only for the services they provide and must protect i
       id: 'transfers',
       nav: '6. Transfers',
       heading: '6. International transfers',
-      body: `Some providers may process personal data outside the European Economic Area. Where data is transferred outside the EEA, we use an applicable safeguard, which may include:
+      body: `Cloudflare, Inc. is established in the United States, so personal data processed by it is transferred outside the European Economic Area. Brevo (Sendinblue SAS) is established in France. Where data is transferred outside the EEA, we use an applicable safeguard, which may include:
 • A European Commission adequacy decision
 • EU Standard Contractual Clauses
 • The EU-US Data Privacy Framework, where applicable
@@ -186,7 +185,7 @@ Replace all bracketed information and obtain legal review before publication.`,
 export const cookiePolicy: LegalDoc = {
   title: 'Cookie Policy',
   intro:
-    'This Cookie Policy explains how [LEGAL COMPANY NAME], operating PixelFerry, uses cookies and similar technologies on [DOMAIN].',
+    'This Cookie Policy explains how [LEGAL COMPANY NAME], operating PixelFerry, uses cookies and similar technologies on pixelferry.app.',
   effectiveDate: EFFECTIVE_DATE,
   summaryTitle: 'Plain-language summary',
   summaryBody:
@@ -233,9 +232,9 @@ If a consent tool is introduced, it will allow visitors to accept, reject, selec
       heading: '5. Third-party services',
       body: `Providers involved in hosting, security, or waitlist processing may use strictly necessary technologies.
 
-Website hosting: [PROVIDER]
-Waitlist or form processing: [PROVIDER]
-Security or content delivery: [PROVIDER]
+Website hosting and content delivery: Cloudflare, Inc. (United States)
+Waitlist and confirmation email: Brevo (Sendinblue SAS, France)
+Bot protection on the signup form: Cloudflare Turnstile
 
 Add links to provider privacy documentation after production services are selected.`,
     },
@@ -286,15 +285,14 @@ export type CookieRow = {
  * container-suffixed GA cookies and vendor defaults change.
  */
 export const cookieSchedule: { alwaysSet: CookieRow[]; onConsent: CookieRow[] } = {
-  alwaysSet: [
-    {
-      name: 'pf-consent',
-      provider: 'PixelFerry (first party)',
-      purpose: 'Remembers your cookie choices so they persist and can be withdrawn.',
-      category: 'Strictly necessary',
-      duration: 'Local storage, until cleared',
-    },
-  ],
+  /*
+   * EMPTY ON PURPOSE. With no analytics configured the site sets no cookie and
+   * writes no storage key — `test/e2e/security.spec.ts` asserts it in a real
+   * browser. A `pf-consent` row used to sit here describing a key nothing
+   * writes, which is a published cookie schedule naming a fiction. The row
+   * belongs back only in the same change that ships a consent tool.
+   */
+  alwaysSet: [],
   onConsent: [
     {
       name: '_ga, _ga_*',

@@ -1,0 +1,305 @@
+---
+import { Image } from 'astro:assets'
+import Icon from '../Icon.astro'
+import type { IconName } from '../icons'
+import { queue, summary, previewLabel, outputFormat, type RowStatus } from '../../data/queue'
+
+/**
+ * A static, non-interactive rendering of the PixelFerry window.
+ *
+ * Exposed to assistive tech as ONE `role="img"` with a descriptive label, so
+ * its simulated buttons never read as real controls — a fake "Convert All"
+ * button that a screen-reader user can focus and activate to no effect is
+ * worse than no button at all. Everything inside is therefore `aria-hidden`
+ * by virtue of the image role.
+ */
+
+/*
+ * The row's surface treatment, per status, straight from the Pencil tokens.
+ * The `image:`/`color:` hints are load-bearing — without them Tailwind guesses
+ * `background-color` for a gradient value and the browser drops the rule.
+ */
+const sheen = 'bg-[image:linear-gradient(180deg,#00000010,#00000003)]'
+
+const surface: Record<RowStatus, string> = {
+  complete: `${sheen} bg-[color:#00000006] shadow-[inset_0_0_0_1px_#00000022,0_1px_3px_#00000006]`,
+  converting: `${sheen} bg-[color:#00000008] shadow-[inset_0_0_0_1px_#0000002E,0_1px_3px_#00000006]`,
+  ready: `${sheen} bg-[color:#00000006] shadow-[inset_0_0_0_1px_#00000022,0_0.5px_1px_#00000006]`,
+  error: 'bg-ap-error-fill shadow-[inset_0_0_0_1px_#B4231824,0_1px_3px_#FF3B3008]',
+}
+
+const badges: Record<
+  RowStatus,
+  { icon: IconName; label: string; className: string; spin?: boolean }
+> = {
+  complete: {
+    icon: 'check',
+    label: 'Done',
+    className: 'bg-ap-success-fill text-ap-success shadow-[inset_0_0_0_1px_#30D15830]',
+  },
+  converting: {
+    icon: 'loader',
+    label: 'Converting',
+    className: 'bg-ap-accent-fill text-ap-accent shadow-[inset_0_0_0_1px_#005FCC28]',
+    spin: true,
+  },
+  ready: {
+    icon: 'circle-check',
+    label: 'Ready',
+    className: 'bg-ap-glass text-ap-label shadow-[inset_0_0_0_1px_#00000024]',
+  },
+  error: {
+    icon: 'triangle-alert',
+    label: 'Error',
+    className: 'bg-[#B423180A] text-ap-error shadow-[inset_0_0_0_1px_#B4231820]',
+  },
+}
+
+const actions: Record<RowStatus, { icon: IconName; accent?: boolean; muted?: boolean }[]> = {
+  complete: [
+    { icon: 'refresh-cw' },
+    { icon: 'copy' },
+    { icon: 'folder-open' },
+    { icon: 'x', muted: true },
+  ],
+  converting: [],
+  ready: [
+    { icon: 'play', accent: true },
+    { icon: 'x', muted: true },
+  ],
+  error: [{ icon: 'refresh-cw' }, { icon: 'x', muted: true }],
+}
+
+/* Counts drop off from the right as the window narrows — the file total and
+   overall size are the two that always survive. */
+const counts = [
+  { text: summary.done, tone: 'text-ap-success-text', at: 'flex' },
+  { text: summary.converting, tone: 'text-ap-accent-text', at: 'hidden sm:flex' },
+  { text: summary.ready, tone: 'text-[#6B7280]', at: 'hidden md:flex' },
+]
+
+const glassPill =
+  'bg-[image:linear-gradient(180deg,#00000012,#00000004)] bg-[color:#00000008] shadow-[inset_0_0_0_1px_#00000024,0_0.5px_0.5px_#00000008]'
+---
+
+<div
+  data-reveal
+  role="img"
+  aria-label={previewLabel}
+  class="app-preview bg-ap-window mx-auto flex w-full max-w-[1100px] flex-col overflow-hidden rounded-xl shadow-[inset_0_0_0_1px_#FFFFFF26,0_32px_70px_-16px_#00000099,0_10px_90px_-24px_#0062FF3D] lg:h-[670px]"
+>
+  {/* ── Title bar ── */}
+  <div
+    class="border-ap-hairline bg-ap-window flex h-[58px] shrink-0 items-center justify-between border-b px-3 sm:px-[18px]"
+  >
+    <div class="flex w-16 items-center gap-2 sm:w-20">
+      <span class="traffic traffic--close"></span>
+      <span class="traffic traffic--min"></span>
+      <span class="traffic traffic--max"></span>
+    </div>
+
+    <div class="text-ap-mark flex items-center gap-2.5">
+      <svg width="20" height="23" viewBox="0 0 68 73" preserveAspectRatio="none" aria-hidden="true">
+        <path
+          fill-rule="evenodd"
+          clip-rule="evenodd"
+          d="M0 0h34c4 0 7 2 10 5l19 17c3 2 3 6 0 9l-19 17c-3 3-6 5-10 5h-16v20h-18z m18 18h19.5c4 0 7 3 7 7v3c0 4-3 7-7 7h-19.5z"
+          fill="currentColor"></path>
+      </svg>
+      <span class="text-ap-chrome text-[15px] font-semibold">PixelFerry</span>
+    </div>
+
+    <div class="flex w-16 items-center justify-end sm:w-20">
+      <span
+        class="bg-ap-glass text-ap-chrome grid size-8 place-items-center rounded-[9px] shadow-[inset_0_0_0_1px_#00000014]"
+      >
+        <Icon name="settings" size={15} />
+      </span>
+    </div>
+  </div>
+
+  {/* ── Summary bar ── */}
+  <div
+    class="border-ap-divider flex shrink-0 items-center justify-between gap-3 border-b bg-[color:#00000004] bg-[image:linear-gradient(0deg,#00000006,#00000004)] px-4 py-2.5 text-[12px] sm:px-5"
+  >
+    <div class="flex min-w-0 items-center gap-2 sm:gap-3">
+      <span class="text-ap-label shrink-0 font-semibold">{summary.files}</span>
+      {
+        counts.map((count) => (
+          <span class:list={[count.at, 'shrink-0 items-center gap-2 sm:gap-3']}>
+            <span class="text-ap-dim">·</span>
+            <span class={count.tone}>{count.text}</span>
+          </span>
+        ))
+      }
+    </div>
+    <span class="text-ap-label shrink-0">{summary.total}</span>
+  </div>
+
+  {/* ── Queue ── */}
+  <ol class="bg-ap-queue flex flex-1 list-none flex-col gap-2.5 p-4 sm:px-5">
+    {
+      queue.map((row) => (
+        <li
+          class:list={[
+            'relative flex h-14 items-center gap-3 overflow-hidden rounded-2xl px-4',
+            surface[row.status],
+          ]}
+        >
+          <Image
+            src={row.thumb}
+            alt=""
+            width={36}
+            height={36}
+            densities={[1, 2]}
+            loading="lazy"
+            decoding="async"
+            class="bg-ap-glass size-9 shrink-0 rounded-[10px] object-cover"
+          />
+
+          <div
+            class:list={[
+              'flex min-w-0 flex-1 flex-col',
+              row.status === 'converting' ? 'gap-1.5' : 'gap-0.5',
+            ]}
+          >
+            <span class="text-ap-ink truncate text-[13px] leading-tight font-medium">
+              {row.name}
+            </span>
+            <span class="text-ap-dim truncate text-[12px] leading-tight">{row.meta}</span>
+          </div>
+
+          <div class="flex shrink-0 items-center justify-end gap-3">
+            <div class="flex h-8 items-center justify-end sm:w-[120px]">
+              <span
+                class:list={[
+                  'inline-flex items-center gap-1.5 rounded-[10px] px-2.5 py-1 text-[12px] leading-none font-medium',
+                  badges[row.status].className,
+                ]}
+              >
+                <Icon
+                  name={badges[row.status].icon}
+                  size={14}
+                  class={badges[row.status].spin ? 'animate-[spin-slow_1.6s_linear_infinite]' : ''}
+                />
+                {badges[row.status].label}
+              </span>
+            </div>
+
+            {/* Below `lg` the window is too narrow for the action cluster; the
+                status badge alone still communicates the row's state. */}
+            <div class="hidden h-8 w-[140px] items-center justify-end gap-1 lg:flex">
+              {actions[row.status].map((action) => (
+                <span
+                  class:list={[
+                    'grid size-8 place-items-center rounded-lg',
+                    action.accent
+                      ? 'text-ap-accent-text'
+                      : action.muted
+                        ? 'text-ap-label'
+                        : 'text-ap-dim',
+                  ]}
+                >
+                  <Icon name={action.icon} size={16} />
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {row.status === 'converting' && (
+            <span class="pointer-events-none absolute inset-x-0 bottom-0 h-1 overflow-hidden">
+              <span class="block h-full w-[30%] animate-[sweep_2.4s_cubic-bezier(0.4,0,0.2,1)_infinite] rounded-sm bg-[image:linear-gradient(90deg,#007AFF04,#0055B8_50%,#007AFF04)]" />
+            </span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+
+  {/* ── Controls ── */}
+  <div
+    class="border-ap-divider bg-ap-window flex h-14 shrink-0 items-center justify-between gap-3 border-t px-4"
+  >
+    <div class="flex items-center gap-2">
+      {/* Output format — the one pill the design tints with the accent. */}
+      <span
+        class="text-ap-accent-text inline-flex h-[34px] shrink-0 items-center gap-1.5 rounded-[17px] bg-[color:#005FCC12] bg-[image:linear-gradient(180deg,#005FCC12,#007AFF05)] px-3 text-[12px] font-semibold tracking-[0.5px] shadow-[inset_0_0_0_1px_#005FCC30,0_0.5px_0.5px_#005FCC12]"
+      >
+        {outputFormat}
+        <Icon name="chevron-down" size={12} stroke={2.5} class="text-[#0055B8CC]" />
+      </span>
+
+      <span class:list={['grid size-[34px] shrink-0 place-items-center rounded-[17px]', glassPill]}>
+        <Icon name="sliders-horizontal" size={16} class="text-ap-dim" />
+      </span>
+
+      <span
+        class:list={[
+          'text-ap-label hidden h-[34px] shrink-0 items-center gap-[5px] rounded-[17px] px-2.5 text-[12px] font-medium whitespace-nowrap md:inline-flex',
+          glassPill,
+        ]}
+      >
+        <Icon name="scaling" size={16} class="text-ap-dim" />
+        None
+      </span>
+
+      <span
+        class:list={[
+          'text-ap-label hidden h-[34px] shrink-0 items-center gap-[5px] rounded-[17px] px-2.5 text-[12px] font-medium whitespace-nowrap lg:inline-flex',
+          glassPill,
+        ]}
+      >
+        <Icon name="send" size={16} class="text-ap-dim" />
+        Save · Input folder
+        <Icon name="chevron-down" size={12} stroke={2.5} class="text-ap-dim" />
+      </span>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <span
+        class:list={[
+          'text-ap-label hidden h-[34px] shrink-0 items-center gap-[5px] rounded-[17px] px-2.5 text-[12px] font-medium whitespace-nowrap md:inline-flex',
+          glassPill,
+        ]}
+      >
+        <Icon name="plus" size={16} class="text-ap-dim" />
+        Add Files
+      </span>
+
+      <span
+        class:list={[
+          'text-ap-label hidden h-[34px] shrink-0 items-center rounded-[17px] px-2.5 text-[12px] font-medium whitespace-nowrap lg:inline-flex',
+          glassPill,
+        ]}
+      >
+        Clear Queue
+      </span>
+
+      <span
+        class="inline-flex h-[34px] shrink-0 items-center gap-1.5 rounded-[17px] bg-[image:linear-gradient(180deg,#0757B8,#004FAF)] px-4 text-[12px] font-semibold tracking-[0.3px] whitespace-nowrap text-white shadow-[0_4px_12px_#005FCC40,0_0.5px_1px_#00000030]"
+      >
+        <Icon name="zap" size={14} stroke={2.5} />
+        Convert All
+      </span>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* macOS traffic lights. Classes rather than `style` attributes so `style-src`
+     needs no 'unsafe-inline'. */
+  .traffic {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 9999px;
+  }
+  .traffic--close {
+    background-color: #ff5f57;
+  }
+  .traffic--min {
+    background-color: #febc2e;
+  }
+  .traffic--max {
+    background-color: #28c840;
+  }
+</style>

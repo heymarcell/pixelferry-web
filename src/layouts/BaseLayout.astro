@@ -1,0 +1,120 @@
+---
+import '../styles/global.css'
+import Seo from '../components/seo/Seo.astro'
+import type { Props as SeoProps } from '../components/seo/Seo.astro'
+import { site } from '../data/site'
+import funnelSans from '../assets/fonts/funnel-sans-latin-variable.woff2?url'
+import inter from '../assets/fonts/inter-latin-variable.woff2?url'
+
+export interface Props extends SeoProps {
+  /** Set on the light document pages so the browser paints the right chrome. */
+  scheme?: 'dark' | 'light'
+  bodyClass?: string
+}
+
+const { scheme = 'dark', bodyClass = '', ...seo } = Astro.props
+---
+
+<!doctype html>
+<html lang={site.locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content={site.themeColor} />
+    <meta name="color-scheme" content={scheme} />
+    <meta name="generator" content={Astro.generator} />
+
+    <Seo {...seo} />
+
+    {
+      /*
+      Google Search reads a square icon of at least 48×48 and does not accept
+      SVG, so the raster set is not optional — the previous site shipped only
+      favicon.svg and was ineligible for a favicon in Search results.
+    */
+    }
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    {
+      /*
+      Only the two faces that paint above the fold. Geist Mono sets one 11px
+      eyebrow and is deliberately left to load normally — preloading every font
+      just moves the contention rather than removing it.
+    */
+    }
+    <link rel="preload" href={funnelSans} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={inter} as="font" type="font/woff2" crossorigin />
+
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <slot name="head" />
+  </head>
+
+  <body class={bodyClass}>
+    <a
+      href="#main"
+      class="focus:bg-blue sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-lg focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
+    >
+      Skip to content
+    </a>
+
+    <slot />
+
+    <script>
+      /*
+       * Scroll reveals, added as an enhancement on top of already-visible
+       * content. `js-reveal` is what arms the hidden state, so if this module
+       * never runs — no JS, an error, a slow network — every word on the page
+       * is still rendered and readable. The React build did the opposite and
+       * shipped a permanently invisible hero to production.
+       */
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      const targets = document.querySelectorAll<HTMLElement>('[data-reveal]')
+
+      /*
+       * Never arm the reveals in a hidden document.
+       *
+       * A backgrounded tab — a ⌘-click, a restored session, a prerender, a
+       * screenshot service — suspends BOTH IntersectionObserver callbacks and
+       * CSS transitions. Arming there would hide every `[data-reveal]` element
+       * with nothing able to un-hide it: the observer never fires, and even the
+       * timeout below cannot help, because the transition it triggers does not
+       * run either. That is the exact failure this whole build exists to avoid,
+       * and it was reproduced in a real backgrounded Chrome tab.
+       *
+       * If the page is not visible when this runs, the animation is skipped and
+       * the content simply stays rendered.
+       */
+      const visible = document.visibilityState === 'visible'
+
+      if (visible && !reduced && targets.length > 0 && 'IntersectionObserver' in window) {
+        document.documentElement.classList.add('js-reveal')
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue
+              entry.target.classList.add('is-revealed')
+              observer.unobserve(entry.target)
+            }
+          },
+          { rootMargin: '0px 0px -12% 0px' },
+        )
+
+        for (const el of targets) observer.observe(el)
+
+        /*
+         * A safety net for the case the React build got wrong: if anything
+         * stops the observer from ever firing, reveal everything anyway rather
+         * than leaving content invisible.
+         */
+        window.setTimeout(() => {
+          for (const el of targets) el.classList.add('is-revealed')
+        }, 3000)
+      }
+    </script>
+  </body>
+</html>

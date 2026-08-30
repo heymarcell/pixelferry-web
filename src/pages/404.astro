@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro'
+import Nav from '../components/landing/Nav.astro'
+import Footer from '../components/landing/Footer.astro'
+import { navigation } from '../data/site'
+
+/**
+ * Served with a real HTTP 404 by Cloudflare — `not_found_handling: "404-page"`
+ * in wrangler.jsonc. The old deployment answered 200 with the SPA shell for
+ * every unknown URL, which is a soft 404: Search indexes the URL, finds the
+ * homepage, and the site accumulates duplicate-content noise.
+ */
+---
+
+<BaseLayout
+  title="Page not found — PixelFerry"
+  description="That page does not exist. Find the PixelFerry supported formats reference, conversion guides, or join the Mac beta waitlist."
+  path="/404"
+  noindex
+>
+  <div class="page-glow relative flex min-h-dvh flex-col">
+    <Nav />
+    <main id="main" class="flex flex-1 items-center px-5 py-24 sm:px-8 lg:px-16">
+      <div class="mx-auto flex max-w-[680px] flex-col items-center gap-6 text-center">
+        <p class="text-blue-soft font-mono text-[11px] font-bold tracking-[1.2px]">ERROR 404</p>
+        <h1
+          class="font-display tracking-display text-[clamp(2.25rem,4.4vw,3.5rem)] leading-[1.05] font-bold text-white"
+        >
+          That page isn’t here.
+        </h1>
+        <p class="max-w-[520px] text-[17px] leading-[1.55] text-white/72">
+          The link may be out of date. These are the pages worth your time instead.
+        </p>
+        <nav aria-label="Suggested pages" class="flex flex-wrap justify-center gap-3 pt-2">
+          <a
+            href="/"
+            class="bg-blue inline-flex h-[46px] items-center rounded-md px-5 text-[15px] font-bold text-white shadow-[0_6px_18px_-4px_#0062FF55] transition-colors hover:bg-[#1A73FF]"
+            >PixelFerry home</a
+          >
+          {
+            navigation.primary.map((item) => (
+              <a
+                href={item.href}
+                class="inline-flex h-[46px] items-center rounded-md bg-white/[0.06] px-5 text-[15px] font-semibold text-white shadow-[inset_0_0_0_1px_#FFFFFF24] transition-colors hover:bg-white/[0.12]"
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+      </div>
+    </main>
+    <Footer />
+  </div>
+</BaseLayout>

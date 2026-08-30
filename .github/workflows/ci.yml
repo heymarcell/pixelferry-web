@@ -1,0 +1,122 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# The job id `check` IS the required status context in the `protect-main` ruleset
+# on this repository (verified: repos/heymarcell/pixelferry-web/rulesets, rule
+# `required_status_checks`, context "check"). Note it is the bare job id, not
+# "ci / check".
+#
+# Renaming this job does not fail the build — it silently leaves main with a gate
+# that can never report, so every PR waits forever. Change both or neither.
+
+# Superseded pull request runs are cancelled; pushes to main are not. A cancelled
+# run reports `cancelled`, which is not a passing state for a required check, and
+# main would be left carrying an unresolved gate.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+# Declared in the file, not only in the repository setting, so it is reviewed with
+# the code. Every unlisted scope becomes `none` — a real privilege drop, since the
+# default token is read/write. Nothing here writes to the repository.
+permissions:
+  contents: read
+
+jobs:
+  # One Linux job (1x billing). This is a static site: there is nothing a macOS or
+  # Windows runner would prove that Linux does not, and the browser matrix runs
+  # inside Playwright rather than across runners.
+  check:
+    name: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    env:
+      # The real production endpoint, so the built bundle carries the URL the E2E
+      # suite then asserts against. Every request to it is intercepted by
+      # Playwright — no signup ever leaves the runner, and there is no secret
+      # here: the endpoint is public and the Worker is Turnstile-gated.
+      PUBLIC_WAITLIST_ENDPOINT: https://api.pixelferry.app/v1/waitlist
+      # A Cloudflare test sitekey that always passes. It exercises the widget
+      # code path without a real challenge, and the E2E suite stubs the script
+      # anyway; the real sitekey is set at deploy time.
+      PUBLIC_TURNSTILE_SITEKEY: 1x00000000000000000000AA
+
+    steps:
+      # Actions are pinned to a commit, with the version in the comment: a tag is
+      # mutable and `@v7` is a promise the author can rewrite after review. Dependabot
+      # updates the pin and the comment together (see .github/dependabot.yml).
+      #
+      # persist-credentials false: no step here pushes or fetches, so a token left in
+      # the checkout's git config is exposure with no purpose.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Formatting
+        run: npm run format:check
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Types (astro check)
+        run: npm run check
+
+      # Build BEFORE the tests and audits: `test/seo-output.test.ts` and all
+      # three audits read `dist/`. Running them first passes locally only
+      # because a previous build left the directory behind — CI, starting
+      # clean, is the honest signal. `npm run verify` uses this same order.
+      - name: Build
+        run: npm run build
+
+      - name: Unit tests
+        run: npm test
+
+      # These three read `dist/` — the actual emitted HTML — so a template that
+      # silently stopped rendering a canonical, or a page set that drifted into
+      # near-duplicate boilerplate, fails here rather than in Search.
+      - name: SEO audit
+        run: npm run audit:seo
+
+      - name: Link audit
+        run: npm run audit:links
+
+      - name: Content-quality audit
+        run: npm run audit:content
+
+      # Chromium + WebKit only; the mobile project reuses the Chromium binary.
+      - name: Install browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      # Runs against `wrangler dev`, so the suite exercises the real Workers
+      # Static Assets behaviour: a genuine 404 status, the `.html` redirects, and
+      # the `_headers` CSP.
+      - name: End-to-end, accessibility and security tests
+        run: npm run test:e2e
+
+      - name: Lighthouse
+        run: npm run lighthouse
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: failure-report
+          path: |
+            playwright-report/
+            test-results/
+            .lighthouse/
+          retention-days: 7
+          if-no-files-found: ignore

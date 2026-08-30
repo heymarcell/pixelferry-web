@@ -1,0 +1,46 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "pixelferry-web",
+  "compatibility_date": "2026-08-29",
+
+  // No `main`. Nothing on this site renders on demand, so there is no Worker
+  // script at all — Cloudflare serves the built files directly from static
+  // assets and never invokes Worker code. Adding a fetch handler here would
+  // put a runtime in front of a purely static site for no benefit.
+  "assets": {
+    "directory": "./dist",
+
+    // The fix for the defect this migration exists to correct: the previous
+    // Pages deployment answered 200 with the SPA shell for every unknown
+    // URL, so `/anything` was a soft 404. "404-page" serves the nearest
+    // 404.html with a real 404 status. `test/e2e/http.spec.ts` asserts it.
+    "not_found_handling": "404-page",
+
+    // Serves `privacy.html` at `/privacy` and `index.html` at `/`, which is
+    // exactly the URL shape production already has. Combined with Astro's
+    // `build.format: 'file'` and `trailingSlash: 'never'`, every existing
+    // public URL survives the migration unchanged.
+    "html_handling": "auto-trailing-slash",
+  },
+
+  "observability": { "enabled": true },
+
+  // ── Indexing safety ─────────────────────────────────────────────────────
+  //
+  // `_headers` cannot match on hostname, so a preview host cannot be given an
+  // `X-Robots-Tag: noindex` by configuration alone. The structural fix is to
+  // not have a second hostname at all: with both of these off, the production
+  // Worker is reachable ONLY at its custom domain, so there is no
+  // `*.workers.dev` copy of the site for Search to find.
+  //
+  // Preview deploys go to a SEPARATE Worker (see scripts/deploy-preview.mjs),
+  // built with PF_NOINDEX=1, which puts `noindex` on every page.
+  "workers_dev": false,
+  "preview_urls": false,
+
+  // The custom domain is deliberately NOT declared here. Adding
+  // `"routes": [{ "pattern": "pixelferry.app", "custom_domain": true }]`
+  // would move the live domain onto this Worker on the next `wrangler
+  // deploy` — that is the production cutover, and it is a decision to make
+  // explicitly, not a side effect of a deploy. See docs/deployment.md.
+}

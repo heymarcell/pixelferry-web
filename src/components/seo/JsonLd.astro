@@ -1,0 +1,24 @@
+---
+/**
+ * A JSON-LD data block.
+ *
+ * `type="application/ld+json"` is a CSP *data block*, not executable script,
+ * so this does not require `script-src 'unsafe-inline'` — verified in-browser
+ * by `test/e2e/security.spec.ts`, which fails on any CSP violation report.
+ *
+ * `set:html` with `JSON.stringify` is deliberate: the payload is built from
+ * typed objects, never string-concatenated, and `<` is escaped below so a
+ * value can never break out of the script element.
+ */
+export interface Props {
+  data: Record<string, unknown> | Record<string, unknown>[]
+}
+
+const { data } = Astro.props
+
+// `</script>` inside a JSON string would terminate the element early. Escaping
+// the angle brackets keeps the JSON valid while making that impossible.
+const json = JSON.stringify(data).replace(/</g, '\\u003c')
+---
+
+<script type="application/ld+json" is:inline set:html={json} />

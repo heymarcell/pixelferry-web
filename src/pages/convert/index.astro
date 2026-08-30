@@ -1,0 +1,69 @@
+---
+import { getCollection } from 'astro:content'
+import ContentLayout from '../../layouts/ContentLayout.astro'
+import { outputFormatLabels, readOnlyFormatLabels } from '../../data/product'
+
+const conversions = (await getCollection('conversions')).sort((a, b) =>
+  a.data.heading.localeCompare(b.data.heading),
+)
+
+/** Grouped by source format so the list reads as a reference, not a link dump. */
+const groups = new Map<string, typeof conversions>()
+for (const entry of conversions) {
+  const existing = groups.get(entry.data.from)
+  if (existing) existing.push(entry)
+  else groups.set(entry.data.from, [entry])
+}
+const grouped = [...groups.entries()].sort(([a], [b]) => a.localeCompare(b))
+---
+
+<ContentLayout
+  title="Image conversion guides for Mac — what each conversion costs"
+  description="Every conversion PixelFerry handles, with what actually changes in the file, the built-in macOS alternative, and the limitations worth knowing before you start."
+  path="/convert"
+  heading="Image conversions, explained"
+  summary="One page per conversion, each covering what changes in the file, what macOS already does for free, and where the built-in route stops being enough. No conversion is listed that PixelFerry cannot actually perform."
+  eyebrow="CONVERSIONS"
+  crumbs={[{ name: 'PixelFerry', path: '/' }]}
+>
+  <div class="flex flex-col gap-10">
+    {
+      grouped.map(([from, entries]) => (
+        <section class="flex flex-col gap-4">
+          <h2 class="font-display text-doc-ink text-[22px] font-bold tracking-[-0.4px]">
+            From {from}
+          </h2>
+          <ul class="grid list-none gap-4 sm:grid-cols-2">
+            {entries.map((entry) => (
+              <li>
+                <a
+                  href={`/convert/${entry.id}`}
+                  class="border-doc-line bg-doc-panel hover:border-doc-link flex h-full flex-col gap-2 rounded-lg border p-5 transition-colors"
+                >
+                  <span class="text-doc-link font-mono text-[11px] font-bold tracking-[1px]">
+                    {entry.data.from} → {entry.data.to}
+                  </span>
+                  <span class="font-display text-doc-ink text-[17px] font-bold">
+                    {entry.data.heading}
+                  </span>
+                  <span class="text-doc-body text-[14px] leading-[1.5]">{entry.data.summary}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+
+    <section class="border-doc-line bg-doc-panel rounded-lg border p-6">
+      <h2 class="font-display text-doc-ink text-[20px] font-bold">What PixelFerry can write</h2>
+      <p class="text-doc-body mt-2 text-[15px] leading-[1.6]">
+        Output is one of {outputFormatLabels.join(', ')}. {readOnlyFormatLabels.join(', ')} are read but
+        never written, so those conversions only run one way — see the
+        <a href="/formats" class="text-doc-link font-semibold hover:underline">
+          full format reference</a
+        >.
+      </p>
+    </section>
+  </div>
+</ContentLayout>

@@ -1,0 +1,53 @@
+---
+import BrandMark from './BrandMark.astro'
+import { navigation } from '../../data/site'
+import { PUBLIC_GTM_ID, PUBLIC_META_PIXEL_ID } from 'astro:env/client'
+
+const trackingConfigured = Boolean(PUBLIC_GTM_ID || PUBLIC_META_PIXEL_ID)
+---
+
+<footer class="bg-void px-5 py-10 sm:px-8 lg:px-16">
+  <div
+    class="mx-auto flex max-w-[1312px] flex-col items-center gap-6 text-center sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:text-left"
+  >
+    <div class="flex items-center gap-2.5">
+      <BrandMark size={26} />
+      <span class="font-display text-[17px] font-bold text-white/80">PixelFerry</span>
+    </div>
+
+    <nav aria-label="Footer" class="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+      {
+        navigation.footer.map((link) => (
+          <a
+            href={link.href}
+            class="rounded text-[13px] font-semibold text-white/64 transition-colors hover:text-white"
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      {/* Withdrawal must stay as reachable as the original opt-in. */}
+      {
+        trackingConfigured && (
+          <button
+            type="button"
+            data-cookie-settings
+            class="rounded text-[13px] font-semibold text-white/64 transition-colors hover:text-white"
+          >
+            Cookie settings
+          </button>
+        )
+      }
+    </nav>
+  </div>
+
+  {
+    /* Raised from white/40 (3.7:1, an axe failure on the live site) to white/56
+      (6.4:1) — the only colour value that moves from the Pencil design. */
+  }
+  <p
+    class="mx-auto mt-8 max-w-[1312px] text-center text-[12px] font-medium text-white/56 sm:text-left"
+  >
+    © 2026 PixelFerry · Private beta coming soon
+  </p>
+</footer>
