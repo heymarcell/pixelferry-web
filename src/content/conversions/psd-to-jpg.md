@@ -41,6 +41,9 @@ limitations:
     decoder reads 8-bit composites only. A CMYK PSD is worse, because it does
     not fail at all — it is misread, since the decoder never consults the
     document's colour mode. Convert both in Photoshop.
+  - The conversion reads the composite Photoshop stores with "Maximize
+    Compatibility" on. It does not render the layer stack, so a PSD saved
+    without that composite has nothing useful to read.
   - PSD is input-only, so this is one-way — the JPEG cannot be turned back into
     a layered file.
 useCases:

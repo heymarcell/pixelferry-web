@@ -2,12 +2,16 @@
 import Icon from '../Icon.astro'
 import {
   product,
+  targetSizeSearch,
+  formatExceptions,
   limits,
   outputFormats,
   macOSOnlyWriteFormats,
   qualityFormats,
   capabilities,
 } from '../../data/product'
+
+const resizeException = formatExceptions.find((e) => e.control === 'resize')
 import { getCollection } from 'astro:content'
 
 /**
@@ -32,7 +36,7 @@ const steps = [
   },
   {
     title: 'Set the output rules once',
-    body: `Choose the format, quality, dimensions and destination. They apply to every file in the queue, however many formats went in.`,
+    body: `Choose the format, quality, dimensions and destination once, and the queue applies them to every file however many formats went in — with the format-specific exceptions noted below, like ${resizeException?.format} sizing itself.`,
   },
   {
     title: 'Convert, four at a time',
@@ -170,15 +174,18 @@ const faqs = [
           <dt class="font-display text-[15px] font-bold text-white">Size</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
             By {capabilities.resizeModes.join(', ')} — with {capabilities.fitModes.join(', ')} when you
-            give exact dimensions. ICO is the exception: its embedded icon sizes drive the resize instead.
+            give exact dimensions. {resizeException?.note}
           </dd>
         </div>
         <div>
           <dt class="font-display text-[15px] font-bold text-white">Target file size</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            For JPEG, WebP and AVIF, set a size and the encoder searches quality values to fit it,
-            instead of you guessing a number and checking the folder. If even the lowest quality
-            overshoots, it saves that and says so rather than failing.
+            For {targetSizeSearch.formats.join(', ')}, set a size and the encoder searches quality
+            values to fit it — up to {targetSizeSearch.maxAttempts} attempts, down to a floor of quality{
+              ' '
+            }
+            {targetSizeSearch.qualityFloor}. If even that overshoots it saves the smallest result
+            and says so, rather than failing or missing the target silently.
           </dd>
         </div>
         <div>
@@ -199,8 +206,7 @@ const faqs = [
         <div>
           <dt class="font-display text-[15px] font-bold text-white">Metadata</dt>
           <dd class="mt-1 text-[15px] leading-[1.55] text-white/70">
-            EXIF, XMP and IPTC — including GPS — are stripped by default, while the ICC colour
-            profile is kept, so a Display P3 photo stays Display P3. You can turn removal off.
+            {capabilities.metadata} You can turn removal off.
           </dd>
         </div>
       </dl>

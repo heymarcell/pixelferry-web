@@ -60,70 +60,68 @@ export function prop(dom, property) {
  *
  * ── Why this exists ────────────────────────────────────────────────────────
  *
- * A truth sweep that strips tags from the raw HTML and greps the remainder
- * cannot see head metadata AT ALL: `<meta name="description" content="…">` has
- * no text node, so removing the element removes the entire claim. A review pass
- * reported "zero actionable findings" from exactly that shape of sweep while
- * this was live in a meta description:
+ * A truth sweep that strips tags from raw HTML and greps the remainder cannot
+ * see head metadata at all: `<meta name="description" content="…">` has no text
+ * node, so removing the element removes the entire claim. A review reported
+ * "zero actionable findings" from exactly that shape of sweep while this was
+ * live in a meta description, an og:description, a twitter:description and the
+ * JSON-LD:
  *
  *   "why resizing beats any codec choice for saving bytes"
  *
- * The claim was indexable, shown in search results, and false. It survived
- * because the sweep deleted the element that carried it.
+ * The same blindness applied to text outside `<main>` (footer, `<noscript>`)
+ * and to accessibility strings — an `aria-label` is read aloud to a real
+ * person, so a false claim in one is published, not hidden.
  *
- * A title, a meta description, an OG/Twitter description and a JSON-LD string
- * are published factual claims. They are frequently the ONLY thing a person
- * reads before deciding whether to click. They must be audited as prose.
+ * ── What this is and is not ────────────────────────────────────────────────
  *
- * Uses the parsed DOM, never a regex over stripped text — parsing is what makes
- * the attribute reachable in the first place.
+ * This is COVERAGE INFRASTRUCTURE. It decides which strings a human or a test
+ * gets to look at. It does not decide whether any of them are true — no regex
+ * does. Its only job is that nothing published is invisible to review.
  *
- * `visibleText` is deliberately separate from the rest: the duplication audit
- * measures visible prose only, and folding metadata into it would change what
- * that measurement means.
+ * Implementation data — classes, ids, hrefs, hashes, CSS, script bodies — is
+ * deliberately excluded. It is not a claim and it drowns the signal.
  */
 export function claimSurface(page) {
   const { dom } = page
 
-  const main = dom.querySelector('main') ?? dom
-  const visibleText = main.innerHTML
-    .replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&#39;|&apos;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/\s+/g, ' ')
-    .trim()
+  const clean = (html) =>
+    html
+      .replace(/<(script|style|template)\b[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&#39;|&apos;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+      .replace(/\s+/g, ' ')
+      .trim()
 
-  /* Every factual string inside the JSON-LD graph, at any depth. `@id`, URLs
-   * and type names are identifiers rather than prose, so they are skipped. */
-  const SKIP = new Set(['@context', '@type', '@id', 'url', 'item', 'sameAs', 'inLanguage'])
-  const jsonLdStrings = []
-  const collect = (node) => {
-    if (typeof node === 'string') {
-      if (!/^https?:\/\//.test(node)) jsonLdStrings.push(node)
-      return
-    }
-    if (Array.isArray(node)) return node.forEach(collect)
-    if (node && typeof node === 'object') {
-      for (const [key, value] of Object.entries(node)) {
-        if (!SKIP.has(key)) collect(value)
-      }
+  /** `<main>` only — what the duplication audit measures. */
+  const mainEl = dom.querySelector('main')
+  const mainText = clean(mainEl ? mainEl.innerHTML : dom.innerHTML)
+
+  /** The whole body: header, main, FOOTER and `<noscript>` included. */
+  const bodyEl = dom.querySelector('body') ?? dom
+  const bodyText = clean(bodyEl.innerHTML)
+
+  /**
+   * Public strings that only assistive tech or a tooltip ever surfaces. These
+   * are read aloud to real people, so a false claim here is published.
+   * Decorative alt (`alt=""`) and icon-sized labels carry no claim.
+   */
+  const accessible = []
+  for (const el of dom.querySelectorAll('[aria-label], [aria-description], [title], img[alt]')) {
+    for (const attr of ['aria-label', 'aria-description', 'title', 'alt']) {
+      const value = el.getAttribute(attr)
+      if (value && value.trim().length > 2) accessible.push(value.trim())
     }
   }
-  for (const script of dom.querySelectorAll('script[type="application/ld+json"]')) {
-    try {
-      collect(JSON.parse(script.text))
-    } catch {
-      jsonLdStrings.push(`UNPARSEABLE JSON-LD in ${page.rel}`)
-    }
-  }
+  const accessibleText = [...new Set(accessible)].join(' \u2022 ')
 
-  const surface = {
-    visibleText,
+  const headClaims = {
     title: dom.querySelector('title')?.text?.trim() ?? null,
     description: meta(dom, 'description'),
     ogTitle: prop(dom, 'og:title'),
@@ -132,28 +130,54 @@ export function claimSurface(page) {
     twitterTitle: meta(dom, 'twitter:title'),
     twitterDescription: meta(dom, 'twitter:description'),
     twitterImageAlt: meta(dom, 'twitter:image:alt'),
-    jsonLdText: jsonLdStrings.join(' \u2022 '),
   }
 
-  /** Everything a human or a crawler can read, as one string. */
-  surface.all = Object.entries(surface)
-    .filter(([key]) => key !== 'all')
-    .map(([, value]) => value)
+  /*
+   * Factual values inside the JSON-LD graph, at any depth. Identifiers and URLs
+   * are not claims; NUMBERS AND BOOLEANS ARE — a fake `ratingValue` or
+   * `price` would be a structured-data lie, so primitives are collected too.
+   */
+  const SKIP = new Set(['@context', '@type', '@id', 'url', 'item', 'sameAs', 'inLanguage'])
+  const jsonLdValues = []
+  const collect = (node) => {
+    if (typeof node === 'string') {
+      if (!/^https?:\/\//.test(node)) jsonLdValues.push(node)
+      return
+    }
+    if (typeof node === 'number' || typeof node === 'boolean') {
+      jsonLdValues.push(String(node))
+      return
+    }
+    if (Array.isArray(node)) return node.forEach(collect)
+    if (node && typeof node === 'object') {
+      for (const [key, value] of Object.entries(node)) if (!SKIP.has(key)) collect(value)
+    }
+  }
+  for (const script of dom.querySelectorAll('script[type="application/ld+json"]')) {
+    try {
+      collect(JSON.parse(script.text))
+    } catch {
+      jsonLdValues.push(`UNPARSEABLE JSON-LD in ${page.rel}`)
+    }
+  }
+
+  const surface = {
+    mainText,
+    bodyText,
+    accessibleText,
+    ...headClaims,
+    jsonLdText: jsonLdValues.join(' \u2022 '),
+    /** Back-compat with callers written against the first version. */
+    visibleText: mainText,
+  }
+
+  /** Head + JSON-LD only — the half a tag-stripping sweep cannot see. */
+  surface.metadataOnly = [...Object.values(headClaims), surface.jsonLdText]
     .filter(Boolean)
     .join(' \u2022 ')
 
-  /** Head metadata alone — the half the old sweep could not see. */
-  surface.metadataOnly = [
-    surface.title,
-    surface.description,
-    surface.ogTitle,
-    surface.ogDescription,
-    surface.ogImageAlt,
-    surface.twitterTitle,
-    surface.twitterDescription,
-    surface.twitterImageAlt,
-    surface.jsonLdText,
-  ]
+  /** Everything a human or a crawler can read. The review surface. */
+  surface.all = [surface.bodyText, surface.accessibleText, surface.metadataOnly]
     .filter(Boolean)
     .join(' \u2022 ')
 

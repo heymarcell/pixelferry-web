@@ -302,7 +302,65 @@ export const capabilities = {
   metadataHeicCaveat:
     'HEIC output follows the same metadata policy as every other format, but the system sips tool writes a small EXIF block of its own, so a HEIC is never completely EXIF-free.',
   targetSize:
-    'A target file size re-encodes at successive quality values to fit it — up to eight attempts, down to quality 10. If even that overshoots, the smallest result is saved and reported rather than silently missing the target.',
+    'A target file size re-encodes at successive quality values to fit it — up to eight attempts, down to the search floor of quality 10. If even that overshoots, the smallest result is saved and reported rather than silently missing the target.',
+} as const
+
+/**
+ * ── STRUCTURED FACTS, SO PROSE CANNOT PARAPHRASE THEM WIDER ────────────────
+ *
+ * Every defect this project shipped in the "true in the model, broader on the
+ * page" class came from a page restating a fact as its own literal. The values
+ * below are the single source; pages compose wording around them rather than
+ * re-asserting them.
+ */
+
+/** The bounded target-size search — `pipeline.ts` `encodeToTargetSize`. */
+export const targetSizeSearch = {
+  /** TARGET_SIZE_FORMATS — the only outputs it applies to. */
+  formats: ['JPEG', 'WebP', 'AVIF'] as const,
+  /** TARGET_MAX_ITERATIONS. */
+  maxAttempts: 8,
+  /**
+   * TARGET_MIN_QUALITY — the SEARCH FLOOR, not the app's lowest quality. The
+   * quality control itself goes to 1; the search stops at 10 and reports a
+   * miss. Calling 10 "the lowest quality" is wrong in both directions.
+   */
+  qualityFloor: 10,
+  /** Never silently misses: it saves the smallest result and says so. */
+  reportsMiss: true,
+} as const
+
+/**
+ * Output formats whose own settings override a general control.
+ *
+ * ICO is the one that exists today: `main.ts` calls `encodeIcoOutput` BEFORE
+ * `applyResize`, so the resize pill never reaches it and the embedded icon
+ * sizes decide the dimensions instead.
+ */
+export const formatExceptions = [
+  {
+    format: 'ICO',
+    control: 'resize',
+    note: 'ICO output is sized by its embedded icon sizes, so the general resize control does not apply to it.',
+  },
+] as const
+
+/**
+ * What the bundled PSD reader can and cannot do — `decode.ts` + `@webtoon/psd`
+ * 0.4.0, whose `composite()` reads `this.imageData`, the Image Data section
+ * Photoshop writes when "Maximize Compatibility" is on. It does not render the
+ * layer stack.
+ */
+export const psdSupport = {
+  requiresCompatibilityComposite: true,
+  compositeNote:
+    'PixelFerry reads the flattened composite Photoshop stores when "Maximize Compatibility" is on. It does not render the layer stack, so a PSD saved without that composite has nothing useful to read.',
+  bitDepthNote:
+    'The reader handles 8-bit composites only, so a 16-bit PSD fails rather than converting.',
+  colourNote:
+    'It does not consult the document colour mode, so a CMYK PSD is misread rather than converted for screen.',
+  iccNote:
+    'The composite is handed to the encoder as bare pixels, so an embedded ICC profile is not carried through.',
 } as const
 
 /**

@@ -5,6 +5,7 @@ import {
   product,
   limits,
   capabilities,
+  psdSupport,
   formats,
   outputFormats,
   readOnlyFormats,
@@ -63,7 +64,9 @@ JavaScript to read, so crawling the HTML directly works just as well.
     .filter((f) => f.write !== false && f.quality)
     .map((f) => f.label)
     .join(', ')}. PNG has no quality control, and PixelFerry writes TIFF with lossless
-  LZW compression; GIF is a 256-colour palette. All output is 8-bit per channel.
+  LZW compression; GIF is a 256-colour palette. Those are lossless CODECS, not lossless
+  conversions: all output is 8-bit per channel, so a source with more tonal precision is
+  quantised on the way through.
 - Read but never written: ${readOnlyFormats.map((f) => f.label).join(', ')}.
 - Reading these needs macOS (they decode via ImageIO): ${exts([
     'raw',
@@ -85,7 +88,7 @@ JavaScript to read, so crawling the HTML directly works just as well.
 - Multi-page PDFs export one image per page into a folder named after the
   document; a single-page PDF is written as one plain file. Capped
   at the first ${limits.pdfPageCap} pages.
-- PSD/PSB are flattened to their stored composite.
+- ${psdSupport.compositeNote}
 - JPEG output flattens transparency onto white.
 - ${capabilities.neverOverwrites}
 - ${capabilities.metadata}

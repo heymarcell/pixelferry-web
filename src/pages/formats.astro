@@ -10,6 +10,7 @@ import {
   macOSOnlyReadFormats,
   macOSOnlyWriteFormats,
   formatCounts,
+  psdSupport,
   limits,
   product,
   type Format,
@@ -235,11 +236,9 @@ const toneClass: Record<string, string> = {
           <li class="border-doc-line bg-doc-panel rounded-lg border p-5">
             <p class="font-display text-doc-ink text-[16px] font-bold">PSD files are flattened</p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
-              Conversion uses the composite Photoshop stores in the file, so the result reflects the
-              document as it was last saved. Hidden layers stay hidden. The bundled decoder reads
-              8-bit composites only, does not consult the document colour mode, and does not carry
-              an embedded ICC profile through — so 16-bit files fail and CMYK is misread rather than
-              converted for screen.
+              {psdSupport.compositeNote} Hidden layers stay hidden. {psdSupport.bitDepthNote}{' '}
+              {psdSupport.colourNote}
+              {psdSupport.iccNote}
               <a href="/convert/psd-to-png" class="text-doc-link font-semibold hover:underline">
                 More on PSD conversion</a
               >.

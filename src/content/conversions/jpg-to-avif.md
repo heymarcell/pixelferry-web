@@ -26,9 +26,9 @@ whatChanges:
       encoder (sharp 0.35 / libvips 8.18, multithreaded, synthetic 12 MP source)
       AVIF at quality 80 took roughly 3–5x as long as mozjpeg and 2.5–3.5x as
       long as WebP across repeat runs. The multiple moves with the source and
-      the libvips build, so treat it as an order of magnitude rather than a
-      constant. It is a one-time cost at export rather than a per-request one,
-      though AVIF also costs the visitor more to decode than a JPEG.
+      the libvips build, so treat it as a measured range rather than a constant.
+      It is a one-time cost at export rather than a per-request one, though AVIF
+      also costs the visitor more to decode than a JPEG.
   - label: Bit depth, and what PixelFerry actually writes
     detail:
       The AVIF format handles 10- and 12-bit per channel and wide colour gamuts

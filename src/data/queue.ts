@@ -69,10 +69,39 @@ export const queue: QueueRow[] = [
   },
 ]
 
+/**
+ * The simulated batch, as NUMBERS.
+ *
+ * The strings below and the preview's accessible description are all derived
+ * from these. They used to be hand-written, and drifted: the summary bar said
+ * "24 files · 18 done · 2 converting · 4 ready" while the accessible label
+ * added "and one failed file", describing 25 files to a screen-reader user and
+ * 24 to everyone else.
+ *
+ * `total` is DERIVED, so the parts can never disagree with the whole again.
+ */
+export const counts = {
+  done: 17,
+  converting: 2,
+  ready: 4,
+  failed: 1,
+} as const
+
+export const totalFiles = counts.done + counts.converting + counts.ready + counts.failed
+
 export const summary = {
-  files: '24 files',
-  done: '18 done',
-  converting: '2 converting',
-  ready: '4 ready',
+  files: `${totalFiles} files`,
+  done: `${counts.done} done`,
+  converting: `${counts.converting} converting`,
+  ready: `${counts.ready} ready`,
   total: '86.4 MB total',
 }
+
+/**
+ * The one description assistive tech gets for the whole preview. Built from the
+ * same counts the visible summary bar renders, so the two cannot contradict.
+ */
+export const previewLabel =
+  `The PixelFerry window: a queue of ${totalFiles} mixed image files — HEIC, CR3 RAW, PSD, TIFF ` +
+  `and WebP — converting to PNG, with ${counts.done} done, ${counts.converting} converting, ` +
+  `${counts.ready} ready and ${counts.failed} failed file offering a retry.`

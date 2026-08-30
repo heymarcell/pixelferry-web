@@ -3,13 +3,18 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import { loadPages, claimSurface } from '../scripts/lib/pages.mjs'
 
 type Surface = {
+  mainText: string
+  bodyText: string
+  accessibleText: string
   visibleText: string
   title: string | null
   description: string | null
   ogTitle: string | null
   ogDescription: string | null
+  ogImageAlt: string | null
   twitterTitle: string | null
   twitterDescription: string | null
+  twitterImageAlt: string | null
   jsonLdText: string
   all: string
   metadataOnly: string
@@ -50,13 +55,16 @@ describe('the public claim surface', () => {
 
   /** Every field a claim can hide in, checked one at a time so the report names it. */
   const FIELDS: (keyof Surface)[] = [
-    'visibleText',
+    'bodyText',
+    'accessibleText',
     'title',
     'description',
     'ogTitle',
     'ogDescription',
+    'ogImageAlt',
     'twitterTitle',
     'twitterDescription',
+    'twitterImageAlt',
     'jsonLdText',
   ]
 
@@ -69,6 +77,16 @@ describe('the public claim surface', () => {
         return hit ? [`${rel} [${field}]: "${hit[0].trim()}"`] : []
       }),
     )
+
+  it('covers text outside <main>, and accessibility strings', () => {
+    const home = pages.find((p) => p.rel === 'index.html')!.surface
+    // The footer lives outside <main>; a claim there is published all the same.
+    expect(home.bodyText.length).toBeGreaterThan(home.mainText.length)
+    expect(home.bodyText).toContain('Private beta')
+    expect(home.mainText).not.toContain('Private beta')
+    // An aria-label is read aloud, so it is a published claim.
+    expect(home.accessibleText).toContain('PixelFerry window')
+  })
 
   it('actually reaches head metadata — the surface the old sweep could not see', () => {
     // A structural check, not a content one: if this ever comes back empty the
@@ -227,6 +245,100 @@ describe('pages derive product facts from the model', () => {
           /PSD and PDF are the exception/,
         )
       }
+    }
+  })
+})
+
+/**
+ * Structural invariants for the facts that kept drifting. Narrow on purpose —
+ * each one pins a defect that actually shipped, not a phrase someone dislikes.
+ */
+describe('structured product facts hold together', () => {
+  it('the app preview totals cannot contradict its status counts', async () => {
+    const { counts, totalFiles, summary, previewLabel } = await import('../src/data/queue')
+    expect(counts.done + counts.converting + counts.ready + counts.failed).toBe(totalFiles)
+    // The visible summary bar and the accessible label describe ONE batch.
+    expect(summary.files).toBe(`${totalFiles} files`)
+    expect(previewLabel).toContain(`queue of ${totalFiles} mixed image files`)
+    expect(previewLabel).toContain(`${counts.done} done`)
+    expect(previewLabel).toContain(`${counts.failed} failed`)
+  })
+
+  it('the rendered preview label matches the model', async () => {
+    const { previewLabel } = await import('../src/data/queue')
+    const pages = await loadPages()
+    const home = pages.find((p: { rel: string }) => p.rel === 'index.html')!
+    expect((claimSurface(home) as unknown as Surface).accessibleText).toContain(previewLabel)
+  })
+
+  it('describes the target-size floor as a floor, not as the lowest quality', async () => {
+    const { targetSizeSearch } = await import('../src/data/product')
+    expect(targetSizeSearch.qualityFloor).toBe(10)
+    const pages = await loadPages()
+    for (const page of pages) {
+      const all = (claimSurface(page) as unknown as Surface).all
+      // The app's quality control goes below 10; only the SEARCH stops there.
+      expect(all, `${page.rel} calls the search floor the lowest quality`).not.toMatch(
+        /lowest quality/i,
+      )
+    }
+  })
+
+  it('represents the ICO resize exception wherever the size rules are stated', async () => {
+    const { formatExceptions } = await import('../src/data/product')
+    const ico = formatExceptions.find((e) => e.format === 'ICO')!
+    // Assert the CONTENT of the fact, not merely that the page echoes whatever
+    // the constant happens to say — otherwise weakening the constant passes.
+    expect(ico.note, 'the note must say the resize control does not reach ICO').toMatch(
+      /does not apply|is ignored|do(?:es)? not reach/i,
+    )
+    const pages = await loadPages()
+    const home = (
+      claimSurface(
+        pages.find((p: { rel: string }) => p.rel === 'index.html')!,
+      ) as unknown as Surface
+    ).all
+    expect(home).toContain(ico.note)
+  })
+
+  it('states the PSD compatibility-composite requirement, not layer rendering', async () => {
+    const { psdSupport } = await import('../src/data/product')
+    expect(psdSupport.requiresCompatibilityComposite).toBe(true)
+    const pages = await loadPages()
+    const psdPages = pages.filter((p: { rel: string }) =>
+      /formats\.html|psd-to-(png|jpg)\.html/.test(p.rel),
+    )
+    expect(psdPages.length).toBeGreaterThanOrEqual(3)
+    for (const page of psdPages) {
+      const all = (claimSurface(page) as unknown as Surface).all
+      expect(all, `${page.rel} omits the compatibility-composite requirement`).toMatch(
+        /Maximize Compatibility/i,
+      )
+      // It must never claim the layer stack is rendered.
+      expect(all, `${page.rel} implies layer rendering`).not.toMatch(
+        /renders? the layer stack(?! *,? *so| *\.? *It does not)/i,
+      )
+    }
+  })
+
+  it('keeps lossless CODEC separate from lossless CONVERSION', async () => {
+    const { readFile } = await import('node:fs/promises')
+    const path = await import('node:path')
+    const llms = await readFile(
+      path.join(path.dirname(import.meta.dirname), 'dist', 'llms.txt'),
+      'utf8',
+    )
+    expect(llms).toMatch(/lossless CODECS, not lossless/i)
+    expect(llms).toMatch(/8-bit per channel/)
+  })
+
+  it('calls a 3-5x measured range a range, not an order of magnitude', async () => {
+    const pages = await loadPages()
+    for (const page of pages) {
+      const all = (claimSurface(page) as unknown as Surface).all
+      expect(all, `${page.rel} calls a small measured ratio an order of magnitude`).not.toMatch(
+        /order of magnitude/i,
+      )
     }
   })
 })

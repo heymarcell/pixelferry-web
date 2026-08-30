@@ -2,7 +2,7 @@
 import { Image } from 'astro:assets'
 import Icon from '../Icon.astro'
 import type { IconName } from '../icons'
-import { queue, summary, type RowStatus } from '../../data/queue'
+import { queue, summary, previewLabel, type RowStatus } from '../../data/queue'
 
 /**
  * A static, non-interactive rendering of the PixelFerry window.
@@ -13,10 +13,6 @@ import { queue, summary, type RowStatus } from '../../data/queue'
  * worse than no button at all. Everything inside is therefore `aria-hidden`
  * by virtue of the image role.
  */
-
-const previewLabel =
-  'The PixelFerry window: a queue of 24 mixed image files — HEIC, CR3 RAW, PSD, TIFF and WebP — ' +
-  'converting to PNG, with 18 done, 2 converting, 4 ready and one failed file offering a retry.'
 
 /*
  * The row's surface treatment, per status, straight from the Pencil tokens.

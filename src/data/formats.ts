@@ -145,7 +145,7 @@ export const formats: Format[] = [
     read: 'anywhere',
     write: false,
     group: 'Design and documents',
-    summary: 'Photoshop documents, read via the stored composite.',
+    summary: 'Photoshop documents, read via the compatibility composite Photoshop stores.',
     caveat:
       'Read only. The bundled decoder reads 8-bit composites and does not consult the document colour mode, so 16-bit fails and CMYK is misread rather than converted. No embedded ICC profile is carried through.',
   },
