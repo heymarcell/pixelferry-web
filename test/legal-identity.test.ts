@@ -59,20 +59,30 @@ describe('published legal identity', () => {
     }
   })
 
-  it('any remaining placeholder is disclosed by the DRAFT badge', () => {
+  it('publishes no bracketed placeholder at all', () => {
+    // Every field is resolved now. A placeholder reappearing is a regression,
+    // not a known-open item, so this is absolute rather than conditioned on the
+    // DRAFT badge.
     const PLACEHOLDER = /\[[A-Z][A-Z /]{3,}\]/g
     for (const page of legal) {
-      const open = page.all.match(PLACEHOLDER) ?? []
-      if (open.length > 0) {
-        expect(
-          page.all,
-          `${page.rel} still has ${open.join(', ')} but is not marked DRAFT`,
-        ).toMatch(/DRAFT/i)
-      }
-      // The contact mailbox is the only one still open. Anything else is a
-      // regression — the entity fields are resolved and must stay resolved.
-      const unexpected = open.filter((p) => p !== '[PRIVACY EMAIL ADDRESS]')
-      expect(unexpected, `${page.rel} has unexpected placeholders`).toEqual([])
+      expect(page.all.match(PLACEHOLDER) ?? [], `${page.rel} has placeholders`).toEqual([])
+    }
+  })
+
+  it('names a contact mailbox on the domain it publishes', () => {
+    for (const page of legal) {
+      expect(page.all, `${page.rel} has no contact address`).toMatch(/privacy@pixelferry\.app/)
+    }
+  })
+
+  /*
+   * The entity being resolved is not the same as the policy text being
+   * approved. The badge is about review by a qualified adviser, not about
+   * placeholders, so it stays.
+   */
+  it('still marks the policies as draft pending legal review', () => {
+    for (const page of legal) {
+      expect(page.all, `${page.rel} lost its DRAFT marking`).toMatch(/DRAFT/i)
     }
   })
 

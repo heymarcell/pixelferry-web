@@ -124,18 +124,34 @@ its CI, immediately before a cutover.
 The site is built, verified and deployed to the non-production preview.
 Production has **not** been cut over.
 
-Four human decisions or account prerequisites remain. Only one of them carries
-engineering after the decision: choosing the retention period unlocks a small
-`apps/api` change to implement the `waitlist_signups` deletion sweep. Nothing
-else here is blocked on code.
+**Two of the four original prerequisites are now resolved** — the controller
+identity and the mailboxes. Two remain, plus one item that surfaced with them:
 
-### 1. Legal controller identity — a decision, not a lookup
+- choose the waitlist retention period, which then unlocks a small `apps/api`
+  change to implement the `waitlist_signups` deletion sweep;
+- appoint the Article 27 EU representative;
+- obtain Cloudflare zone-edit capability, or cut over via the existing Pages
+  project, which needs no DNS change.
 
-`src/data/legal.ts` still carries `[LEGAL COMPANY NAME]`,
-`[FULL REGISTERED ADDRESS]`, `[COMPANY NUMBER]` and the three EU-representative
-fields. **No authoritative record of these exists in either repository.** They
-must not be inferred from the GitHub owner or the Cloudflare account — that
-would be inventing a legal fact. The pages carry a DRAFT badge.
+Nothing here is blocked on site code.
+
+### 1. Legal controller identity — RESOLVED 2026-08-30
+
+The controller is **neongod LLC**, principal address 447 Broadway, 2nd Floor,
+New York, NY 10013, United States, organised in Wyoming. Transcribed from the
+operator's published imprint at `lenuri.com/imprint` and the `LEGAL-NOTES.md` in
+that repository — a published page, not an inference from repository or
+Cloudflare account ownership.
+
+Deliberately NOT published, per the position recorded in those notes: the EIN,
+the FinCEN beneficial-ownership ID, the member's personal name and the Wyoming
+filing ID. No VAT field renders, because a Wyoming LLC has none.
+`test/legal-identity.test.ts` enforces all of that.
+
+**Still open: the Article 27 EU representative.** The policy states the position
+rather than leaving it blank. The same gap is open on `lenuri.com`, where the
+notes conclude one should be appointed before beta — the "occasional processing"
+exemption in Art. 27(2) is not arguable for a permanently open signup form.
 
 ### 2. Waitlist retention period — never chosen
 
@@ -149,17 +165,24 @@ chosen, `waitlist_signups` needs a deletion sweep in `apps/api` — the schedule
 handler already runs `sweepBugReports` and `pruneStaleActivations`, so this is a
 third job of the same shape, not new infrastructure.
 
-### 3. The mailboxes do not exist
+### 3. Mailboxes — RESOLVED 2026-08-30
 
-Measured on 2026-08-30:
+Cloudflare Email Routing is enabled on `pixelferry.app` (`Status: ready`), with
+the three `route*.mx.cloudflare.net` MX records and
+`v=spf1 include:_spf.mx.cloudflare.net ~all` in place. Three rules forward every
+address the site publishes to the operator's verified destination:
 
-- `pixelferry.app` has **no MX records**
-- Cloudflare Email Routing for the zone is **`Enabled: false`, `unconfigured`**
+| Address                  | Where it appears on the site        |
+| ------------------------ | ----------------------------------- |
+| `privacy@pixelferry.app` | the Privacy and Cookie policies     |
+| `hello@pixelferry.app`   | the footer contact link             |
+| `beta@pixelferry.app`    | the no-JavaScript waitlist fallback |
 
-So `hello@pixelferry.app` (footer, contact), `beta@pixelferry.app` (the no-JS
-waitlist fallback) and any privacy mailbox **receive nothing today**. A privacy
-policy that names a contact route which silently discards mail is worse than one
-that names none, so this has to be configured before the policy goes live.
+The catch-all stays disabled and drops, so nothing else is accepted.
+
+**`lenuri.com` has the same defect and it is still open**: no MX records, Email
+Routing unconfigured, while `lenuri.com/imprint` publishes `hello@lenuri.com` as
+its contact route. `neongod.io` shows `Enabled: true, Status: misconfigured`.
 
 ### 4. Cloudflare token cannot complete the target architecture
 
