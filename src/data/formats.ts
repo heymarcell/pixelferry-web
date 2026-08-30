@@ -220,7 +220,7 @@ export const formats: Format[] = [
     write: false,
     group: 'Specialist and legacy',
     summary:
-      'Legacy raster formats, usually stored uncompressed though both define run-length variants.',
+      'Legacy raster formats, usually stored uncompressed though each also defines a run-length-encoded variant.',
     caveat: 'Read only.',
   },
   {
@@ -313,7 +313,7 @@ export const formats: Format[] = [
     write: false,
     group: 'Specialist and legacy',
     summary: 'Multi-picture JPEG, used for stereo pairs.',
-    caveat: 'Read only, and only one view is converted.',
+    caveat: 'Read only. An MPO holds more than one image; the conversion produces a single output.',
   },
   {
     id: 'avci-heics',

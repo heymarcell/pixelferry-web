@@ -16,8 +16,9 @@ whatChanges:
   - label: Transparency is filled in
     detail:
       JPEG has no alpha channel. PixelFerry flattens transparent areas onto
-      white rather than the black that most image libraries default to, which is
-      what you want for a comp on a white page and not what you want for a logo.
+      white rather than the black the underlying encoder would default to, which
+      is what you want for a comp on a white page and not what you want for a
+      logo.
   - label: The layer stack is baked
     detail:
       The stored composite becomes the image. Blend modes, masks and adjustment
@@ -36,8 +37,10 @@ whatChanges:
 limitations:
   - Transparency is destroyed, not preserved. If the asset has a cut-out
     background, use PNG or WebP instead.
-  - PixelFerry writes baseline 8-bit RGB JPEG. CMYK and 16-bit PSDs are not
-    supported by the bundled decoder at all — convert those in Photoshop.
+  - PixelFerry writes 8-bit RGB JPEG. A 16-bit PSD fails outright — the bundled
+    decoder reads 8-bit composites only. A CMYK PSD is worse, because it does
+    not fail at all — it is misread, since the decoder never consults the
+    document's colour mode. Convert both in Photoshop.
   - PSD is input-only, so this is one-way — the JPEG cannot be turned back into
     a layered file.
 useCases:
@@ -80,7 +83,7 @@ enormous.
 ## Picking a quality
 
 The quality slider runs 1–100 and PixelFerry encodes with **mozjpeg**, which
-consistently produces smaller files than the standard JPEG encoder at the same
+generally produces smaller files than a baseline libjpeg encode at the same
 visual quality.
 
 Start at the app's default of 80, export a couple of representative comps, and

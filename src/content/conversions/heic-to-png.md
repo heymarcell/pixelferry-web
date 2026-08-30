@@ -30,17 +30,19 @@ whatChanges:
       ratio depends heavily on the photograph.
   - label: Alpha channel
     detail:
-      PNG has real per-pixel transparency. A camera HEIC has none to carry over,
-      so the result is fully opaque — but the channel exists, which matters if
-      the PNG is going straight into a compositing step.
+      PNG supports real per-pixel transparency, but a camera HEIC has none to
+      carry over and PixelFerry does not add one — measured, a photographic HEIC
+      decodes to three channels and the PNG comes out with three. If you need an
+      alpha channel for a compositing step, it has to come from the source.
   - label: Bit depth handling
     detail:
       PixelFerry writes 8-bit PNG. A 10-bit HEIC is quantised on the way
       through, exactly as it would be for JPEG, so PNG does not preserve the
       extra tonal precision an iPhone captured.
 limitations:
-  - The output is genuinely large. A folder of a few hundred iPhone photos
-    converted to PNG will run into gigabytes.
+  - The output is genuinely large. Converting a folder of iPhone photos to PNG
+    needs meaningfully more disk than the originals did — check the destination
+    has room before starting a big batch.
   - PNG is lossless but not magic — it cannot recover detail the HEIC encoder
     already discarded.
   - PixelFerry writes 8-bit PNG, so this is not a route for preserving 10-bit
@@ -74,11 +76,14 @@ Every time a lossy image is decoded, edited and re-saved, it loses a little
 more. That is generational loss, and it is why a meme that has been through
 fifteen phones looks the way it does.
 
-Converting HEIC to PNG draws a line under that: from the PNG onward, every save
-is exact. Two things it does not do. It cannot undo the loss the HEIC already
-baked in, and it does not carry more than 8 bits per channel through, because
-PixelFerry writes 8-bit PNG — so a 10-bit capture is quantised once, at this
-step, and is exact from then on.
+Converting HEIC to PNG draws a line under that: from the PNG onward, a save that
+stays lossless reproduces the pixels exactly. Re-export it as a JPEG and you are
+back to generational loss — the PNG protects you from the compounding, not from
+the next lossy encode.
+
+Two things it does not do. It cannot undo the loss the HEIC already baked in,
+and it does not carry more than 8 bits per channel through, because PixelFerry
+writes 8-bit PNG — so a 10-bit capture is quantised once, at this step.
 
 What it is not is a way to make the image better. A lossless container around a
 lossy image is still a lossy image. If you are converting purely so the file
@@ -92,10 +97,11 @@ Screenshots, logos and flat illustration compress beautifully. Photographs —
 where adjacent pixels differ by small random amounts because of sensor noise —
 barely compress at all.
 
-A 12-megapixel photo is roughly 12 million pixels × 4 bytes before compression —
-the decode carries an alpha channel through even when the camera HEIC has none —
-and DEFLATE has little repetition to exploit in photographic noise. A result
-many times the size of the HEIC is normal, and not a sign anything went wrong.
+A 12-megapixel photo is roughly 12 million pixels × 3 bytes before compression,
+and DEFLATE has little repetition to exploit in photographic noise. A PNG of
+photographic content can be much larger than the HEIC it came from, and that is
+normal rather than a sign anything went wrong. No published corpus fixes the
+ratio — it depends heavily on the image.
 
 If the destination can read them, [WebP](/convert/png-to-webp) in lossless mode
 reproduces that same 8-bit result exactly, and is usually smaller — see that

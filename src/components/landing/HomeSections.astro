@@ -47,7 +47,7 @@ const faqs = [
   },
   {
     q: 'Which macOS versions does it run on?',
-    a: `${product.minimumOS.label}, on ${product.architectures}. Only a macOS build target is declared. Cross-platform code paths exist and are unit-tested, but no Windows or Linux build has ever been produced or signed, so neither is offered.`,
+    a: `${product.minimumOS.label}, on ${product.architectures}. Only a macOS build target is declared. Cross-platform code paths exist and are unit-tested, but no Windows or Linux build is produced or signed by this project, so neither is offered.`,
   },
   {
     q: 'What can it convert to?',
@@ -67,7 +67,7 @@ const faqs = [
   },
   {
     q: 'Is metadata kept?',
-    a: 'Metadata removal is ON by default, so EXIF, XMP and IPTC — camera model, editing history, GPS coordinates — are stripped unless you turn it off. The ICC colour profile is deliberately kept either way, so removing your location does not silently reinterpret your colours. HEIC output is transcoded by the system sips tool rather than the bundled encoder, so this option does not govern it.',
+    a: `Metadata removal is ON by default, so EXIF, XMP and IPTC — camera model, editing history, GPS coordinates — are stripped unless you turn it off. The ICC colour profile is deliberately kept either way, so removing your location does not silently reinterpret your colours. ${capabilities.metadataHeicCaveat}`,
   },
   {
     q: 'When can I use it?',

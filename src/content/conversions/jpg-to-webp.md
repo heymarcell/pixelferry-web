@@ -38,9 +38,8 @@ whatChanges:
       red or blue edges — a red logo on white — can soften slightly. Lossless
       mode avoids it entirely.
 limitations:
-  - This is generation two of lossy compression. Converting from the original
-    source rather than from an already-compressed JPEG always gives a better
-    result.
+  - This is generation two of lossy compression. Where the original source is
+    still available, converting from that avoids the second generation entirely.
   - Some older software and a few email clients still do not render WebP, so it
     is a web delivery format rather than an archive or handoff format.
   - WebP is capped at 16383 pixels in either dimension, which very large
@@ -116,13 +115,14 @@ Two things are worth knowing before you start:
 
 ## Browser support is no longer the question
 
-WebP is supported by every current browser and has been for years. Safari picked
-it up in 14, which is the release everyone was waiting on.
+WebP is supported by every current major browser and has been for years. Safari
+picked it up in 14, which is the release everyone was waiting on.
 
 The remaining gaps are outside browsers: some desktop software, some older email
 clients, a few CMS upload validators. That makes WebP a **delivery** format.
-Keep your originals in something universal, and treat the WebP set as generated
-output — which is exactly how a batch converter fits into the workflow.
+Keep your originals in a widely-readable format, and treat the WebP set as
+generated output — which is exactly how a batch converter fits into the
+workflow.
 
 ## Converting a directory
 
@@ -130,9 +130,9 @@ Point PixelFerry at your images folder. It walks subfolders, so a
 `content/uploads/2024/…` tree comes in as one queue.
 
 Set WebP, pick a quality, and — usually the bigger win — set a maximum width. A
-great many sites serve 4000-pixel photographs into a 1200-pixel column. Capping
-the width saves more bytes than the codec change does, and doing both in the
-same pass means you only decode each file once.
+great many sites serve 4000-pixel photographs into a 1200-pixel column. When the
+gap is that wide, capping the width is usually the larger of the two savings —
+and doing both in the same pass means you only decode each file once.
 
 Each finished row shows the before and after size with the percentage saved, so
 you can see immediately whether the settings are doing what you hoped rather

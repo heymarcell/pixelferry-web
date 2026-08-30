@@ -10,9 +10,9 @@ to: PNG
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  PixelFerry reads the composite that Photoshop stores inside every PSD — the
-  flattened preview of the document as last saved — and writes it as a PNG. No
-  Photoshop licence, no Creative Cloud, no upload.
+  PixelFerry reads the composite Photoshop stores inside a PSD saved for
+  compatibility — the flattened preview of the document as last saved — and
+  writes it as a PNG. No Photoshop licence, no Creative Cloud, no upload.
 whatChanges:
   - label: Layers collapse
     detail:
@@ -38,8 +38,9 @@ limitations:
   - PixelFerry flattens to the stored composite. It does not render layers
     itself, so a PSD saved without a compatibility composite has nothing useful
     to read — save with "Maximize Compatibility" on.
-  - CMYK and 16-bit PSDs are not supported. The bundled decoder reads 8-bit RGB
-    composites only, so keep those in Photoshop.
+  - A 16-bit PSD fails outright — the bundled decoder reads 8-bit composites
+    only. A CMYK PSD does not fail; it is misread, because the decoder never
+    consults the document's colour mode. Convert both in Photoshop.
   - PSD and PSB are input-only. There is no route from a PNG back to a layered
     document.
 useCases:
@@ -56,7 +57,7 @@ macOSAlternative:
     composite. It handles a multi-selection too, so for a handful of files it is
     perfectly adequate and already installed.
   breaksDownWhen:
-    The folder is large, or the artboards are. Preview holds every open document
+    The folder is large, or the artboards are. Preview keeps every open document
     in memory, and its export cannot cap the output dimensions of a 6000px
     artboard in the same step — so resizing becomes a second pass over files you
     have already written.
@@ -119,6 +120,6 @@ Set PNG as the output. If the artboards are large — and design files usually a
 — set a max width in the same pass rather than writing 6000-pixel PNGs you will
 immediately resize somewhere else.
 
-PSDs are the slowest thing in a typical batch, because the composite has to be
-decoded before anything else can happen. The queue runs four at a time and each
-row shows its own progress, so a large file does not look like a hang.
+PSDs are often the slowest thing in a mixed batch, because the composite has to
+be decoded before anything else can happen. The queue runs four at a time and
+each row shows its own progress, so a large file does not look like a hang.

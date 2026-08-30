@@ -41,24 +41,28 @@ profiles. They are large, and outside their own ecosystems they are badly
 supported. That is a reasonable trade for a master file.
 
 **Delivery** — JPEG, PNG, WebP, AVIF, GIF. These are optimised to be small and
-to open everywhere. They discard what a viewer will not notice.
+widely readable. The lossy ones among them (JPEG, and WebP or AVIF in lossy
+mode) work by discarding detail; PNG and lossless WebP discard nothing and get
+their size from better compression alone.
 
 The mistakes almost always come from crossing the streams: archiving JPEGs, or
-trying to put a 60 MB TIFF into an email.
+emailing a full-resolution scanner TIFF.
 
 ## The delivery four, compared
 
 ### JPEG
 
-The universal default, and the reason is compatibility rather than quality.
-Effectively everything that opens images reads it — the standard dates to 1992.
+The default almost everywhere, and the reason is compatibility rather than
+quality. The standard dates to 1992 and support for it is about as broad as an
+image format gets.
 
 - **Lossy, no transparency, 8-bit** in the baseline form everything actually
   uses. The spec also defines 12-bit and lossless modes, but they are rare and
   PixelFerry does not write them.
 - Compresses photographs well and everything else badly. Sharp edges get visible
   ringing, which is why screenshots saved as JPEG look wrong.
-- Degrades on every re-save. Never use it as a working format.
+- Degrades on every re-save, so it is a poor choice as a working format — keep
+  an unedited original and re-export from that.
 
 **Use it when:** the file has to open somewhere you do not control.
 
@@ -69,8 +73,8 @@ The lossless default. Every pixel exact, real alpha channel.
 - Excellent on flat colour, text and line art — the DEFLATE compression finds
   the repetition.
 - Poor on photographs, where there is no repetition to find. A photographic PNG
-  is typically much larger than an equivalent JPEG, by a margin that depends
-  heavily on the image.
+  is typically much larger than the same image saved as a JPEG, by a margin that
+  depends heavily on the image.
 - Still the safest transparent format for compatibility.
 
 **Use it when:** you need transparency or exactness and cannot rely on WebP.
@@ -88,19 +92,23 @@ The one that quietly replaced both of the above for web use.
   out larger.
 - **Transparency with lossy colour**, which PNG (always lossless) and JPEG (no
   alpha) cannot offer. AVIF can do this too.
-- Supported in every current browser. Thinner support outside them.
+- Supported in every current major browser. Thinner support outside them.
 
 **Use it when:** it is going on a web page. This is the sensible default now.
 
 ### AVIF
 
-Usually the smallest. Slow to encode at the effort level PixelFerry uses, though
-AVIF encode time depends heavily on the encoder's speed setting.
+Often the smallest of these four on photographic content, though it depends on
+the image and on both encoders' settings. Slow to encode at the effort level
+PixelFerry uses, and AVIF encode time depends heavily on the encoder's speed
+setting.
 
 - Generally smaller than JPEG and WebP at comparable quality, most clearly on
   large photographs. How much depends on the image and on both encoders'
   settings, so measure rather than assume a percentage.
-- Markedly better on smooth gradients — skies band far less.
+- Designed to handle smooth gradients better than JPEG's 8x8 DCT, which is where
+  banding shows first. Whether it is visible depends on the image and the
+  setting — compare a sample.
 - The format handles 10- and 12-bit and wide gamut natively, and supports alpha
   with lossy colour — though PixelFerry writes 8-bit AVIF, so the depth is the
   format's headroom, not something this app can put in the file.
@@ -122,8 +130,8 @@ fallback.
    continue.
 
 3. **Is this for a web page you control?** Yes → AVIF with a WebP fallback, or
-   WebP alone if you want one tier and less complexity. No → JPEG at quality
-   85–90.
+   WebP alone if you want one tier and less complexity. No → JPEG, starting at
+   the app's default of 80 and adjusted after looking at the result.
 
 4. **Is it an archive master?** Then none of the above. Keep the RAW, TIFF or
    PSD.
@@ -135,9 +143,9 @@ does not. A quality value is a control on one specific encoder, not a unit — s
 there is no conversion table between JPEG's scale, WebP's and AVIF's, and any
 page offering one is guessing.
 
-What is safe to say is directional: the _useful_ range tends to sit lower as the
-codec gets better, so carrying a JPEG habit straight across to AVIF mostly buys
-encode time.
+That cuts both ways: a number carried over from JPEG can land too high or too
+low on another encoder, and at the top of AVIF's scale it mostly buys encode
+time. There is no direction of travel to assume — read the output instead.
 
 The method is the same for all of them. PixelFerry starts every lossy codec at
 quality 80. Convert a representative handful at that, read the per-row
@@ -147,12 +155,14 @@ could give you.
 
 ## About capture formats
 
-**HEIC** is what an iPhone shoots. Efficient, often 10-bit, and unreadable in a
-great deal of software — which is why
-[converting it to JPG](/convert/heic-to-jpg) is such a common task.
+**HEIC** is what an iPhone shoots in High Efficiency mode. Efficient, often
+10-bit, and well supported on current Apple and Windows systems but patchy
+outside them — which is why [converting it to JPG](/convert/heic-to-jpg) is such
+a common task.
 
-**Camera RAW** is not an image at all until something demosaics it, and
-different software produces different results from the same file. See
+**Camera RAW** is not a finished rendered image — it holds largely unprocessed
+sensor readings that have to be demosaiced and interpreted first, and different
+software produces different results from the same file. See
 [RAW to JPG](/convert/raw-to-jpg) for what that means in practice.
 
 **TIFF** is what print and imaging workflows keep masters in: a container that
@@ -166,6 +176,7 @@ Then [convert copies for delivery](/convert/tiff-to-jpg).
 - Keep the highest-quality original you have. Every delivery format is a
   generated artefact you can regenerate.
 - Never convert lossy → lossy repeatedly. Each pass compounds.
-- Resize before worrying about the codec. Serving a 4000px image into a 1200px
-  column wastes more bytes than any format choice recovers.
+- Resize before worrying about the codec. When an image is served at several
+  times the dimensions it is displayed at, cutting the dimensions is usually the
+  larger saving of the two — and it is the one you can check in a minute.
 - Match the format to the content, not to the habit.

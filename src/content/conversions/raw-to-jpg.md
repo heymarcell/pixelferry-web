@@ -1,9 +1,9 @@
 ---
 title: Convert camera RAW to JPG on Mac without uploading anything
 description:
-  CR3, NEF, ARW, RAF and DNG are sensor data, not pictures. What demosaicing
-  does, why macOS gives a different look from Lightroom, and how to batch a card
-  locally.
+  CR3, NEF, ARW, RAF and DNG hold unprocessed sensor readings, not finished
+  images. What demosaicing does, why macOS looks different from Lightroom, and
+  how to batch a card.
 heading: Convert camera RAW to JPG on a Mac
 from: RAW
 to: JPG
@@ -37,9 +37,11 @@ whatChanges:
       adjustments before converting, not after.
   - label: File size
     detail:
-      The JPEG is substantially smaller than the RAW. Most of that comes from
-      discarding the editing headroom you are no longer going to use, and the
-      exact ratio depends on the camera, the scene and the quality you pick.
+      The JPEG will generally be smaller than the RAW — it stores an 8-bit
+      rendered result rather than the full-precision sensor readings plus the
+      editing headroom you are no longer going to use. The ratio depends on the
+      camera, the scene and the quality you pick, so read the per-row figures
+      rather than expecting a fixed multiple.
 limitations:
   - RAW decoding here goes through macOS ImageIO, so this conversion is
     macOS-only and its look is ImageIO's, not your raw converter's.
@@ -52,8 +54,8 @@ useCases:
     before anyone has time to sit down and edit.
   - Producing a lightweight contact set for a client to pick selects from,
     keeping the RAW files for the ones they choose.
-  - Making an archive of viewable images alongside RAW originals that most
-    software will not open in a decade.
+  - Making an archive of viewable images alongside RAW originals, since a
+    proprietary RAW format depends on its vendor's decoder remaining available.
 macOSAlternative:
   method: Preview, or sips
   detail:
@@ -62,8 +64,8 @@ macOSAlternative:
     shot.jpg` works from Terminal and is scriptable.
   breaksDownWhen:
     You want the export capped to a delivery width, need to see at a glance
-    which of 400 frames failed to decode, or have a card with RAW, HEIC and JPEG
-    mixed together that should all end up as one consistent set.
+    which frames on a full card failed to decode, or have a card with RAW, HEIC
+    and JPEG mixed together that should all end up as one consistent set.
 related:
   - heic-to-jpg
   - tiff-to-jpg
@@ -125,10 +127,11 @@ Set JPG as the output, pick a quality — the app's default of 80 is the place t
 start — and set a width if these are going somewhere with a size limit. Four
 files convert at a time.
 
-Where this beats exporting from Preview is failure reporting. On a batch of
-several hundred, some frames will occasionally be unreadable — a card write that
-went wrong, a truncated transfer. PixelFerry marks those rows individually with
-an error and a retry, rather than silently ending up with 397 files where you
-expected 400. When a decode fails but the file itself is readable, it will
-salvage the embedded EXIF preview and flag the result as degraded, so a
-thumbnail can never quietly masquerade as a real conversion.
+Where this beats exporting from Preview is failure reporting. A card write that
+went wrong or a truncated transfer leaves a file that will not decode, and on a
+large card you will not spot it by eye. PixelFerry marks those rows individually
+with an error and a retry, rather than leaving you to notice that the output
+folder holds fewer files than the card did. When a decode fails but the file
+itself is readable, it will salvage the embedded EXIF preview and flag the
+result as degraded, so a thumbnail can never quietly masquerade as a real
+conversion.

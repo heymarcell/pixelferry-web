@@ -86,11 +86,12 @@ If the image was uploaded as a JPEG and re-encoded to WebP for serving — the
 common case, though not one the file can confirm — then converting to JPG is a
 third lossy generation, and each one is working on the previous one's artefacts.
 
-Start **above** the app's default of 80 — the source has already been through a
-lossy encode you did not control, and there is no original to fall back on. The
-JPEG will usually be larger than the WebP, because JPEG is the less efficient
-codec; convert two or three and read the per-row before/after figures rather
-than assuming a number.
+Start at the app's default of 80, look at the result, and move from there. The
+source has already been through a lossy encode you did not control and there is
+no original to fall back on, so this is a case for checking rather than
+guessing. The JPEG will usually be larger than the WebP, because JPEG is the
+less efficient codec; convert two or three and read the per-row before/after
+figures rather than assuming a number.
 
 If the image is going somewhere size-sensitive, resize it rather than dropping
 the quality. Fewer pixels at high quality looks considerably better than the
@@ -107,7 +108,9 @@ white box behind your subject. Convert to PNG instead.
 **An animated WebP.** Increasingly common for what used to be GIFs. JPEG holds
 one frame, so you get the first one and a note on the row saying only the first
 frame was converted. If you want the motion, target GIF — PixelFerry preserves
-every frame when the source and target both support animation.
+every frame when the source is animated and the target is GIF or WebP — the only
+two animated outputs PixelFerry writes. Turning whitespace trim on drops the
+extra frames, and the row says so rather than doing it silently.
 
 ## A mixed downloads folder
 

@@ -285,15 +285,14 @@ export type CookieRow = {
  * container-suffixed GA cookies and vendor defaults change.
  */
 export const cookieSchedule: { alwaysSet: CookieRow[]; onConsent: CookieRow[] } = {
-  alwaysSet: [
-    {
-      name: 'pf-consent',
-      provider: 'PixelFerry (first party)',
-      purpose: 'Remembers your cookie choices so they persist and can be withdrawn.',
-      category: 'Strictly necessary',
-      duration: 'Local storage, until cleared',
-    },
-  ],
+  /*
+   * EMPTY ON PURPOSE. With no analytics configured the site sets no cookie and
+   * writes no storage key — `test/e2e/security.spec.ts` asserts it in a real
+   * browser. A `pf-consent` row used to sit here describing a key nothing
+   * writes, which is a published cookie schedule naming a fiction. The row
+   * belongs back only in the same change that ships a consent tool.
+   */
+  alwaysSet: [],
   onConsent: [
     {
       name: '_ga, _ga_*',

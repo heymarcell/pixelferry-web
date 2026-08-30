@@ -22,8 +22,9 @@ whatChanges:
   - label: Colour space is remapped
     detail:
       A print-bound TIFF may be CMYK. The JPEG standard can carry CMYK, but
-      PixelFerry writes RGB JPEGs, so a CMYK TIFF is converted for screen. Some
-      saturated print colours have no RGB equivalent and shift.
+      PixelFerry writes RGB JPEGs, so a CMYK TIFF has to be brought into RGB on
+      the way through. Some saturated print colours have no RGB equivalent and
+      shift.
   - label: Lossless becomes lossy
     detail:
       TIFF with LZW compression is pixel-exact. JPEG discards high-frequency
@@ -31,9 +32,10 @@ whatChanges:
       delivery copy it is the entire point.
   - label: Size collapses
     detail:
-      A 16-bit scan is typically many times the size of the JPEG it converts to.
-      Most of that comes from the bit depth and the lossy transform together, so
-      the ratio varies with the scan.
+      A 16-bit scan will generally be far larger than the JPEG it converts to —
+      it stores two bytes per channel with no lossy transform, against JPEG's
+      one byte and a discarded high-frequency component. The ratio varies with
+      the scan, so read the per-row figures.
 limitations:
   - The conversion is one-way in quality terms. Keep the TIFF as the master — a
     JPEG can never be promoted back to an archive original.

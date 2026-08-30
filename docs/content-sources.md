@@ -46,11 +46,14 @@ For anything about what **PixelFerry itself does**:
 4. **README and docs, last** — and never as the sole basis for a published
    claim.
 
-The order is not academic. The app README asserted "SVG, **HEIC**, PSD, PDF, RAW
-are input-only" while the source had been writing HEIC all along; that one line
-propagated into this site's data model, its FAQ, its structured data, `llms.txt`
-and a test that enforced the false invariant. It is still wrong on app main
-(`e3f3fbf:README.md:81`) and corrected on PR #70 (`048a5a4:README.md:87`).
+The order is not academic. The app README once asserted "SVG, **HEIC**, PSD,
+PDF, RAW are input-only" while the source had been writing HEIC all along, and
+that one line propagated into this site's data model, its FAQ, its structured
+data, `llms.txt` and a test that enforced the false invariant. It is **corrected
+on app main today**: the README now lists JPG, PNG, WebP, HEIC, AVIF, TIFF, GIF
+and ICO as outputs and states that HEIC reads anywhere and writes on macOS. The
+ordering stands regardless — a README that agrees with the source is still not
+the thing to check first.
 
 For everything else:
 
@@ -109,7 +112,7 @@ Secondary sources are used for orientation, never as the basis of a figure.
 | macOS 14+, Apple silicon and Intel                                                             | `apps/desktop/package.json` `build.mac.minimumSystemVersion: "14.0"`                                                                                                                                                                                                                                                                                                                                              |
 | The format matrix — 76 extensions across 23 families, output set, quality formats              | `shared/constants.ts` `CROSS_PLATFORM_EXTENSIONS` (17) and `MACOS_ONLY_EXTENSIONS` (59); `shared/settings.ts` `OUTPUT_FORMAT_ORDER` and `QUALITY_FORMATS`. Mirrored into `src/data/formats.ts`, pinned by `test/format-model.test.ts`                                                                                                                                                                             |
 
-### Merged in PR #70 — verified on the resulting main
+### Landed via PR #70 — verified on app main
 
 | Claim                                                                                      | Evidence                                                                                                                                             |
 | ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -135,13 +138,16 @@ Two limits on what that proves, both stated on the site:
 - It is a claim about the **desktop app**, not the project. `api.pixelferry.app`
   exists and is deployed.
 
-As of the audited commits the shipping desktop app has **no network client at
-all** — no updater, no licence call, no telemetry, no crash reporter;
-`electron-updater` and Sentry appear in no lockfile, and the only `net.fetch`
-resolves a `file://` URL inside the app bundle. The app's own privacy policy
-describes update checks, licence validation, a beta safety check and bug reports
-in the present tense **for clients that have not been built**. So "nothing is
-uploaded" is true today, and will stop being true the moment an updater ships.
+The shipping desktop app has **no network client at all** — no updater, no
+licence call, no telemetry, no crash reporter; `electron-updater` and Sentry
+appear in no lockfile, and the only `net.fetch` resolves a `file://` URL inside
+the app bundle.
+
+The app's own privacy policy agrees: at app main it marks in-app bug reporting,
+the updater, licence validation and the kill-switch poll as **"Not yet
+active"**, and states that crash reporting and product analytics are not active
+either. So "nothing is uploaded" is true today, and will stop being true the
+moment an updater ships.
 
 ---
 

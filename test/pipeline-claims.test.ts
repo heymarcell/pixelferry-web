@@ -188,3 +188,103 @@ describe('the evidence document states only what is currently defensible', () =>
     expect(sources).toMatch(/never from a local\s+checkout/)
   })
 })
+
+/**
+ * FOUR RECURRENCE CLASSES, each already demonstrated on this branch.
+ *
+ * These run over BUILT HTML, not source, because that is what a reader sees —
+ * and with `<pre>`/`<code>` stripped first, so a `sips … formatOptions 85`
+ * example is structurally allowlisted rather than pattern-matched around.
+ *
+ * Deliberately narrow. This is not a truth engine; it is four specific shapes
+ * that came back after being removed once.
+ */
+describe('claim shapes that have already recurred', () => {
+  let pages: { name: string; text: string }[]
+
+  beforeAll(async () => {
+    const dist = path.join(path.dirname(import.meta.dirname), 'dist')
+    const entries = await readdir(dist, { recursive: true, withFileTypes: true })
+    pages = []
+    for (const e of entries) {
+      if (!e.isFile() || !/\.(html|txt)$/.test(e.name) || e.name === 'robots.txt') continue
+      const raw = await readFile(path.join(e.parentPath ?? dist, e.name), 'utf8')
+      const text = raw
+        .replace(/<(script|style|pre|code)[^>]*>[\s\S]*?<\/\1>/g, ' ')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&#(\d+);/g, (_, d) => String.fromCharCode(Number(d)))
+        .replace(/&[a-z]+;/g, ' ')
+        .replace(/\s+/g, ' ')
+      pages.push({ name: path.relative(dist, path.join(e.parentPath ?? dist, e.name)), text })
+    }
+    expect(pages.length).toBeGreaterThan(15)
+  })
+
+  const scan = (re: RegExp) =>
+    pages.flatMap(({ name, text }) =>
+      [
+        ...text.matchAll(new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g')),
+      ].map((m) => `${name}: "${m[0].trim()}"`),
+    )
+
+  /*
+   * A. CROSS-CODEC QUALITY EQUIVALENCE. /convert/jpg-to-avif said a sky that
+   * bands "at JPEG quality 60" holds together "at an equivalent AVIF setting" —
+   * while the same page correctly said the scales do not convert. The earlier
+   * guard only caught the form "equivalent to AVIF 60".
+   */
+  it('never implies a quality value transfers between codecs', () => {
+    const forms = [
+      /\b(?:JPEG|JPG|WebP|AVIF|HEIC)\s+quality\s+\d{1,3}[^.]{0,80}\bequivalent\b/i,
+      /\bequivalent\b[^.]{0,60}\b(?:JPEG|JPG|WebP|AVIF|HEIC)\s+(?:quality\s+)?\d{1,3}\b/i,
+      /\bequivalent\s+(?:JPEG|JPG|WebP|AVIF|HEIC)\s+setting\b/i,
+      /\b(?:JPEG|JPG|WebP|AVIF|HEIC)\s*\d{1,3}\s*(?:≈|~=|=)\s*(?:JPEG|JPG|WebP|AVIF|HEIC)\s*\d{1,3}/i,
+    ]
+    expect(forms.flatMap(scan)).toEqual([])
+  })
+
+  /*
+   * B. UNSUPPORTED QUALITY BANDS. 85-90, 80-85 and 55-65 were each removed as
+   * invented and each came back. Command examples are excluded structurally
+   * above, so any remaining hit is editorial prose.
+   */
+  it('prescribes no invented quality band in prose', () => {
+    expect(
+      scan(
+        /\b(?:5[0-9]|[6-9][0-9])\s*[–-]\s*(?:[6-9][0-9]|100)\b(?=[^%]{0,40}quality|\s*(?:quality|for JPEG))/i,
+      ),
+    ).toEqual([])
+    expect(scan(/\bquality\s+(?:5[0-9]|[6-9][0-9])\s*[–-]\s*(?:[6-9][0-9]|100)\b/i)).toEqual([])
+  })
+
+  /*
+   * C. GENERIC CODEC RANKINGS. "the smallest current web format" was the page
+   * TITLE; "usually the smallest" and "the slowest to encode" were the summary.
+   * A scoped sentence — naming the content type, the encoder or the conditions —
+   * is fine and is what those were replaced with.
+   */
+  it('asserts no unscoped codec ranking', () => {
+    const SCOPE =
+      // A sentence supplying its own causal mechanism is not the bare
+      // ranking this guard is aimed at.
+      /(?:on photographic|depends on|of these four|PixelFerry|measured|effort level|this encoder|though it|\bbecause\b)/i
+    const offenders = pages.flatMap(({ name, text }) =>
+      [...text.matchAll(/[^.]*\b(?:the|usually the|is the)\s+(?:smallest|slowest)\b[^.]*\./gi)]
+        .map((m) => m[0].trim())
+        .filter((s) => !SCOPE.test(s))
+        .filter((s) => !/smallest result/i.test(s)) // the target-size search, a product fact
+        .map((s) => `${name}: "${s.slice(0, 90)}"`),
+    )
+    expect(offenders).toEqual([])
+  })
+
+  /*
+   * D. UNSOURCED SIZE MULTIPLIER. "A result many times the size of the HEIC is
+   * normal" survived a pass whose report said unsupported multipliers were
+   * removed.
+   */
+  it('states no unsourced size multiple', () => {
+    expect(scan(/\bmany times\b[^.]{0,40}\b(?:the size|larger|bigger)\b/i)).toEqual([])
+    expect(scan(/\bseveral times\b[^.]{0,30}\b(?:the size|larger|bigger)\b/i)).toEqual([])
+  })
+})

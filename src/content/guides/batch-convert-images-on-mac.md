@@ -65,8 +65,8 @@ picker, and an Options panel for the format.
 
 **Where it stops:**
 
-- It degrades on large selections, because Preview is holding every image open
-  at once.
+- It degrades on large selections, because every image has to be open in the
+  window at once.
 - No resizing during the export itself. Tools → Adjust Size is a separate step —
   though it does work on a multi-selection: Apple documents displaying the
   images in one window, selecting them in the sidebar, then choosing Tools →
@@ -89,7 +89,7 @@ two options can do.
 
 - Add a "Copy Finder Items" step first or it converts in place and destroys the
   originals. This catches people out constantly.
-- Error handling is effectively nonexistent — a bad file stops the workflow.
+- A file the workflow cannot handle stops it, and finding which one is on you.
 - The image actions are old and the format list has not grown.
 
 ## 4. sips

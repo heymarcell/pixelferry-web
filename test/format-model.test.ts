@@ -27,8 +27,10 @@ import { PRODUCT_FACTS_APP_COMMIT } from '../src/data/product'
  * a manual step (see CLAUDE.md), and bumping the commit without re-copying
  * these arrays would defeat the point.
  *
- * The snapshot is transcribed from EXECUTABLE SOURCE, not from the README —
- * the README at this commit still calls HEIC input-only, and it is wrong.
+ * The snapshot is transcribed from EXECUTABLE SOURCE, not from the README. At
+ * the pinned commit the two agree — the README now lists the eight output
+ * formats and says HEIC reads anywhere and writes on macOS — but they have not
+ * always, and a README that happens to be right is not the thing to transcribe.
  */
 
 /** apps/desktop/src/shared/constants.ts — CROSS_PLATFORM_EXTENSIONS */

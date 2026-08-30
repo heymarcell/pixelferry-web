@@ -23,10 +23,10 @@ whatChanges:
   - label: Bit depth
     detail:
       HEIC can store more than 8 bits per channel, and iPhone HEIC often does —
-      notably for HDR captures. Baseline JPEG is 8-bit, so where the source
-      carried more precision the conversion quantises it. You are unlikely to
-      notice on a normal photo; a wide, smooth gradient like a clear sky is
-      where it shows.
+      and iPhone HDR captures are the common case. Baseline JPEG is 8-bit, so
+      where the source carried more precision the conversion quantises it. You
+      are unlikely to notice on a normal photo; a wide, smooth gradient like a
+      clear sky is where it shows.
   - label: Live Photos and depth data
     detail:
       A Live Photo is a HEIC still plus a separate video file, and portrait
@@ -77,10 +77,10 @@ picture inside is compressed with HEVC — the same codec family as H.265 video 
 which is considerably better at its job than the JPEG codec from 1992, which is
 the whole reason Apple switched.
 
-The catch is reach, and it is narrower than it used to be. macOS, iOS and
-current Windows all read HEIC, and many mainstream editors now do too. What
-still trips people up is everything else: upload forms with a fixed allow-list,
-older software, some content management systems and print portals.
+The catch is reach, and it is narrower than JPEG's. macOS, iOS and current
+Windows all read HEIC, and many mainstream editors now do too. What still trips
+people up is everything else: upload forms with a fixed allow-list, older
+software, some content management systems and print portals.
 
 On the web specifically, support is real but narrow. Safari has displayed HEIC
 in `<img>` and `<picture>` since version 17, and WKWebView with it. Outside

@@ -12,7 +12,10 @@ import { product, readableFormats, writableFormats, limits } from '../src/data/p
  *
  * Sources of truth, both in the private `heymarcell/pixelferry-app` repo:
  *   CLAUDE.md  — "macOS-only batch image converter (macOS 14+)"
- *   README.md  — §1 requirements, §2 supported formats, §7 the pipeline
+ *   shared/settings.ts, shared/constants.ts — the format and quality sets
+ *   main/pipeline.ts, main/main.ts             — what the pipeline does
+ *
+ * The README is deliberately NOT listed. It is checked last, if at all.
  */
 
 const ROOT = path.dirname(import.meta.dirname)
@@ -54,9 +57,10 @@ describe('product facts', () => {
    * The output set, and the ones that are genuinely never written, are pinned
    * against the app's executable source in `format-model.test.ts`. The
    * invariant that used to live here — "never claims HEIC as an output" —
-   * asserted the app README's stale §2 and was FALSE: the app has written HEIC
-   * via `encodeHeicViaSips` all along. Deleted rather than relaxed, because a
-   * test that enforces a wrong fact is worse than no test.
+   * asserted a stale line in the app README and was FALSE: the app has written
+   * HEIC via `encodeHeicViaSips` all along. Deleted rather than relaxed, because
+   * a test that enforces a wrong fact is worse than no test. The README has
+   * since been corrected upstream; the lesson about where to read has not.
    */
   it('never claims PSD, PDF or SVG as an output', () => {
     const outputs = writableFormats.map((f) => f.label.toUpperCase())

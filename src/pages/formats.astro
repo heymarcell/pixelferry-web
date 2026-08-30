@@ -68,8 +68,8 @@ const toneClass: Record<string, string> = {
           Formats PixelFerry can write
         </h2>
         <p class="text-doc-body max-w-[720px] text-[16px] leading-[1.6]">
-          Any input can be converted to any of these. Everything else on this page can be read but
-          not written.
+          Any input can be converted to any of these, with one platform exception — writing HEIC
+          needs macOS. Everything else on this page can be read but not written.
         </p>
         <ul class="grid list-none gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {
@@ -249,7 +249,7 @@ const toneClass: Record<string, string> = {
               JPEG output flattens transparency onto white
             </p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
-              JPEG has no alpha channel. White is used rather than the black most image libraries
+              JPEG has no alpha channel. White is used rather than the black the underlying encoder
               default to, which is what you want for a photo and not what you want for a logo —
               target PNG, WebP or AVIF for those.
             </p>
@@ -257,8 +257,10 @@ const toneClass: Record<string, string> = {
           <li class="border-doc-line bg-doc-panel rounded-lg border p-5">
             <p class="font-display text-doc-ink text-[16px] font-bold">Animation is conditional</p>
             <p class="text-doc-body mt-1.5 text-[15px] leading-[1.6]">
-              Animated GIF and WebP keep every frame when the target also supports animation.
-              Otherwise the first frame is written and the row says so.
+              Animated GIF and WebP keep every frame when the output is GIF or WebP — the only two
+              animated formats PixelFerry writes. Anything else, including AVIF, gets the first
+              frame, and so does any conversion with whitespace trim enabled. The row says so rather
+              than dropping frames silently.
             </p>
           </li>
         </ul>
@@ -271,8 +273,8 @@ const toneClass: Record<string, string> = {
         <p class="text-doc-body max-w-[720px] text-[16px] leading-[1.6]">
           {product.minimumOS.label}, on {product.architectures}. macOS only — the project declares a
           macOS build target alone. Cross-platform code paths exist and are unit-tested, but no
-          Windows or Linux build has ever been produced or signed, so neither is offered rather than
-          promised untested.
+          Windows or Linux build is produced or signed by this project, so neither is offered rather
+          than promised untested.
         </p>
         <p class="text-doc-muted max-w-[720px] text-[14px] leading-[1.6]">
           The read/write columns above distinguish what the conversion engine can do from what needs

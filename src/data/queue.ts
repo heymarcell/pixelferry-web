@@ -2,9 +2,16 @@
  * The exact queue staged in the Pencil design's app preview.
  *
  * This is a *rendering of the product UI*, not a screenshot, and it is labelled
- * as one — every row here corresponds to behaviour the app really has
- * (see src/data/product.ts): mixed formats in one queue, per-row status, the
+ * as one in the markup — every row here corresponds to behaviour the app really
+ * has (see src/data/product.ts): mixed formats in one queue, per-row status, the
  * PSD flatten, and a decode failure that offers a retry.
+ *
+ * THE FIGURES ARE ILLUSTRATIVE AND SAY SO ON THE PAGE. They are not benchmark
+ * results and must never be cited as any. Two rows previously showed a
+ * byte-identical "2.4 MB -> 340 KB (-86%)" for a HEIC and a CR3, which is not a
+ * plausible pair and put an unattributed compression percentage on the homepage
+ * — the exact class docs/content-sources.md bars. Keep them plausible, keep
+ * them distinct, and keep the caption.
  */
 export type RowStatus = 'complete' | 'converting' | 'ready' | 'error'
 
@@ -28,14 +35,14 @@ export const queue: QueueRow[] = [
   {
     id: 'heic',
     name: 'iphone-shoot.heic',
-    meta: '2.4 MB → 340 KB (−86%)',
+    meta: '2.4 MB → 612 KB (−75%)',
     thumb: heic,
     status: 'complete',
   },
   {
     id: 'raw',
     name: 'studio-camera.cr3',
-    meta: '2.4 MB → 340 KB (−86%)',
+    meta: '28.4 MB → 1.9 MB (−93%)',
     thumb: raw,
     status: 'complete',
   },

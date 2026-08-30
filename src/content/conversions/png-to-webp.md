@@ -63,7 +63,7 @@ macOSAlternative:
   detail:
     Running cwebp -lossless in.png -o out.webp gives the same pixels as the
     lossless mode here — byte sizes differ slightly, because the two pass
-    different effort settings to libwebp — and -q 80 -alpha_q 100 covers the
+    different options to libwebp — and -q 80 -alpha_q 100 covers the
     lossy-with-alpha case.
   breaksDownWhen:
     You want to see the saving per file, need to resize an asset set in the same
@@ -85,9 +85,9 @@ residual. PNG, designed in 1996, filters each row and hands the result to
 DEFLATE.
 
 Google's headline figure, on its WebP overview page, is **26% smaller than
-PNG**. The underlying _WebP Lossless and Alpha Study_ is more specific and more
-useful: WebP lossless measured **23% smaller than ZopfliPNG** and **42% smaller
-than libpng**.
+PNG**. Its separate _WebP Lossless and Alpha Study_ reports different figures
+against named baselines, which are more useful: WebP lossless measured **23%
+smaller than ZopfliPNG** and **42% smaller than libpng**.
 
 The baseline is the whole story. Against a PNG already squeezed by ZopfliPNG,
 expect nearer 23%; against a straight libpng export, nearer 42%. All three are
@@ -113,9 +113,10 @@ flat colour.
 Lossy WebP becomes interesting when the PNG contains a **photograph**. People
 save photographic content as PNG surprisingly often — a screenshot of a photo,
 an export that defaulted to PNG, a cut-out product shot — and for that material
-PNG is the wrong container entirely, and lossy WebP will usually be dramatically
-smaller. Convert a couple at the app's default of 80 and read the per-row
-figures before committing to a setting for the rest.
+PNG is the wrong container entirely, and lossy WebP will usually be far smaller
+— it is discarding detail where PNG is not. Convert a couple at the app's
+default of 80 and read the per-row figures before committing to a setting for
+the rest.
 
 This is where WebP earns its place over PNG for photographic cut-outs: **lossy
 colour with an alpha channel**. A product shot on a transparent background would

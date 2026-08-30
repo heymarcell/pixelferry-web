@@ -15,12 +15,16 @@
  *   4. only then README / docs
  *
  * When source and README disagree, SOURCE AND TESTS WIN. That is not
- * theoretical: at the pinned commit below the app README §2 still says
- * "SVG, HEIC, PSD, PDF, RAW are input-only", while `shared/settings.ts` lists
- * `heic` in VALID_FORMATS, OUTPUT_FORMAT_ORDER and QUALITY_FORMATS,
- * `main.ts` dispatches `format === 'heic'` to `encodeHeicViaSips`, and
- * `pipeline.test.ts` tests `buildHeicSipsArgs`. HEIC output is real; the
- * README is stale, and this site follows the source.
+ * theoretical. The app README once said "SVG, HEIC, PSD, PDF, RAW are
+ * input-only" while `shared/settings.ts` listed `heic` in VALID_FORMATS,
+ * OUTPUT_FORMAT_ORDER and QUALITY_FORMATS, `main.ts` dispatched
+ * `format === 'heic'` to `encodeHeicViaSips`, and `pipeline.test.ts` tested
+ * `buildHeicSipsArgs`. Following the README put a false claim on this site for
+ * a month.
+ *
+ * At the pinned commit the README AGREES with the source — it lists the eight
+ * output formats and says HEIC reads anywhere and writes on macOS. The ordering
+ * still stands: a README that happens to be right is not the thing to check.
  *
  * `npm test` guards the facts that have already drifted (see
  * `test/product-claims.test.ts`).
@@ -250,7 +254,7 @@ export const limits = {
   scalePercent: { min: 1, max: 1000 },
 } as const
 
-/** What the app does to an image, in pipeline order (README §7). */
+/** What the app does to an image, in pipeline order (`main/pipeline.ts`). */
 export const capabilities = {
   autoOrient: 'EXIF orientation is applied, so output matches the thumbnail.',
   /**
@@ -283,15 +287,14 @@ export const capabilities = {
   metadata:
     'Metadata removal is on by default: EXIF, XMP and IPTC are stripped, while the ICC colour profile is kept either way, so a Display P3 image stays Display P3.',
   /**
-   * HEIC output does NOT go through `applyFormat` — `main.ts` dispatches it to
-   * `encodeHeicViaSips` before the encoder switch — so the metadata option
-   * above does not govern it. What survives is whatever `sips` carries across.
-   */
-  /**
-   * Verified on the merged app main. The HEIC path previously bypassed the
-   * metadata policy — its PNG intermediate inherited Sharp's default, which
-   * strips even the ICC profile, so a Display P3 photo came out untagged. It now
-   * applies the same contract as every other encoder.
+   * HEIC output still takes its own route — `main.ts` dispatches it to
+   * `encodeHeicViaSips` before the encoder switch, rather than through
+   * `applyFormat` — but it now applies the SAME metadata contract explicitly:
+   * the PNG intermediate handed to `sips` gets `keepIccProfile()` when removal
+   * is on and `keepMetadata()` when it is off.
+   *
+   * It previously did not, and inherited Sharp's strip-everything default, so a
+   * Display P3 photo came out untagged. Verified on app main.
    *
    * True regardless: `sips` writes a small EXIF block of its own, so a HEIC is
    * never completely EXIF-free — that block is macOS's, not the source's.

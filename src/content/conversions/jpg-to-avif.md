@@ -1,18 +1,19 @@
 ---
-title: Convert JPG to AVIF on Mac — the smallest current web format
+title: Convert JPG to AVIF on a Mac — smaller files, slower encode
 description:
-  AVIF is usually among the smallest of the current web formats, at a real cost
-  in encoding time — several times mozjpeg. When to prefer WebP instead.
+  AVIF often produces smaller files than JPEG at comparable quality, at a real
+  cost in encoding time. What it does well, what it costs, and when to prefer
+  WebP instead.
 heading: Convert JPG to AVIF on a Mac
 from: JPG
 to: AVIF
 published: 2026-08-29
 updated: 2026-08-29
 summary:
-  AVIF is built on the AV1 video codec and is usually the smallest of the
-  widely-supported web formats, particularly on large photographs and smooth
-  gradients. It is also the slowest to encode, which is what shapes when it is
-  worth using.
+  AVIF is built on the AV1 video codec and often produces smaller files than
+  JPEG at comparable quality, particularly on large photographs and smooth
+  gradients. It is also markedly slower to encode on PixelFerry's encoder, which
+  is what shapes when it is worth using.
 whatChanges:
   - label: A newer, more capable codec
     detail:
@@ -35,17 +36,19 @@ whatChanges:
       natively. PixelFerry does not write them — it encodes 8-bit AVIF, the same
       depth as the JPEG you started from. Nothing is lost converting an 8-bit
       JPEG, but this is not a route to a higher-precision master.
-  - label: Gradients hold together better
+  - label: Where the codec has the most room to help
     detail:
-      AVIF's handling of smooth tonal transitions is noticeably better than
-      JPEG's. Skies, studio backdrops and soft shadows band far less at
-      aggressive compression levels.
+      Smooth tonal transitions — skies, studio backdrops, soft shadows — are
+      where JPEG's fixed 8x8 DCT shows banding first, and where AVIF's larger
+      blocks and richer prediction have the most to work with. Whether that is
+      visible on a given image depends on the content and the quality setting,
+      so compare a sample rather than assuming it.
 limitations:
   - Encoding is slow — roughly 3–5x mozjpeg and 2.5–3x WebP on PixelFerry's
     encoder, measured on a synthetic 12 MP source, one machine. A large batch is
     a background job, not something to wait on.
-  - Support is broad in browsers but thin outside them — desktop software, email
-    clients and CMS validators frequently reject AVIF.
+  - Support is broad in browsers and patchier outside them — desktop software,
+    email clients and upload validators often will not accept AVIF.
   - Converting from an existing JPEG is a second lossy generation, so the
     source's artefacts are preserved along with the picture.
 useCases:
@@ -81,11 +84,14 @@ The practical difference shows up most on:
 
 - **Large photographs.** The bigger the image, the more the better prediction
   and larger block sizes pay off.
-- **Smooth gradients.** This is AVIF's clearest visible advantage. A sky that
-  bands at JPEG quality 60 typically holds together at an equivalent AVIF
-  setting.
+- **Smooth gradients.** Skies and soft shadows are where JPEG's 8x8 DCT bands
+  first. AVIF has more room to avoid that, though how much shows on a given
+  image depends on the content and on where each encoder's quality control is
+  set — the two scales are not comparable, so this is a reason to test rather
+  than a conversion factor.
 - **Aggressive compression.** At low bitrates AVIF degrades into softness rather
-  than into JPEG's blocking and ringing, which reads as far less broken.
+  than into JPEG's blocking and ringing — a different kind of degradation, which
+  many people find less objectionable at the same file size.
 
 Where it wins least is small images and flat graphics, where the format overhead
 is proportionally larger and [WebP lossless](/convert/png-to-webp) is usually
@@ -104,9 +110,11 @@ look at them at the size they will be viewed, and read the per-row before/after
 figures. Then move the number and repeat. That takes a couple of minutes and
 beats any table.
 
-What is worth knowing before you start is that carrying a JPEG habit upward is
-the common mistake here — AVIF's useful range generally sits lower, and the
-encode time climbs steeply at the top of the scale.
+What is worth knowing before you start is that a JPEG habit does not transfer.
+The number that looked right there can look wrong here in either direction, so
+read the output rather than assuming a direction of travel. Encode time does
+rise with the quality setting, so reaching for the top of the scale costs time
+as well as bytes — though the only figures measured here are at quality 80.
 
 One measured illustration, on one file: against a deliberately noisy 12 MP test
 source, PixelFerry's encoder produced an AVIF at quality 80 that was _larger_
@@ -124,12 +132,13 @@ than taking that as given.
 ## Support, honestly
 
 In browsers, AVIF is supported across Chrome, Firefox, Safari and Edge, and has
-been for long enough to use without a second thought behind a `<picture>`
+been for several years, which makes it safe to serve behind a `<picture>`
 element with a fallback.
 
-Outside browsers the picture is much worse than WebP's. Many desktop image tools
-will not open an AVIF. Email clients largely will not render one. CMS upload
-validators frequently reject the type.
+Outside browsers, support is patchier than WebP's. Many desktop image tools do
+not open AVIF, email clients generally do not render it, and upload validators
+often reject the type. Check the specific destination rather than assuming
+either way.
 
 The conclusion is the same as WebP's, only more so: **AVIF is a delivery tier.**
 Keep the source, generate AVIF for the web, and keep a JPEG fallback for
@@ -139,7 +148,8 @@ everything that is not a browser.
 
 Set AVIF, start at the app's default of 80, set your delivery width, and start
 the batch — then go and do something else. Four images encode concurrently, and
-each takes several times longer than the JPEG equivalent would.
+on this encoder each takes several times longer than a JPEG would — see the
+measured ratios above for the conditions that number came from.
 
 The summary bar's estimate becomes useful here in a way it is not for fast
 formats: after the first few files finish, the remaining time is a real number

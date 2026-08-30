@@ -11,7 +11,8 @@ summary:
   the option most often skipped. Here is what macOS gives you, what the fit
   modes mean, and the order of operations that matters.
 takeaways:
-  - Resizing saves more bytes than switching format, and the two compound.
+  - When an image is served far larger than it displays, resizing is usually the
+    bigger saving of the two, and they compound.
   - Crop, fit and fill answer different questions — picking the wrong one
     silently ruins compositions.
   - The Finder Quick Action resizes to four named presets only; sips is the
@@ -52,9 +53,9 @@ window, selecting them in that window's sidebar, and then choosing Tools →
 Adjust Size to resize them together.
 
 The limits are practical rather than absolute. Every image has to be open in one
-window, Preview holds them all in memory, and there is no way to convert format
-or set quality in the same step — so it is comfortable for a handful of images
-and painful for a large folder.
+window at once, and there is no way to convert format or set quality in the same
+step — so it is comfortable for a handful of images and painful for a large
+folder.
 
 ### sips
 
@@ -116,7 +117,7 @@ first pass get scaled up along with everything else.
 **Resize from the original, not from a delivery copy.** Scaling a 1200px JPEG up
 to 2000px invents pixels and looks it. Go back to the source every time.
 
-**Do both in one pass.** Decoding a 60 MB TIFF is the expensive part. Resizing
+**Do both in one pass.** Decoding a large TIFF is the expensive part. Resizing
 and converting in a single operation decodes it once; doing them in two tools
 decodes it twice and writes a large intermediate to disk in between.
 
@@ -130,9 +131,12 @@ the resize happens between the decode and the encode:
    percentage.
 5. Encode to the target format at your quality.
 
-One decode, one write, four files at a time — with two exceptions: a target file
-size re-runs the decode and resize for each quality it tries, up to eight times,
-and HEIC output writes an intermediate before `sips` transcodes it. See
+One decode, one write, four files at a time. Target file size does not change
+that in the default configuration — the resized pixels are held once and each of
+the up-to-eight quality attempts re-encodes from them. It does re-run the decode
+and resize per attempt in the two cases where a raw round-trip would lose
+something: when you have turned metadata removal off, and for animated sources.
+HEIC output also writes an intermediate before `sips` transcodes it. See
 [JPG to WebP](/convert/jpg-to-webp) for what combining the two steps does to a
 real image folder.
 
