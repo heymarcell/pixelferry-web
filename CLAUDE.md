@@ -366,8 +366,23 @@ rollback are in `docs/deployment.md`, and it needs explicit authorisation.
 
 ## Open blockers
 
-Tracked in `docs/audits/astro-seo-rebuild-2026-08-29.md` §9. In short: the legal
-controller identity is unknown and every related field is a placeholder; the
-three linked mailboxes may not exist yet; `www.pixelferry.app` still answers 200
-instead of redirecting; and the production cutover needs Cloudflare account
-access.
+**The site is live on `pixelferry.app` and every infrastructure blocker is
+closed.** The four that used to be listed here are all resolved: the controller
+identity is published (`neongod LLC`), the mailboxes route through Cloudflare
+Email Routing with MX, SPF and DMARC live, `www` 301s to the apex via a zone
+Redirect Rule, and production was cut over through the existing Pages project,
+which already owned both hostnames and so needed no DNS change.
+
+Two items remain, and **neither is blocked on site code** — both are decisions
+only the operator can make:
+
+- **The waitlist retention period.** Nobody has chosen one. `legal.ts` says so
+  rather than inventing a number, and choosing it also unlocks a small
+  `apps/api` change to implement the `waitlist_signups` deletion sweep.
+- **The Article 27 EU representative.** Not appointed; `/privacy` states that
+  position explicitly rather than leaving the field blank.
+
+The legal copy also remains **pending review by a qualified adviser** — that is
+what the DRAFT badge means, and it is separate from the placeholders, which are
+gone. See `docs/deployment.md` for the verified launch state and
+`docs/audits/astro-seo-rebuild-2026-08-29.md` §9 for the original list.
