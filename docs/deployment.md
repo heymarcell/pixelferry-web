@@ -143,13 +143,25 @@ identity, the mailboxes, and production itself. What remains:
 - choose the waitlist retention period, which then unlocks a small `apps/api`
   change to implement the `waitlist_signups` deletion sweep;
 - appoint the Article 27 EU representative;
-- redirect `www.pixelferry.app` to the apex. It currently answers **200** with
-  the same content rather than 301. Every page carries a self-referencing
-  absolute canonical to `https://pixelferry.app`, so indexing consolidates and
-  this is not urgent, but two hostnames serving one site is still wrong.
+- ~~redirect `www.pixelferry.app` to the apex~~ — **DONE 2026-08-31.** A zone
+  Redirect Rule now sends www to the apex with a 301, using Cloudflare's own
+  "Redirect from WWW to root" template: wildcard `https://www.*` →
+  `https://${1}`, 301, **preserve query string ON**.
+
+  Preserve-query is not optional here. `?confirmed=1` is where Brevo returns a
+  visitor after double opt-in, and `src/lib/waitlist.ts` reads it to render the
+  "You're on the list" state. Dropping it would land a confirming visitor on a
+  plain homepage, so the signup would look like it had silently failed. Verified
+  that the parameter survives exactly once rather than being duplicated.
+
+  Verified live: `/privacy` → 301 to the apex; `/privacy/` and `/formats.html`
+  reach the canonical URL in two hops (www→apex, then the apex's own
+  normalisation); `/nope` still 404s rather than being masked; `?confirmed=1`
+  arrives intact and the confirmed state renders; and the apex itself still
+  returns a plain 200, so the filter did not catch it in a loop.
 
   **A Pages `_redirects` file cannot do this, and fails silently.** That was
-  tried and reverted. Pages accepts a host-prefixed source such as
+  tried first and reverted. Pages accepts a host-prefixed source such as
   `https://www.pixelferry.app/* https://pixelferry.app/:splat 301`, logs
   `Uploading _redirects`, reports a successful deploy, and then never applies
   the line. Proven on a throwaway preview deployment carrying two rules at once:
@@ -157,13 +169,12 @@ identity, the mailboxes, and production itself. What remains:
   rule did not fire. **Pages matches `_redirects` sources on the PATH only.**
   Absolute-URL sources are a Netlify feature, not a Pages one.
 
-  So this needs a zone-level Redirect Rule, and the OAuth token wrangler holds
-  has `zone (read)` only. In the dashboard: Rules → Redirect Rules → Create,
-  match `Hostname equals www.pixelferry.app`, dynamic redirect to
-  `concat("https://pixelferry.app", http.request.uri.path)`, status 301,
-  preserve query string.
-
-  Do not re-attempt this with `_redirects`. It looks like it worked.
+  Two things that cost time and are worth knowing next time. Wrangler has no
+  rulesets command, and its OAuth token carries `zone (read)`, so this cannot be
+  automated from this repo — it is a dashboard action. And the first
+  verification appeared to fail because Cloudflare was serving **cached 200s**
+  from before the rule existed; a cache-busting query string showed the 301
+  immediately. Always cache-bust when testing a new redirect.
 
 Nothing here is blocked on site code.
 
